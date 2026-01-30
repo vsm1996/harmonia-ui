@@ -107,7 +107,7 @@ export function EventsSection() {
 
   return (
     <section
-      className="py-24 px-4 md:px-8"
+      className="py-24 px-4 md:px-8 bg-accent/5 border-y border-accent/20"
       aria-labelledby="events-title"
     >
       <div className="max-w-7xl mx-auto">
@@ -119,7 +119,7 @@ export function EventsSection() {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
         >
-          <Badge variant="outline" className="mb-4 tracking-widest">
+          <Badge variant="outline" className="mb-4 tracking-widest border-accent/50 text-accent">
             SCHEDULE
           </Badge>
           <h2
@@ -129,7 +129,7 @@ export function EventsSection() {
             <InfectedText text="Descend Into" />
             <span className="text-accent"> The Events</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
+          <p className="text-accent/70 text-lg max-w-2xl mx-auto text-balance">
             Three days of panels, competitions, screenings, and experiences
             designed for true outcasts.
           </p>
@@ -163,7 +163,7 @@ export function EventsSection() {
         >
           <a
             href="#schedule"
-            className="text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors"
+            className="text-accent hover:text-accent/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors"
           >
             View Full Schedule
             <span aria-hidden="true">→</span>
@@ -190,10 +190,10 @@ function EventCard({
   const categoryStyle = CATEGORY_STYLES[event.category] || "bg-secondary text-secondary-foreground"
 
   return (
-    <Card className="h-full flex flex-col hover:border-primary/50 transition-colors duration-300 group">
+    <Card className="h-full flex flex-col border-accent/30 hover:border-accent/60 bg-background/50 backdrop-blur-sm transition-colors duration-300 group">
       <CardHeader className="flex-1">
         <div className="flex items-start justify-between gap-4">
-          <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
+          <CardTitle className="text-xl font-bold group-hover:text-accent transition-colors">
             {event.title}
           </CardTitle>
           <Badge className={`shrink-0 ${categoryStyle}`}>{event.category}</Badge>
@@ -203,7 +203,7 @@ function EventCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="mt-auto pt-0">
-        <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+        <div className="flex flex-col gap-1 text-sm text-accent/60">
           <span className="flex items-center gap-2">
             <ClockIcon />
             {event.time}
