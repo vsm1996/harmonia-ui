@@ -2,18 +2,20 @@
  * Ambient Field Monitor - Development tool for visualizing framework state
  *
  * Architecture Decision: Modular, composable structure
- * - Shows the canonical 4-input CapacityField model
- * - Displays derived InterfaceMode as a coherent state badge
- * - Field cards show derived values (energy, attention, valence)
- *
- * Pipeline visualization:
- * CapacityField (4 inputs) → InterfaceMode (coherent state) → Derived Fields → Components
+ * - Each field gets its own visualization component
+ * - Components subscribe to specific fields only (no over-fetching)
+ * - Visual design inspired by instrument panels: precision, clarity, readability
  *
  * Design Philosophy:
  * - Dark mode optimized for long development sessions
  * - Monospace fonts for numeric precision
  * - Color-coded by field type using OKLCH for perceptual uniformity
  * - Trend indicators for temporal awareness
+ *
+ * Phase 1 Updates:
+ * - CapacityField as first-class input (4 inputs: cognitive, temporal, emotional, valence)
+ * - InterfaceMode badge showing derived coherent state
+ * - Arousal removed for Phase 1 (Phase 2+ feature)
  */
 
 "use client"
@@ -22,17 +24,23 @@ import {
   useEnergyField,
   useAttentionField,
   useEmotionalValenceField,
+  useEmpathyContext,
+  deriveMode,
+  deriveModeLabel,
+  getModeBadgeColor,
 } from "@/lib/empathy"
+import type { InterfaceMode, CapacityField } from "@/lib/empathy"
 import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { motion } from "motion/react"
-import { CapacityFieldInspector } from "@/components/capacity-field-inspector"
 
 export function AmbientFieldMonitor() {
   return (
     <div className="space-y-8">
       <MonitorHeader />
-      <CapacityFieldInspector /> {/* Used the declared variable here */}
+      <InterfaceModeBadge />
       <FieldVisualizationGrid />
+      <CapacityFieldInspector />
       <NextStepsGuide />
     </div>
   )
@@ -47,10 +55,75 @@ function MonitorHeader() {
     <header className="space-y-3">
       <h2 className="text-3xl font-bold tracking-tight text-foreground">Ambient Field Monitor</h2>
       <p className="text-muted-foreground max-w-2xl text-balance">
-        Real-time visualization of the three core ambient fields. Each field represents a different aspect of user
-        capacity and emotional state, enabling components to respond empathetically.
+        Real-time visualization of the Field → Mode → Components pipeline.
+        The CapacityField (4 inputs) derives an InterfaceMode, which drives all UI adaptations.
       </p>
     </header>
+  )
+}
+
+/**
+ * Interface Mode Badge - Shows the derived coherent UI state
+ *
+ * This is the key insight: don't show "sliders controlling random stuff"
+ * Instead show "a coherent interface state" derived from the field.
+ *
+ * Modes: Calm | Focused | Exploratory | Minimal
+ */
+function InterfaceModeBadge() {
+  const { context } = useEmpathyContext()
+
+  // Build CapacityField from context
+  const field: CapacityField = {
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  }
+
+  // Derive mode and label
+  const mode = deriveMode(field)
+  const label = deriveModeLabel(mode)
+  const badgeColor = getModeBadgeColor(label)
+
+  return (
+    <Card className="p-4 border-border/50 bg-card/50 backdrop-blur-sm">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-muted-foreground">Interface Mode:</span>
+          <Badge
+            className="text-sm font-semibold px-3 py-1"
+            style={{
+              backgroundColor: badgeColor,
+              color: "oklch(0.12 0 0)",
+            }}
+          >
+            {label}
+          </Badge>
+        </div>
+
+        {/* Mode details */}
+        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <ModeIndicator label="Density" value={mode.density} />
+          <ModeIndicator label="Guidance" value={mode.guidance} />
+          <ModeIndicator label="Motion" value={mode.motion} />
+          <ModeIndicator label="Contrast" value={mode.contrast} />
+          <ModeIndicator label="Choices" value={mode.choiceLoad} />
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+/**
+ * Small mode indicator pill
+ */
+function ModeIndicator({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/50">
+      <span className="text-muted-foreground">{label}:</span>
+      <span className="font-mono text-foreground">{value}</span>
+    </span>
   )
 }
 
@@ -177,7 +250,6 @@ function FieldCard({ label, value, trend, velocity, description, color, icon, is
         </div>
 
         {/* Animated Progress Bar */}
-        {/* Animation: Motion library handles smooth transitions as values change */}
         <div className="relative h-3 bg-muted/50 rounded-full overflow-hidden">
           <motion.div
             className="absolute inset-y-0 left-0 rounded-full"
@@ -193,8 +265,114 @@ function FieldCard({ label, value, trend, velocity, description, color, icon, is
 }
 
 /**
+ * CapacityField Inspector - Shows the canonical 4-input model
+ *
+ * Architecture Decision: Renamed from "Raw State Inspector"
+ * - CapacityField is the FIRST-CLASS input object
+ * - Shows all 4 inputs: cognitive, temporal, emotional, valence
+ * - Arousal removed for Phase 1 (Phase 2+ feature)
+ */
+function CapacityFieldInspector() {
+  const { context } = useEmpathyContext()
+
+  return (
+    <Card className="p-6 space-y-4 border-border/50 bg-card/50 backdrop-blur-sm">
+      <div className="flex items-center gap-2">
+        <span className="text-xl">🔬</span>
+        <h3 className="text-lg font-semibold text-foreground">CapacityField Inspector</h3>
+        <Badge variant="outline" className="text-xs">Phase 1</Badge>
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        The canonical 4-input model that drives the entire framework.
+        Field → Mode → Tokens → Components.
+      </p>
+
+      {/* CapacityField as a single unified object */}
+      <div className="space-y-3">
+        <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+          CapacityField
+        </h4>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <StateRow
+            label="cognitive"
+            value={context.userCapacity.cognitive}
+            unit="0-1"
+            description="bandwidth available"
+          />
+          <StateRow
+            label="temporal"
+            value={context.userCapacity.temporal}
+            unit="0-1"
+            description="time/effort budget"
+          />
+          <StateRow
+            label="emotional"
+            value={context.userCapacity.emotional}
+            unit="0-1"
+            description="load tolerance"
+          />
+          <StateRow
+            label="valence"
+            value={context.emotionalState.valence}
+            unit="-1 to 1"
+            description="emotional direction"
+            isBipolar
+          />
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+/**
+ * Individual state value row with label and formatted value
+ * Design: Monospace for alignment, semantic colors for different value types
+ */
+interface StateRowProps {
+  label: string
+  value: number
+  unit: string
+  description?: string
+  isBipolar?: boolean
+}
+
+function StateRow({ label, value, unit, description, isBipolar = false }: StateRowProps) {
+  // Color coding based on value range
+  const getValueColor = () => {
+    if (isBipolar) {
+      if (value > 0.3) return "text-green-500"
+      if (value < -0.3) return "text-red-500"
+      return "text-yellow-500"
+    }
+    if (value > 0.7) return "text-green-500"
+    if (value < 0.3) return "text-red-500"
+    return "text-yellow-500"
+  }
+
+  return (
+    <div className="flex justify-between items-center py-2 px-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-colors">
+      <div className="flex flex-col">
+        <span className="text-sm font-mono text-foreground">{label}</span>
+        {description && (
+          <span className="text-xs text-muted-foreground">{description}</span>
+        )}
+      </div>
+      <div className="flex items-baseline gap-2">
+        <span className={`text-base font-mono font-semibold tabular-nums ${getValueColor()}`}>
+          {value.toFixed(3)}
+        </span>
+        <span className="text-xs text-muted-foreground font-mono">{unit}</span>
+      </div>
+    </div>
+  )
+}
+
+/**
  * Next Steps Guide - Helps developers understand what to build next
  * UX Decision: Always provide clear next actions in dev tools
+ *
+ * Updated: Changed "3-slider" to "4 inputs" for accuracy
  */
 function NextStepsGuide() {
   return (
@@ -205,12 +383,14 @@ function NextStepsGuide() {
           <h3 className="text-lg font-semibold text-foreground">Next Steps</h3>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          <strong className="text-foreground">Phase 1:</strong> Build the 4-slider input system to manually control the
-          CapacityField (cognitive, temporal, emotional, valence) and watch the InterfaceMode badge update in real-time.
+          <strong className="text-foreground">Phase 1:</strong> Build the 4-input control system
+          (cognitive, temporal, emotional, valence) to manually adjust CapacityField and see
+          the InterfaceMode and fields update in real-time.
         </p>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          <strong className="text-foreground">Then:</strong> Create adaptive components that respond to the derived mode
-          — not raw sliders — for coherent UI states like Calm, Focused, Exploratory, and Minimal.
+          <strong className="text-foreground">Then:</strong> Create components that respond to the
+          derived InterfaceMode — showing content, layout, and interaction adaptations based on
+          the coherent state (not individual sliders).
         </p>
       </div>
     </Card>

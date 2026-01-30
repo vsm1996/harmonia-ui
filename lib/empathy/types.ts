@@ -10,78 +10,61 @@
 
 /**
  * CapacityField - The 4-input model that drives the entire framework
- * This is the first-class "state of the human" that components respond to
  *
- * Pipeline: CapacityField → InterfaceMode → Tokens → Components
+ * This is the FIRST-CLASS input object. Everything else derives from this.
+ * - cognitive, temporal, emotional: 0-1 (capacity dimensions)
+ * - valence: -1 to +1 (emotional direction)
+ *
+ * Field → Mode → Tokens → Components is the pipeline.
  */
 export interface CapacityField {
-  /** Cognitive bandwidth available (attention, working memory) */
-  cognitive: number // 0..1
-
-  /** Time pressure inverse (1 = abundant time, 0 = urgent) */
-  temporal: number // 0..1
-
-  /** Emotional regulation capacity (1 = regulated, 0 = dysregulated) */
-  emotional: number // 0..1
-
-  /** Positive/negative affect (-1 to +1) - mood tone */
-  valence: number // -1..1
-}
-
-/**
- * @deprecated Use CapacityField instead - kept for backwards compatibility
- */
-export interface UserCapacity {
+  /** Cognitive bandwidth available (0 = overwhelmed, 1 = sharp) */
   cognitive: number
+
+  /** Time/effort budget (0 = rushed, 1 = abundant) */
   temporal: number
+
+  /** Emotional load tolerance (0 = fragile, 1 = resilient) */
   emotional: number
-}
 
-/**
- * @deprecated Use CapacityField.valence instead - kept for backwards compatibility
- * Arousal removed from Phase 1 (may return in Phase 2+)
- */
-export interface EmotionalState {
+  /** Emotional direction (-1 = negative, 0 = neutral, +1 = positive) */
   valence: number
-  arousal: number
 }
 
 // ============================================================================
-// Interface Mode - Derived Coherent State
+// Interface Mode - Derived from CapacityField
 // ============================================================================
 
 /**
- * Density mode - controls information density and visual complexity
+ * Density modes - How much information to show
  */
 export type DensityMode = "low" | "medium" | "high"
 
 /**
- * Guidance mode - how much explanation/labeling is shown
+ * Guidance modes - How much explanation/help to provide
  */
 export type GuidanceMode = "low" | "medium" | "high"
 
 /**
- * Motion mode - animation intensity
+ * Motion modes - Animation intensity
  */
 export type MotionMode = "off" | "subtle" | "expressive"
 
 /**
- * Contrast mode - visual contrast level
+ * Contrast modes - Visual contrast level
  */
 export type ContrastMode = "standard" | "boosted"
 
 /**
- * Choice load mode - reduces decision fatigue
+ * Choice load modes - Number of options/decisions
  */
 export type ChoiceLoadMode = "minimal" | "normal"
 
 /**
  * InterfaceMode - The coherent UI state derived from CapacityField
  *
- * Why modes exist:
- * - Mapping sliders directly to 50 UI changes feels arbitrary
- * - Modes create coherent states: "Calm", "Focused", "Exploratory", "Minimal"
- * - Components read modes, not raw slider values
+ * This prevents "sliders controlling random stuff" and instead gives
+ * "sliders selecting a coherent state"
  */
 export interface InterfaceMode {
   density: DensityMode
@@ -92,9 +75,44 @@ export interface InterfaceMode {
 }
 
 /**
- * Human-readable mode labels for display
+ * Human-readable mode labels for UI display
  */
 export type InterfaceModeLabel = "Calm" | "Focused" | "Exploratory" | "Minimal"
+
+// ============================================================================
+// User Capacity Model (Legacy - maps to CapacityField)
+// ============================================================================
+
+/**
+ * Three-dimensional model of user capacity
+ * All values normalized to 0-1 range
+ */
+export interface UserCapacity {
+  /** Cognitive bandwidth available (attention, working memory) */
+  cognitive: number
+
+  /** Time pressure inverse (1 = abundant time, 0 = urgent) */
+  temporal: number
+
+  /** Emotional regulation capacity (1 = regulated, 0 = dysregulated) */
+  emotional: number
+}
+
+// ============================================================================
+// Emotional State
+// ============================================================================
+
+/**
+ * Two-dimensional affect model (Russell's Circumplex)
+ * Note: Arousal is Phase 2+. Phase 1 uses only valence.
+ */
+export interface EmotionalState {
+  /** Positive/negative affect (-1 to +1) */
+  valence: number
+
+  /** Energy/activation level (0 to 1) - Phase 2+ */
+  arousal: number
+}
 
 // ============================================================================
 // Field Values with Temporal Context

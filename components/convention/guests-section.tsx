@@ -1,64 +1,131 @@
 /**
  * Guests Section - Featured Convention Guests
  *
- * Design decisions:
- * - Card hover effects respond to energy level
- * - Image placeholders use generated abstract patterns
- * - Valence influences the warmth of hover states
- * - Grid maintains readability at all energy levels
+ * Empathy-Driven Adaptations:
+ * - Low cognitive: Show fewer guests, simpler bios
+ * - Low emotional: Warmer, more welcoming language
+ * - Low temporal: Skip "view all" link, show essentials only
+ * - Density mode controls grid columns
  */
 
 "use client"
 
 import { motion } from "motion/react"
-import { useEnergyField } from "@/lib/empathy"
+import { useEmpathyContext, deriveMode } from "@/lib/empathy"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
 /**
- * Guest data
- * In production, this would include real images and bios
+ * Guest data with variants for different cognitive loads
  */
 const GUESTS = [
   {
     id: "kei-urana",
     name: "Kei Urana",
     role: "Gachiakuta Creator",
-    bio: "The mastermind behind the world of the Abyss. First US appearance.",
+    bio: {
+      full: "The mastermind behind the world of the Abyss. First US appearance.",
+      short: "Creator of Gachiakuta. First US visit.",
+    },
     featured: true,
   },
   {
     id: "voice-actor-1",
     name: "Yuki Kaji",
     role: "Voice Actor",
-    bio: "Known for Eren Yeager, bringing intensity to every role.",
+    bio: {
+      full: "Known for Eren Yeager, bringing intensity to every role.",
+      short: "Voice of Eren Yeager.",
+    },
     featured: true,
   },
   {
     id: "animator-1",
     name: "Shingo Yamashita",
     role: "Key Animator",
-    bio: "Action sequences that define modern anime aesthetics.",
+    bio: {
+      full: "Action sequences that define modern anime aesthetics.",
+      short: "Legendary action animator.",
+    },
     featured: false,
   },
   {
     id: "cosplay-judge",
     name: "Vampy Bit Me",
     role: "Cosplay Judge",
-    bio: "Professional cosplayer and craftsmanship expert.",
+    bio: {
+      full: "Professional cosplayer and craftsmanship expert.",
+      short: "Pro cosplayer & judge.",
+    },
     featured: false,
   },
 ] as const
 
+/**
+ * Section header text variants
+ */
+const HEADERS = {
+  full: {
+    title: "Meet The Legends",
+    description: "Industry icons, creators, and personalities who understand what it means to rise from nothing.",
+  },
+  reduced: {
+    title: "Meet The Legends",
+    description: "Industry icons and creators joining us this year.",
+  },
+  minimal: {
+    title: "Our Guests",
+    description: null,
+  },
+}
+
 export function GuestsSection() {
-  const energy = useEnergyField()
+  const { context } = useEmpathyContext()
+  const mode = deriveMode({
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  })
 
   /**
-   * Hover scale adapts to energy
-   * High energy = more dramatic hovers
-   * Low energy = subtle, less distracting
+   * Content level based on density mode
    */
-  const hoverScale = 1 + energy.value * 0.03
+  const contentLevel =
+    mode.density === "low" ? "minimal" : mode.density === "medium" ? "reduced" : "full"
+
+  const header = HEADERS[contentLevel]
+
+  /**
+   * Bio length based on cognitive capacity
+   */
+  const bioLength = context.userCapacity.cognitive > 0.5 ? "full" : "short"
+
+  /**
+   * Hover scale adapts to motion mode
+   */
+  const hoverScale = mode.motion === "expressive" ? 1.03 : mode.motion === "subtle" ? 1.01 : 1
+
+  /**
+   * Filter guests based on density
+   * Low density: only featured guests
+   * High density: all guests
+   */
+  const visibleGuests =
+    mode.density === "low" ? GUESTS.filter((g) => g.featured) : GUESTS
+
+  /**
+   * Grid columns based on density
+   */
+  const gridClass =
+    mode.density === "low"
+      ? "grid-cols-1 sm:grid-cols-2"
+      : "grid-cols-2 lg:grid-cols-4"
+
+  /**
+   * Show "view all" link only when choice load is normal
+   */
+  const showViewAll = mode.choiceLoad === "normal" && context.userCapacity.temporal > 0.4
 
   return (
     <section
@@ -81,18 +148,19 @@ export function GuestsSection() {
             id="guests-title"
             className="text-4xl md:text-6xl font-black tracking-tight mb-4"
           >
-            Meet The
-            <span className="text-primary"> Legends</span>
+            {header.title.split(" ").slice(0, -1).join(" ")}
+            <span className="text-primary"> {header.title.split(" ").slice(-1)}</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
-            Industry icons, creators, and personalities who understand
-            what it means to rise from nothing.
-          </p>
+          {header.description && (
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
+              {header.description}
+            </p>
+          )}
         </motion.header>
 
-        {/* Guests grid - 2x2 on mobile, 4 col on desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {GUESTS.map((guest, index) => (
+        {/* Guests grid - adapts columns to density */}
+        <div className={`grid ${gridClass} gap-4 md:gap-6`}>
+          {visibleGuests.map((guest, index) => (
             <motion.div
               key={guest.id}
               initial={{ opacity: 0, y: 30 }}
@@ -107,27 +175,30 @@ export function GuestsSection() {
                 guest={guest}
                 hoverScale={hoverScale}
                 index={index}
+                bioLength={bioLength}
               />
             </motion.div>
           ))}
         </div>
 
-        {/* More guests link */}
-        <motion.div
-          className="mt-12 text-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-        >
-          <a
-            href="#guests"
-            className="text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors"
+        {/* More guests link - conditionally shown */}
+        {showViewAll && (
+          <motion.div
+            className="mt-12 text-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
           >
-            View All 50+ Guests
-            <span aria-hidden="true">→</span>
-          </a>
-        </motion.div>
+            <a
+              href="#guests"
+              className="text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors"
+            >
+              View All 50+ Guests
+              <span aria-hidden="true">→</span>
+            </a>
+          </motion.div>
+        )}
       </div>
     </section>
   )
@@ -136,7 +207,6 @@ export function GuestsSection() {
 /**
  * Guest card gradient backgrounds
  * Maps to chart colors from the Gachiakuta theme
- * Uses Tailwind's built-in chart color classes
  */
 const GUEST_GRADIENTS = [
   "from-chart-1/40 to-chart-1/15", // Rust
@@ -147,22 +217,21 @@ const GUEST_GRADIENTS = [
 
 /**
  * Individual guest card
- * Uses themed gradients that respond to the Gachiakuta color system
+ * Adapts bio length based on cognitive capacity
  */
 function GuestCard({
   guest,
   hoverScale,
   index,
+  bioLength,
 }: {
   guest: (typeof GUESTS)[number]
   hoverScale: number
   index: number
+  bioLength: "full" | "short"
 }) {
-  /**
-   * Cycle through themed gradients based on index
-   * Creates visual variety while maintaining palette consistency
-   */
   const gradientClass = GUEST_GRADIENTS[index % GUEST_GRADIENTS.length]
+  const bio = guest.bio[bioLength]
 
   return (
     <motion.div
@@ -170,11 +239,10 @@ function GuestCard({
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       <Card className="overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 transition-colors">
-        {/* Abstract image placeholder using themed gradients */}
+        {/* Abstract image placeholder */}
         <div
           className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}
         >
-          {/* Noise texture overlay for grungy aesthetic */}
           <div
             className="absolute inset-0 opacity-40 mix-blend-overlay"
             style={{
@@ -182,15 +250,11 @@ function GuestCard({
             }}
             aria-hidden="true"
           />
-
-          {/* Featured badge */}
           {guest.featured && (
             <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground">
               Featured
             </Badge>
           )}
-
-          {/* Gradient overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
         </div>
 
@@ -202,7 +266,7 @@ function GuestCard({
             {guest.role}
           </p>
           <p className="text-muted-foreground text-sm line-clamp-2">
-            {guest.bio}
+            {bio}
           </p>
         </CardContent>
       </Card>

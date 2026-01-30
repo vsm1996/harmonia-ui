@@ -1,37 +1,84 @@
 /**
  * Hero Section - Convention Landing Hero
  *
- * Design decisions:
- * - Full viewport height to create immersive entry
- * - Typography responds to energy field via φ-based scaling
- * - Motion animations scale down with lower energy (Myoho principle)
- * - Grungy, industrial aesthetic inspired by Gachiakuta's Abyss
+ * Empathy-Driven Adaptations:
+ * - Low cognitive: Simpler tagline, fewer CTAs
+ * - Low emotional: Warmer, more supportive tone
+ * - Low temporal: Direct messaging, skip secondary info
+ * - Negative valence: Calmer animations, gentler language
  */
 
 "use client"
 
 import { motion } from "motion/react"
-import { useEnergyField, useEmotionalValenceField } from "@/lib/empathy"
+import { useEmpathyContext, deriveMode } from "@/lib/empathy"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
+/**
+ * Content variants based on capacity state
+ * Each key represents a different cognitive/emotional load level
+ */
+const TAGLINES = {
+  full: {
+    main: "Where the discarded become legendary.",
+    sub: "The ultimate celebration of outcasts, underdogs, and anime.",
+  },
+  reduced: {
+    main: "Where the discarded become legendary.",
+    sub: null, // Remove secondary text when capacity is low
+  },
+  minimal: {
+    main: "Join us in the Abyss.",
+    sub: null,
+  },
+}
+
+const TONES = {
+  neutral: {
+    cta: "GET TICKETS",
+    secondary: "VIEW SCHEDULE",
+  },
+  supportive: {
+    cta: "JOIN US",
+    secondary: "LEARN MORE",
+  },
+}
+
 export function HeroSection() {
-  const energy = useEnergyField()
-  const valence = useEmotionalValenceField()
+  const { context } = useEmpathyContext()
+  const mode = deriveMode({
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  })
 
   /**
-   * Animation intensity scales with energy
-   * Low energy = subtle, almost static
-   * High energy = dynamic, expressive
+   * Derive content complexity from mode
    */
-  const animationIntensity = 0.3 + energy.value * 0.7
+  const contentLevel =
+    mode.density === "low" ? "minimal" : mode.density === "medium" ? "reduced" : "full"
+
+  const tagline = TAGLINES[contentLevel]
+  const tone = mode.guidance === "high" || context.emotionalState.valence < 0 ? "supportive" : "neutral"
+  const ctaText = TONES[tone]
+
+  /**
+   * Animation intensity scales with motion mode
+   */
+  const animationIntensity =
+    mode.motion === "off" ? 0.3 : mode.motion === "subtle" ? 0.6 : 1
+
+  /**
+   * Show secondary CTA only when not in minimal mode
+   */
+  const showSecondaryCTA = mode.choiceLoad === "normal"
 
   /**
    * Valence influences color warmth
-   * Positive = warmer accent tones
-   * Negative = cooler, more muted
    */
-  const warmthShift = valence.value * 10
+  const warmthShift = context.emotionalState.valence * 10
 
   return (
     <section
@@ -47,11 +94,11 @@ export function HeroSection() {
         aria-hidden="true"
       />
 
-      {/* Animated gradient overlay - responds to valence */}
+      {/* Animated gradient overlay */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background"
         animate={{
-          opacity: 0.8 + valence.value * 0.1,
+          opacity: 0.8 + context.emotionalState.valence * 0.1,
         }}
         transition={{ duration: 1.5 }}
         aria-hidden="true"
@@ -59,24 +106,26 @@ export function HeroSection() {
 
       {/* Main content container */}
       <div className="relative z-10 max-w-5xl mx-auto text-center">
-        {/* Event date badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.6 * animationIntensity,
-            delay: 0.2,
-          }}
-        >
-          <Badge
-            variant="outline"
-            className="mb-6 text-sm tracking-widest uppercase border-primary/50"
+        {/* Event date badge - hide when temporal is low */}
+        {context.userCapacity.temporal > 0.3 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.6 * animationIntensity,
+              delay: 0.2,
+            }}
           >
-            August 15-17, 2026
-          </Badge>
-        </motion.div>
+            <Badge
+              variant="outline"
+              className="mb-6 text-sm tracking-widest uppercase border-primary/50"
+            >
+              August 15-17, 2026
+            </Badge>
+          </motion.div>
+        )}
 
-        {/* Main title - massive, impactful */}
+        {/* Main title */}
         <motion.h1
           id="hero-title"
           className="font-sans font-black tracking-tighter leading-none mb-6"
@@ -95,7 +144,7 @@ export function HeroSection() {
           <span className="block text-foreground/90">CON</span>
         </motion.h1>
 
-        {/* Tagline - references Gachiakuta themes */}
+        {/* Tagline - adapts to cognitive/emotional load */}
         <motion.p
           className="text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance"
           initial={{ opacity: 0, y: 20 }}
@@ -105,14 +154,16 @@ export function HeroSection() {
             delay: 0.5,
           }}
         >
-          Where the discarded become legendary.
-          <br />
-          <span className="text-foreground/60">
-            The ultimate celebration of outcasts, underdogs, and anime.
-          </span>
+          {tagline.main}
+          {tagline.sub && (
+            <>
+              <br />
+              <span className="text-foreground/60">{tagline.sub}</span>
+            </>
+          )}
         </motion.p>
 
-        {/* CTA buttons */}
+        {/* CTA buttons - reduce options when choice load is minimal */}
         <motion.div
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           initial={{ opacity: 0, y: 20 }}
@@ -123,59 +174,65 @@ export function HeroSection() {
           }}
         >
           <Button size="lg" className="text-lg px-8 py-6 font-bold tracking-wide">
-            GET TICKETS
+            {ctaText.cta}
           </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent"
-          >
-            VIEW SCHEDULE
-          </Button>
+          {showSecondaryCTA && (
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent"
+            >
+              {ctaText.secondary}
+            </Button>
+          )}
         </motion.div>
 
-        {/* Location info */}
-        <motion.p
-          className="mt-12 text-sm text-muted-foreground tracking-widest uppercase"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            duration: 0.6 * animationIntensity,
-            delay: 0.9,
-          }}
-        >
-          Los Angeles Convention Center
-        </motion.p>
+        {/* Location info - show only when cognitive capacity allows */}
+        {context.userCapacity.cognitive > 0.4 && (
+          <motion.p
+            className="mt-12 text-sm text-muted-foreground tracking-widest uppercase"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: 0.6 * animationIntensity,
+              delay: 0.9,
+            }}
+          >
+            Los Angeles Convention Center
+          </motion.p>
+        )}
       </div>
 
-      {/* Scroll indicator - fades based on energy */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        animate={{
-          y: [0, 8, 0],
-          opacity: energy.value > 0.3 ? 0.6 : 0.2,
-        }}
-        transition={{
-          y: {
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
-        }}
-        aria-hidden="true"
-      >
-        <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center pt-2">
-          <motion.div
-            className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full"
-            animate={{ y: [0, 12, 0] }}
-            transition={{
+      {/* Scroll indicator - hide when motion is off or low energy */}
+      {mode.motion !== "off" && context.userCapacity.cognitive > 0.3 && (
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          animate={{
+            y: [0, 8, 0],
+            opacity: 0.6,
+          }}
+          transition={{
+            y: {
               duration: 1.5,
               repeat: Infinity,
               ease: "easeInOut",
-            }}
-          />
-        </div>
-      </motion.div>
+            },
+          }}
+          aria-hidden="true"
+        >
+          <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center pt-2">
+            <motion.div
+              className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full"
+              animate={{ y: [0, 12, 0] }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </div>
+        </motion.div>
+      )}
     </section>
   )
 }
