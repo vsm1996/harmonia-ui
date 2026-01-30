@@ -1,27 +1,35 @@
 /**
- * Empathy Controls - Phase 1 Manual Input System
+ * Empathy Controls - Phase 1 Manual Input System (4 Inputs)
  *
- * This is the 3-slider system for manually setting user state.
- * In future phases, this could be replaced or supplemented by:
- * - Apple Watch mindfulness data
- * - Time-of-day inference
- * - Interaction pattern analysis
+ * The canonical CapacityField input:
+ * - cognitive: 0-1 (mental bandwidth)
+ * - temporal: 0-1 (time/effort budget)
+ * - emotional: 0-1 (emotional resilience)
+ * - valence: -1 to +1 (emotional direction)
  *
  * Design decisions:
  * - Fixed position bottom-right for persistent access
- * - Collapsible to avoid visual clutter
- * - Clear labels for each capacity dimension
- * - Real-time preview of field values
+ * - Shows derived InterfaceMode badge
+ * - Real-time preview of how the UI adapts
  */
 
 "use client"
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { useEmpathyContext, useEnergyField, useAttentionField, useEmotionalValenceField } from "@/lib/empathy"
+import {
+  useEmpathyContext,
+  useEnergyField,
+  useAttentionField,
+  useEmotionalValenceField,
+  deriveMode,
+  deriveModeLabel,
+  getModeBadgeColor,
+} from "@/lib/empathy"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 export function EmpathyControls() {
   const [isOpen, setIsOpen] = useState(false)
@@ -30,16 +38,35 @@ export function EmpathyControls() {
   const attention = useAttentionField()
   const valence = useEmotionalValenceField()
 
+  /**
+   * Derive the current interface mode from CapacityField
+   */
+  const mode = deriveMode({
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  })
+  const modeLabel = deriveModeLabel(mode)
+  const modeBadgeColor = getModeBadgeColor(modeLabel)
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      {/* Toggle button */}
+      {/* Toggle button with mode badge */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
+            className="flex items-center gap-2"
           >
+            <Badge
+              className="shadow-lg"
+              style={{ backgroundColor: modeBadgeColor, color: "white" }}
+            >
+              {modeLabel}
+            </Badge>
             <Button
               onClick={() => setIsOpen(true)}
               variant="outline"
@@ -65,9 +92,17 @@ export function EmpathyControls() {
             <Card className="w-80 shadow-xl">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-semibold">
-                    Empathy Controls
-                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-sm font-semibold">
+                      Empathy Controls
+                    </CardTitle>
+                    <Badge
+                      className="text-xs"
+                      style={{ backgroundColor: modeBadgeColor, color: "white" }}
+                    >
+                      {modeLabel}
+                    </Badge>
+                  </div>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -79,7 +114,7 @@ export function EmpathyControls() {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Adjust your current state to see the UI adapt.
+                  Adjust your state to see the UI adapt in real-time.
                 </p>
               </CardHeader>
 
@@ -148,6 +183,23 @@ export function EmpathyControls() {
                       color="text-chart-3"
                       signed
                     />
+                  </div>
+                </div>
+
+                {/* Interface Mode breakdown */}
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">
+                    Interface Mode
+                  </p>
+                  <div className="grid grid-cols-2 gap-1 text-xs">
+                    <span className="text-muted-foreground">Density:</span>
+                    <span className="font-medium">{mode.density}</span>
+                    <span className="text-muted-foreground">Guidance:</span>
+                    <span className="font-medium">{mode.guidance}</span>
+                    <span className="text-muted-foreground">Motion:</span>
+                    <span className="font-medium">{mode.motion}</span>
+                    <span className="text-muted-foreground">Choices:</span>
+                    <span className="font-medium">{mode.choiceLoad}</span>
                   </div>
                 </div>
               </CardContent>

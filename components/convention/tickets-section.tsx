@@ -1,85 +1,144 @@
 /**
  * Tickets Section - Pricing and CTA
  *
- * Design decisions:
- * - Attention field influences visual emphasis on CTA
- * - High attention = more prominent pricing display
- * - Energy influences the pulsing animation of the main CTA
- * - Clear tier hierarchy with visual differentiation
+ * Empathy-Driven Adaptations:
+ * - Low cognitive: Show only recommended tier, hide comparison
+ * - Low emotional: Supportive tone, reduce urgency
+ * - Low temporal: Skip details, show price + CTA only
+ * - Minimal mode: Single "Get Tickets" button
  */
 
 "use client"
 
 import { motion } from "motion/react"
-import { useEnergyField, useAttentionField } from "@/lib/empathy"
+import { useEmpathyContext, deriveMode } from "@/lib/empathy"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 /**
- * Ticket tier data
+ * Ticket tier data with content variants
  */
 const TIERS = [
   {
     id: "general",
     name: "General",
     price: 75,
-    description: "Full convention access",
-    features: [
-      "3-day access to all public areas",
-      "Artist alley & vendor hall",
-      "Standard panel seating",
-      "Anime screenings",
-    ],
+    description: {
+      full: "Full convention access",
+      short: "Full access",
+    },
+    features: {
+      full: [
+        "3-day access to all public areas",
+        "Artist alley & vendor hall",
+        "Standard panel seating",
+        "Anime screenings",
+      ],
+      short: ["3-day access", "All public areas"],
+    },
     highlight: false,
   },
   {
     id: "premium",
     name: "Premium",
     price: 175,
-    description: "Priority access & perks",
-    features: [
-      "Everything in General",
-      "Priority panel seating",
-      "Exclusive merch pack",
-      "Early entry (1 hour)",
-      "Premium lounge access",
-    ],
+    description: {
+      full: "Priority access & perks",
+      short: "Priority access",
+    },
+    features: {
+      full: [
+        "Everything in General",
+        "Priority panel seating",
+        "Exclusive merch pack",
+        "Early entry (1 hour)",
+        "Premium lounge access",
+      ],
+      short: ["All General perks", "Priority seating", "Merch pack"],
+    },
     highlight: true,
   },
   {
     id: "vip",
     name: "VIP Abyss",
     price: 350,
-    description: "The ultimate experience",
-    features: [
-      "Everything in Premium",
-      "Reserved front-row seating",
-      "Meet & greet with guests",
-      "Private VIP events",
-      "Exclusive Gachiakuta print",
-      "Concierge service",
-    ],
+    description: {
+      full: "The ultimate experience",
+      short: "VIP experience",
+    },
+    features: {
+      full: [
+        "Everything in Premium",
+        "Reserved front-row seating",
+        "Meet & greet with guests",
+        "Private VIP events",
+        "Exclusive Gachiakuta print",
+        "Concierge service",
+      ],
+      short: ["All Premium perks", "Meet & greet", "VIP events"],
+    },
     highlight: false,
   },
 ] as const
 
+/**
+ * Header text variants
+ */
+const HEADERS = {
+  full: {
+    title: "Claim Your Spot",
+    description: "Limited capacity. Early bird pricing ends July 1st.",
+    footer: "All tickets include digital schedule access and convention app. Refunds available up to 30 days before the event.",
+  },
+  reduced: {
+    title: "Get Tickets",
+    description: "Early bird pricing ends July 1st.",
+    footer: null,
+  },
+  minimal: {
+    title: "Tickets",
+    description: null,
+    footer: null,
+  },
+}
+
 export function TicketsSection() {
-  const energy = useEnergyField()
-  const attention = useAttentionField()
+  const { context } = useEmpathyContext()
+  const mode = deriveMode({
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  })
 
   /**
-   * CTA pulse animation based on energy
-   * Higher energy = more noticeable pulse
-   * Lower energy = subtle or no pulse (less distracting)
+   * Content level based on density
    */
-  const pulseIntensity = energy.value > 0.5 ? 0.05 : 0
+  const contentLevel =
+    mode.density === "low" ? "minimal" : mode.density === "medium" ? "reduced" : "full"
+
+  const header = HEADERS[contentLevel]
+  const featureLength = context.userCapacity.cognitive > 0.5 ? "full" : "short"
 
   /**
-   * Attention influences the scale of the highlighted tier
-   * Higher attention = more pronounced emphasis
+   * Visible tiers based on choice load
+   * Minimal: Only the recommended (premium) tier
+   * Normal: All tiers
    */
-  const highlightScale = 1 + attention.value * 0.02
+  const visibleTiers =
+    mode.choiceLoad === "minimal" ? TIERS.filter((t) => t.highlight) : TIERS
+
+  /**
+   * CTA pulse only when motion is expressive and energy is high
+   */
+  const pulseIntensity = mode.motion === "expressive" ? 0.05 : 0
+
+  /**
+   * Grid columns based on visible tiers
+   */
+  const gridClass =
+    visibleTiers.length === 1 ? "max-w-md mx-auto" : "grid md:grid-cols-3 gap-6 items-stretch"
 
   return (
     <section
@@ -102,17 +161,24 @@ export function TicketsSection() {
             id="tickets-title"
             className="text-4xl md:text-6xl font-black tracking-tight mb-4"
           >
-            Claim Your
-            <span className="text-primary"> Spot</span>
+            {header.title.split(" ").slice(0, -1).join(" ")}
+            {header.title.split(" ").length > 1 && (
+              <span className="text-primary"> {header.title.split(" ").slice(-1)}</span>
+            )}
+            {header.title.split(" ").length === 1 && (
+              <span className="text-primary">{header.title}</span>
+            )}
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
-            Limited capacity. Early bird pricing ends July 1st.
-          </p>
+          {header.description && (
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
+              {header.description}
+            </p>
+          )}
         </motion.header>
 
-        {/* Pricing grid - items-stretch ensures equal heights */}
-        <div className="grid md:grid-cols-3 gap-6 items-stretch">
-          {TIERS.map((tier, index) => (
+        {/* Pricing grid - adapts to visible tiers */}
+        <div className={gridClass}>
+          {visibleTiers.map((tier, index) => (
             <motion.div
               key={tier.id}
               initial={{ opacity: 0, y: 30 }}
@@ -122,32 +188,29 @@ export function TicketsSection() {
                 duration: 0.5,
                 delay: index * 0.1,
               }}
-              style={{
-                scale: tier.highlight ? highlightScale : 1,
-              }}
             >
               <TierCard
                 tier={tier}
                 pulseIntensity={pulseIntensity}
+                featureLength={featureLength}
+                showFeatures={context.userCapacity.cognitive > 0.35}
               />
             </motion.div>
           ))}
         </div>
 
-        {/* Additional info */}
-        <motion.div
-          className="mt-12 text-center text-sm text-muted-foreground"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-        >
-          <p>
-            All tickets include digital schedule access and convention app.
-            <br />
-            Refunds available up to 30 days before the event.
-          </p>
-        </motion.div>
+        {/* Additional info - only when cognitive capacity allows */}
+        {header.footer && context.userCapacity.cognitive > 0.5 && (
+          <motion.div
+            className="mt-12 text-center text-sm text-muted-foreground"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+          >
+            <p>{header.footer}</p>
+          </motion.div>
+        )}
       </div>
     </section>
   )
@@ -155,14 +218,22 @@ export function TicketsSection() {
 
 /**
  * Individual tier card
+ * Adapts feature list based on cognitive capacity
  */
 function TierCard({
   tier,
   pulseIntensity,
+  featureLength,
+  showFeatures,
 }: {
   tier: (typeof TIERS)[number]
   pulseIntensity: number
+  featureLength: "full" | "short"
+  showFeatures: boolean
 }) {
+  const description = tier.description[featureLength]
+  const features = tier.features[featureLength]
+
   return (
     <Card
       className={`h-full flex flex-col ${
@@ -171,20 +242,18 @@ function TierCard({
           : ""
       }`}
     >
-      {/* Popular badge for highlighted tier */}
       {tier.highlight && (
         <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
-          Most Popular
+          Recommended
         </Badge>
       )}
 
       <CardHeader className="text-center pb-2">
         <CardTitle className="text-xl font-bold">{tier.name}</CardTitle>
-        <CardDescription>{tier.description}</CardDescription>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
 
       <CardContent className="flex-1">
-        {/* Price display */}
         <div className="text-center mb-6">
           <span className="text-5xl font-black text-foreground">
             ${tier.price}
@@ -192,15 +261,16 @@ function TierCard({
           <span className="text-muted-foreground ml-1">USD</span>
         </div>
 
-        {/* Features list */}
-        <ul className="space-y-3" role="list">
-          {tier.features.map((feature, idx) => (
-            <li key={idx} className="flex items-start gap-3 text-sm">
-              <CheckIcon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
+        {showFeatures && (
+          <ul className="space-y-3" role="list">
+            {features.map((feature, idx) => (
+              <li key={idx} className="flex items-start gap-3 text-sm">
+                <CheckIcon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </CardContent>
 
       <CardFooter>
@@ -208,9 +278,7 @@ function TierCard({
           className="w-full"
           animate={
             tier.highlight && pulseIntensity > 0
-              ? {
-                  scale: [1, 1 + pulseIntensity, 1],
-                }
+              ? { scale: [1, 1 + pulseIntensity, 1] }
               : {}
           }
           transition={{
@@ -224,7 +292,7 @@ function TierCard({
             variant={tier.highlight ? "default" : "outline"}
             size="lg"
           >
-            Select {tier.name}
+            {tier.highlight ? "Get Started" : `Select ${tier.name}`}
           </Button>
         </motion.div>
       </CardFooter>
