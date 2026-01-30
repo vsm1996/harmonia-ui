@@ -284,28 +284,15 @@ function EventCard({
 
   return (
     <Card
-      className="h-full flex flex-col bg-background/50 backdrop-blur-sm transition-all duration-300 group"
+      className="h-full flex flex-col bg-background/50 backdrop-blur-sm transition-transform duration-300 ease-out hover:scale-[1.02]"
       style={{
         borderColor: `color-mix(in oklch, ${infectedColor} 30%, transparent)`,
       }}
     >
       <CardHeader className="flex-1">
         <div className="flex items-start justify-between gap-4">
-          <CardTitle
-            className="text-xl font-bold transition-colors duration-300"
-            style={{
-              // Hover handled via CSS, but default state uses infected color hint
-            }}
-          >
-            <span className="group-hover:opacity-0 transition-opacity duration-300">
-              {event.title}
-            </span>
-            <span
-              className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ color: infectedColor }}
-            >
-              {event.title}
-            </span>
+          <CardTitle className="text-xl font-bold">
+            {event.title}
           </CardTitle>
           <Badge className={`shrink-0 ${categoryStyle}`}>{event.category}</Badge>
         </div>
@@ -315,7 +302,7 @@ function EventCard({
       </CardHeader>
       <CardContent className="mt-auto pt-0">
         <div
-          className="flex flex-col gap-1 text-sm transition-colors duration-300"
+          className="flex flex-col gap-1 text-sm"
           style={{ color: infectedColorDim }}
         >
           <span className="flex items-center gap-2">
