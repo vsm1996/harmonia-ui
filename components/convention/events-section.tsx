@@ -14,7 +14,7 @@ import { motion } from "motion/react"
 import { useEnergyField, useAttentionField } from "@/lib/empathy"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { InfectedText } from "@/components/ui/infected-text" // Import InfectedText component
+import { InfectedText } from "@/components/infected-text" // Import InfectedText component
 
 /**
  * Event data structure
@@ -126,8 +126,8 @@ export function EventsSection() {
             id="events-title"
             className="text-4xl md:text-6xl font-black tracking-tight mb-4"
           >
-            Descend Into
-            <InfectedText text=" The Events" />
+            <InfectedText text="Descend Into" />
+            <span className="text-accent"> The Events</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
             Three days of panels, competitions, screenings, and experiences
