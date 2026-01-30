@@ -11,7 +11,7 @@
 "use client"
 
 import { motion } from "motion/react"
-import { useEnergyField, useEmotionalValenceField } from "@/lib/empathy"
+import { useEnergyField } from "@/lib/empathy"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -52,7 +52,6 @@ const GUESTS = [
 
 export function GuestsSection() {
   const energy = useEnergyField()
-  const valence = useEmotionalValenceField()
 
   /**
    * Hover scale adapts to energy
@@ -107,7 +106,7 @@ export function GuestsSection() {
               <GuestCard
                 guest={guest}
                 hoverScale={hoverScale}
-                valence={valence.value}
+                index={index}
               />
             </motion.div>
           ))}
@@ -135,55 +134,58 @@ export function GuestsSection() {
 }
 
 /**
+ * Guest card gradient backgrounds
+ * Maps to chart colors from the Gachiakuta theme
+ * Uses Tailwind's built-in chart color classes
+ */
+const GUEST_GRADIENTS = [
+  "from-chart-1/40 to-chart-1/15", // Rust
+  "from-chart-2/40 to-chart-2/15", // Toxic green
+  "from-chart-3/40 to-chart-3/15", // Industrial teal
+  "from-chart-5/40 to-chart-5/15", // Deep purple
+] as const
+
+/**
  * Individual guest card
+ * Uses themed gradients that respond to the Gachiakuta color system
  */
 function GuestCard({
   guest,
   hoverScale,
-  valence,
+  index,
 }: {
   guest: (typeof GUESTS)[number]
   hoverScale: number
-  valence: number
+  index: number
 }) {
   /**
-   * Generate a pseudo-random but consistent color for each guest
-   * Based on their name hash for reproducibility
+   * Cycle through themed gradients based on index
+   * Creates visual variety while maintaining palette consistency
    */
-  const hue = guest.name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360
-
-  /**
-   * Valence shifts the hue toward warmer (positive) or cooler (negative)
-   */
-  const adjustedHue = hue + valence * 20
+  const gradientClass = GUEST_GRADIENTS[index % GUEST_GRADIENTS.length]
 
   return (
     <motion.div
       whileHover={{ scale: hoverScale }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <Card className="overflow-hidden group cursor-pointer h-full">
-        {/* Abstract image placeholder */}
+      <Card className="overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 transition-colors">
+        {/* Abstract image placeholder using themed gradients */}
         <div
-          className="aspect-[3/4] relative overflow-hidden"
-          style={{
-            background: `linear-gradient(135deg, 
-              oklch(0.25 0.05 ${adjustedHue}) 0%, 
-              oklch(0.35 0.08 ${adjustedHue + 30}) 50%,
-              oklch(0.2 0.03 ${adjustedHue - 20}) 100%)`,
-          }}
+          className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}
         >
-          {/* Noise texture overlay */}
+          {/* Noise texture overlay for grungy aesthetic */}
           <div
-            className="absolute inset-0 opacity-30 mix-blend-overlay"
+            className="absolute inset-0 opacity-40 mix-blend-overlay"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
             }}
+            aria-hidden="true"
           />
 
           {/* Featured badge */}
           {guest.featured && (
-            <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
+            <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground">
               Featured
             </Badge>
           )}
@@ -196,7 +198,7 @@ function GuestCard({
           <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
             {guest.name}
           </h3>
-          <p className="text-primary/80 text-sm font-medium mb-2">
+          <p className="text-accent text-sm font-medium mb-2">
             {guest.role}
           </p>
           <p className="text-muted-foreground text-sm line-clamp-2">
