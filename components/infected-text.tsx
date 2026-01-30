@@ -141,11 +141,10 @@ export function InfectedText({
         return (
           <motion.span
             key={index}
-            className="inline-block"
+            className={`inline-block ${isInfected ? "text-accent" : "text-foreground"}`}
+            initial={false}
             animate={{
-              color: isInfected
-                ? "oklch(var(--accent))"
-                : "oklch(var(--foreground))",
+              opacity: 1,
             }}
             transition={{
               duration: 0.4,
@@ -154,6 +153,8 @@ export function InfectedText({
             style={{
               // Preserve spaces
               width: isSpace ? "0.25em" : "auto",
+              // CSS transition handles color change smoothly
+              transition: "color 0.4s ease-out",
             }}
             aria-hidden="true"
           >
