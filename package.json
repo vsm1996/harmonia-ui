@@ -1,7 +1,10 @@
 {
   "name": "harmonia-ui",
+  "license": "MIT",
+  "author": "Vanessa Martin",
   "version": "0.1.0",
   "private": false,
+  "description": "This project introduces a capacity-adaptive interface framework based on explicit human-state inputs and distributed UI adaptation.",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
