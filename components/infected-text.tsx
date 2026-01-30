@@ -39,6 +39,12 @@ interface InfectedTextProps {
    * @default 3000
    */
   loopDelay?: number
+  /**
+   * Custom color for infected state (OKLCH string)
+   * If provided, overrides the default accent color
+   * Allows parent components to pass transitioning color
+   */
+  infectColor?: string
 }
 
 export function InfectedText({
@@ -47,6 +53,7 @@ export function InfectedText({
   delay = 500,
   loop = true,
   loopDelay = 3000,
+  infectColor,
 }: InfectedTextProps) {
   const [infectedIndices, setInfectedIndices] = useState<Set<number>>(new Set())
 
@@ -141,7 +148,7 @@ export function InfectedText({
         return (
           <motion.span
             key={index}
-            className={`inline-block ${isInfected ? "text-accent" : "text-foreground"}`}
+            className={`inline-block ${!infectColor && isInfected ? "text-accent" : !infectColor ? "text-foreground" : ""}`}
             initial={false}
             animate={{
               opacity: 1,
@@ -155,6 +162,8 @@ export function InfectedText({
               width: isSpace ? "0.25em" : "auto",
               // CSS transition handles color change smoothly
               transition: "color 0.4s ease-out",
+              // Use custom infectColor if provided, otherwise fall back to classes
+              ...(infectColor && { color: isInfected ? infectColor : undefined }),
             }}
             aria-hidden="true"
           >
