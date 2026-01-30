@@ -110,8 +110,8 @@ export function TicketsSection() {
           </p>
         </motion.header>
 
-        {/* Pricing grid */}
-        <div className="grid md:grid-cols-3 gap-6 items-start">
+        {/* Pricing grid - items-stretch ensures equal heights */}
+        <div className="grid md:grid-cols-3 gap-6 items-stretch">
           {TIERS.map((tier, index) => (
             <motion.div
               key={tier.id}

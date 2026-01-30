@@ -176,6 +176,10 @@ export function EventsSection() {
 /**
  * Individual event card component
  * Separated for clarity and potential reuse
+ *
+ * Height consistency:
+ * - Uses flex-col with flex-1 on description area
+ * - CardContent pushed to bottom with mt-auto
  */
 function EventCard({
   event,
@@ -185,19 +189,19 @@ function EventCard({
   const categoryStyle = CATEGORY_STYLES[event.category] || "bg-secondary text-secondary-foreground"
 
   return (
-    <Card className="h-full hover:border-primary/50 transition-colors duration-300 group">
-      <CardHeader>
+    <Card className="h-full flex flex-col hover:border-primary/50 transition-colors duration-300 group">
+      <CardHeader className="flex-1">
         <div className="flex items-start justify-between gap-4">
           <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
             {event.title}
           </CardTitle>
-          <Badge className={categoryStyle}>{event.category}</Badge>
+          <Badge className={`shrink-0 ${categoryStyle}`}>{event.category}</Badge>
         </div>
-        <CardDescription className="text-base">
+        <CardDescription className="text-base line-clamp-3">
           {event.description}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="mt-auto pt-0">
         <div className="flex flex-col gap-1 text-sm text-muted-foreground">
           <span className="flex items-center gap-2">
             <ClockIcon />
