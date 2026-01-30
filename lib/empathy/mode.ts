@@ -1,111 +1,96 @@
 /**
- * Mode Derivation - Field → Mode transformation
+ * Mode Derivation - Transforms CapacityField into coherent InterfaceMode
  *
- * This is the key insight: don't map sliders directly to 50 UI changes.
- * Instead, derive 2-4 coherent modes and let modes drive everything.
+ * Philosophy:
+ * - Don't map sliders directly to styles (feels arbitrary)
+ * - Derive 2-4 coherent modes that drive everything
+ * - Modes create meaningful states: "Calm", "Focused", "Exploratory", "Minimal"
  *
- * This keeps the UI from feeling like "sliders controlling random stuff"
- * and instead like "sliders select a coherent state."
+ * Mapping Rules:
+ * - low cognitive OR low emotional → lower density + more guidance + minimal choice load
+ * - low temporal → fewer steps, fewer CTAs
+ * - negative valence → calmer motion + boosted contrast + warmer tone
  */
 
 import type { CapacityField, InterfaceMode, InterfaceModeLabel } from "./types"
 
-// ============================================================================
-// Mode Derivation Rules
-// ============================================================================
-
 /**
  * Derives InterfaceMode from CapacityField
- *
- * Rules (tunable):
- * - low cognitive OR low emotional → lower density + more guidance + minimal choice load
- * - low temporal → shorter content, fewer steps, more defaults
- * - negative valence → calmer motion + boosted contrast + warmer copy tone
+ * This is the core transformation that makes the framework coherent
  */
 export function deriveMode(field: CapacityField): InterfaceMode {
   const lowCognitive = field.cognitive < 0.35
   const lowEmotional = field.emotional < 0.35
   const lowTemporal = field.temporal < 0.35
   const negValence = field.valence < -0.25
+  const highCognitive = field.cognitive > 0.75
+  const posValence = field.valence > 0.5
 
-  // Density: How much information to show
+  // Density: How much information complexity to show
   const density: InterfaceMode["density"] =
-    lowCognitive || lowEmotional ? "low" : field.cognitive > 0.75 ? "high" : "medium"
+    lowCognitive || lowEmotional ? "low" : highCognitive ? "high" : "medium"
 
   // Guidance: How much explanation/labeling
   const guidance: InterfaceMode["guidance"] =
     lowCognitive || lowEmotional ? "high" : lowTemporal ? "medium" : "low"
 
-  // Choice Load: Number of options/decisions
+  // Choice Load: Reduces decision fatigue
   const choiceLoad: InterfaceMode["choiceLoad"] =
     lowCognitive || lowEmotional || lowTemporal ? "minimal" : "normal"
 
   // Motion: Animation intensity
   const motion: InterfaceMode["motion"] =
-    lowEmotional || negValence ? "subtle" : field.valence > 0.5 ? "expressive" : "subtle"
+    lowEmotional || negValence ? "subtle" : posValence ? "expressive" : "subtle"
 
-  // Contrast: Visual contrast level (boost when mood is low)
+  // Contrast: Visual contrast level (boosted when stressed/negative)
   const contrast: InterfaceMode["contrast"] = negValence ? "boosted" : "standard"
 
   return { density, guidance, motion, contrast, choiceLoad }
 }
 
-// ============================================================================
-// Mode Label Derivation
-// ============================================================================
-
 /**
- * Derives a human-readable mode label from InterfaceMode
- *
- * Labels:
- * - Calm: Low density, subtle motion, high guidance
- * - Focused: Medium density, minimal choices, low guidance
- * - Exploratory: High density, expressive motion, normal choices
- * - Minimal: Low density, minimal choices, subtle motion
+ * Derives a human-readable mode label for display
+ * Shows the "coherent state" the UI is in
  */
-export function deriveModeLabel(mode: InterfaceMode): InterfaceModeLabel {
-  // Minimal: Everything scaled back
-  if (mode.density === "low" && mode.choiceLoad === "minimal" && mode.motion === "subtle") {
+export function deriveModeLabel(field: CapacityField): InterfaceModeLabel {
+  const lowCognitive = field.cognitive < 0.35
+  const lowEmotional = field.emotional < 0.35
+  const lowTemporal = field.temporal < 0.35
+  const highCognitive = field.cognitive > 0.75
+  const negValence = field.valence < -0.25
+
+  // Minimal: User is overwhelmed or stressed
+  if ((lowCognitive || lowEmotional) && negValence) {
     return "Minimal"
   }
 
-  // Calm: Gentle, supportive state
-  if (mode.guidance === "high" && mode.motion === "subtle") {
+  // Calm: User needs low intensity, gentle interface
+  if (lowCognitive || lowEmotional || negValence) {
     return "Calm"
   }
 
-  // Focused: Efficient, task-oriented
-  if (mode.density === "medium" && mode.choiceLoad === "minimal") {
+  // Focused: User has high attention, limited time
+  if (highCognitive && lowTemporal) {
     return "Focused"
   }
 
-  // Exploratory: Open, engaged state
-  if (mode.density === "high" || mode.motion === "expressive") {
-    return "Exploratory"
-  }
-
-  // Default to Calm if nothing else matches
-  return "Calm"
+  // Exploratory: User has capacity and time to explore
+  return "Exploratory"
 }
 
-// ============================================================================
-// Mode Utilities
-// ============================================================================
-
 /**
- * Get mode badge color based on label
+ * Get mode label color for badge display
+ * Uses semantic colors from the theme
  */
-export function getModeBadgeColor(label: InterfaceModeLabel): string {
+export function getModeLabelColor(label: InterfaceModeLabel): string {
   switch (label) {
     case "Calm":
-      return "oklch(0.65 0.15 220)" // Soft blue
+      return "bg-blue-500/20 text-blue-400 border-blue-500/30"
     case "Focused":
-      return "oklch(0.68 0.16 45)" // Primary rust
+      return "bg-amber-500/20 text-amber-400 border-amber-500/30"
     case "Exploratory":
-      return "oklch(0.65 0.2 135)" // Toxic green
+      return "bg-green-500/20 text-green-400 border-green-500/30"
     case "Minimal":
-      return "oklch(0.55 0.1 280)" // Muted purple
-    default:
-      return "oklch(0.5 0 0)" // Gray
+      return "bg-purple-500/20 text-purple-400 border-purple-500/30"
   }
 }

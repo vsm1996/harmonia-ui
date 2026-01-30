@@ -17,13 +17,6 @@ export {
 // Types
 export type {
   CapacityField,
-  InterfaceMode,
-  InterfaceModeLabel,
-  DensityMode,
-  GuidanceMode,
-  MotionMode,
-  ContrastMode,
-  ChoiceLoadMode,
   UserCapacity,
   EmotionalState,
   AmbientContext,
@@ -35,10 +28,17 @@ export type {
   TypographyRole,
   EnergyLevel,
   AttentionLevel,
+  InterfaceMode,
+  InterfaceModeLabel,
+  DensityMode,
+  GuidanceMode,
+  MotionMode,
+  ContrastMode,
+  ChoiceLoadMode,
 } from "./types"
 
 // Mode Derivation
-export { deriveMode, deriveModeLabel, getModeBadgeColor } from "./mode"
+export { deriveMode, deriveModeLabel, getModeLabelColor } from "./mode"
 
 // Constants
 export { PHI, PHI_INVERSE, FIBONACCI, SOLFEGGIO_FREQUENCIES, DEFAULT_COMPONENT_RESPONSE } from "./constants"
