@@ -5,7 +5,82 @@
  */
 
 // ============================================================================
-// User Capacity Model
+// Capacity Field - The Canonical Input Model (Phase 1)
+// ============================================================================
+
+/**
+ * CapacityField - The 4-input model that drives the entire framework
+ *
+ * This is the FIRST-CLASS input object. Everything else derives from this.
+ * - cognitive, temporal, emotional: 0-1 (capacity dimensions)
+ * - valence: -1 to +1 (emotional direction)
+ *
+ * Field → Mode → Tokens → Components is the pipeline.
+ */
+export interface CapacityField {
+  /** Cognitive bandwidth available (0 = overwhelmed, 1 = sharp) */
+  cognitive: number
+
+  /** Time/effort budget (0 = rushed, 1 = abundant) */
+  temporal: number
+
+  /** Emotional load tolerance (0 = fragile, 1 = resilient) */
+  emotional: number
+
+  /** Emotional direction (-1 = negative, 0 = neutral, +1 = positive) */
+  valence: number
+}
+
+// ============================================================================
+// Interface Mode - Derived from CapacityField
+// ============================================================================
+
+/**
+ * Density modes - How much information to show
+ */
+export type DensityMode = "low" | "medium" | "high"
+
+/**
+ * Guidance modes - How much explanation/help to provide
+ */
+export type GuidanceMode = "low" | "medium" | "high"
+
+/**
+ * Motion modes - Animation intensity
+ */
+export type MotionMode = "off" | "subtle" | "expressive"
+
+/**
+ * Contrast modes - Visual contrast level
+ */
+export type ContrastMode = "standard" | "boosted"
+
+/**
+ * Choice load modes - Number of options/decisions
+ */
+export type ChoiceLoadMode = "minimal" | "normal"
+
+/**
+ * InterfaceMode - The coherent UI state derived from CapacityField
+ *
+ * This prevents "sliders controlling random stuff" and instead gives
+ * "sliders selecting a coherent state"
+ */
+export interface InterfaceMode {
+  density: DensityMode
+  guidance: GuidanceMode
+  motion: MotionMode
+  contrast: ContrastMode
+  choiceLoad: ChoiceLoadMode
+}
+
+/**
+ * Human-readable mode labels for UI display
+ */
+export type InterfaceModeLabel = "Calm" | "Focused" | "Exploratory" | "Minimal"
+
+// ============================================================================
+// User Capacity Model (Legacy - maps to CapacityField)
 // ============================================================================
 
 /**
@@ -29,12 +104,13 @@ export interface UserCapacity {
 
 /**
  * Two-dimensional affect model (Russell's Circumplex)
+ * Note: Arousal is Phase 2+. Phase 1 uses only valence.
  */
 export interface EmotionalState {
   /** Positive/negative affect (-1 to +1) */
   valence: number
 
-  /** Energy/activation level (0 to 1) */
+  /** Energy/activation level (0 to 1) - Phase 2+ */
   arousal: number
 }
 
