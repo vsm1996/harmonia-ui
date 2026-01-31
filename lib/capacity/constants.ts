@@ -50,9 +50,9 @@ export const DEFAULT_USER_CAPACITY = {
   emotional: 0.7,
 } as const
 
-/** Default emotional state (neutral) */
+/** Default emotional state (positive to show expressive animations) */
 export const DEFAULT_EMOTIONAL_STATE = {
-  valence: 0,
+  valence: 0.3, // > 0.25 triggers expressive motion mode
   arousal: 0.5,
 } as const
 
