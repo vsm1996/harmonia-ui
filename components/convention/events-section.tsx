@@ -1,13 +1,13 @@
 /**
  * Events Section - Convention Schedule Grid
  *
- * Design decisions:
- * - Grid density adapts to energy field (more columns when alert)
- * - Card expansion behavior responds to attention field
- * - Staggered animations for visual interest
- * - Categories use semantic colors from the design system
- * - Section-wide infection animation: transitions from rust/orange (primary)
- *   to toxic green (accent) when scrolled into view
+ * STRICT SEPARATION OF CONCERNS:
+ * - Cognitive → density (grid columns, visible event count)
+ * - Temporal → content length (description verbosity)
+ * - Emotional → motion restraint (animation intensity, infection speed)
+ * - Valence → (not heavily used - schedule is factual)
+ *
+ * Special: Infection animation transitions colors when section enters view
  */
 
 "use client"

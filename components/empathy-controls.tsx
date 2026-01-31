@@ -1,16 +1,21 @@
 /**
  * Empathy Controls - Phase 1 Manual Input System (4 Inputs)
  *
- * The canonical CapacityField input:
- * - cognitive: 0-1 (mental bandwidth)
- * - temporal: 0-1 (time/effort budget)
- * - emotional: 0-1 (emotional resilience)
- * - valence: -1 to +1 (emotional direction)
+ * STRICT SEPARATION OF CONCERNS:
+ * ┌─────────────┬────────────────────────────────────┬─────────────────────────────┐
+ * │ Slider      │ Controls                           │ Must NOT Control            │
+ * ├─────────────┼────────────────────────────────────┼─────────────────────────────┤
+ * │ Cognitive   │ density, hierarchy, concurrency    │ tone, animation speed       │
+ * │ Temporal    │ content length, shortcuts, defaults│ color, layout structure     │
+ * │ Emotional   │ motion restraint, friction         │ content importance          │
+ * │ Valence     │ tone, expressiveness               │ information volume          │
+ * └─────────────┴────────────────────────────────────┴─────────────────────────────┘
  *
- * Design decisions:
- * - Fixed position bottom-right for persistent access
- * - Shows derived InterfaceMode badge
- * - Real-time preview of how the UI adapts
+ * Rules of thumb:
+ * - Cognitive: how many things compete for attention at once
+ * - Temporal: how much time the UI asks from the user
+ * - Emotional: nervous-system-safe UI (no surprises when low)
+ * - Valence: emotional color, not information density
  */
 
 "use client"
@@ -119,41 +124,41 @@ export function EmpathyControls() {
               </CardHeader>
 
               <CardContent className="space-y-6">
-                {/* Cognitive Capacity Slider */}
+                {/* Cognitive → density, hierarchy, concurrency */}
                 <SliderControl
                   label="Cognitive Capacity"
-                  description="Mental bandwidth available"
+                  description="Controls: density, hierarchy, concurrency"
                   value={context.userCapacity.cognitive}
                   onChange={(v) => updateCapacity({ cognitive: v })}
-                  lowLabel="Overwhelmed"
-                  highLabel="Sharp"
+                  lowLabel="Fewer items"
+                  highLabel="More items"
                 />
 
-                {/* Temporal Capacity Slider */}
+                {/* Temporal → content length, shortcuts, defaults */}
                 <SliderControl
                   label="Temporal Capacity"
-                  description="Time pressure level"
+                  description="Controls: content length, shortcuts, defaults"
                   value={context.userCapacity.temporal}
                   onChange={(v) => updateCapacity({ temporal: v })}
-                  lowLabel="Rushed"
-                  highLabel="Relaxed"
+                  lowLabel="Abbreviated"
+                  highLabel="Full detail"
                 />
 
-                {/* Emotional Capacity Slider */}
+                {/* Emotional → motion restraint, friction */}
                 <SliderControl
                   label="Emotional Capacity"
-                  description="Emotional resilience"
+                  description="Controls: motion restraint, friction"
                   value={context.userCapacity.emotional}
                   onChange={(v) => updateCapacity({ emotional: v })}
-                  lowLabel="Drained"
-                  highLabel="Centered"
+                  lowLabel="Calm UI"
+                  highLabel="Expressive"
                 />
 
-                {/* Emotional Valence - Bipolar slider */}
+                {/* Valence → tone, expressiveness (NOT information volume) */}
                 <div className="pt-2 border-t border-border">
                   <ValenceSliderControl
                     label="Emotional Valence"
-                    description="Overall mood direction"
+                    description="Controls: tone, expressiveness (not info volume)"
                     value={context.emotionalState.valence}
                     onChange={(v) => updateEmotionalState({ valence: v })}
                   />

@@ -4,8 +4,15 @@
  * This is the key insight: don't map sliders directly to 50 UI changes.
  * Instead, derive 2-4 coherent modes and let modes drive everything.
  *
- * This keeps the UI from feeling like "sliders controlling random stuff"
- * and instead like "sliders select a coherent state."
+ * STRICT SEPARATION OF CONCERNS:
+ * ┌─────────────┬────────────────────────────────────┬─────────────────────────────┐
+ * │ Slider      │ Controls                           │ Must NOT Control            │
+ * ├─────────────┼────────────────────────────────────┼─────────────────────────────┤
+ * │ Cognitive   │ density, hierarchy, concurrency    │ tone, animation speed       │
+ * │ Temporal    │ content length, shortcuts, defaults│ color, layout structure     │
+ * │ Emotional   │ motion restraint, friction         │ content importance          │
+ * │ Valence     │ tone, expressiveness               │ information volume          │
+ * └─────────────┴────────────────────────────────────┴─────────────────────────────┘
  */
 
 import type { CapacityField, InterfaceMode, InterfaceModeLabel } from "./types"
@@ -17,34 +24,62 @@ import type { CapacityField, InterfaceMode, InterfaceModeLabel } from "./types"
 /**
  * Derives InterfaceMode from CapacityField
  *
- * Rules (tunable):
- * - low cognitive OR low emotional → lower density + more guidance + minimal choice load
- * - low temporal → shorter content, fewer steps, more defaults
- * - negative valence → calmer motion + boosted contrast + warmer copy tone
+ * Rules:
+ * - Cognitive → density (how many things compete for attention at once)
+ * - Temporal → content length, shortcuts (how much time the UI asks from user)
+ * - Emotional → motion restraint (nervous-system-safe UI, no surprises)
+ * - Valence → tone/expressiveness (emotional color, not information volume)
  */
 export function deriveMode(field: CapacityField): InterfaceMode {
   const lowCognitive = field.cognitive < 0.35
+  const highCognitive = field.cognitive > 0.75
   const lowEmotional = field.emotional < 0.35
   const lowTemporal = field.temporal < 0.35
+  const highValence = field.valence > 0.25
   const negValence = field.valence < -0.25
 
-  // Density: How much information to show
-  const density: InterfaceMode["density"] =
-    lowCognitive || lowEmotional ? "low" : field.cognitive > 0.75 ? "high" : "medium"
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COGNITIVE → Density, Hierarchy, Concurrency
+  // Controls how many things compete for attention at once
+  // ═══════════════════════════════════════════════════════════════════════════
+  const density: InterfaceMode["density"] = lowCognitive
+    ? "low"
+    : highCognitive
+      ? "high"
+      : "medium"
 
-  // Guidance: How much explanation/labeling
-  const guidance: InterfaceMode["guidance"] =
-    lowCognitive || lowEmotional ? "high" : lowTemporal ? "medium" : "low"
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMPORAL → Content Length, Shortcuts, Defaults
+  // Controls how much time the UI asks from the user
+  // ═══════════════════════════════════════════════════════════════════════════
+  const choiceLoad: InterfaceMode["choiceLoad"] = lowTemporal ? "minimal" : "normal"
 
-  // Choice Load: Number of options/decisions
-  const choiceLoad: InterfaceMode["choiceLoad"] =
-    lowCognitive || lowEmotional || lowTemporal ? "minimal" : "normal"
+  // Guidance increases when temporal is low (provide shortcuts/defaults)
+  // Also increases when cognitive is low (need more explanation)
+  const guidance: InterfaceMode["guidance"] = lowCognitive
+    ? "high"
+    : lowTemporal
+      ? "medium"
+      : "low"
 
-  // Motion: Animation intensity
-  const motion: InterfaceMode["motion"] =
-    lowEmotional || negValence ? "subtle" : field.valence > 0.5 ? "expressive" : "subtle"
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EMOTIONAL → Motion Restraint, Friction
+  // Controls nervous-system-safe UI (no surprises when capacity is low)
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Low emotional capacity = subtle/off motion (no unexpected reflows, no playful micro-interactions)
+  // Normal emotional capacity = motion allowed, but valence determines expressiveness
+  const motion: InterfaceMode["motion"] = lowEmotional
+    ? "subtle"
+    : highValence
+      ? "expressive"
+      : "subtle"
 
-  // Contrast: Visual contrast level (boost when mood is low)
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VALENCE → Tone, Expressiveness (NOT information volume)
+  // Controls emotional color: warmth, playfulness, accent frequency
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Boosted contrast when mood is low helps with visual accessibility
+  // This is a subtle visual adjustment, not information density
   const contrast: InterfaceMode["contrast"] = negValence ? "boosted" : "standard"
 
   return { density, guidance, motion, contrast, choiceLoad }

@@ -1,11 +1,11 @@
 /**
  * Tickets Section - Pricing and CTA
  *
- * Empathy-Driven Adaptations:
- * - Low cognitive: Show only recommended tier, hide comparison
- * - Low emotional: Supportive tone, reduce urgency
- * - Low temporal: Skip details, show price + CTA only
- * - Minimal mode: Single "Get Tickets" button
+ * STRICT SEPARATION OF CONCERNS:
+ * - Cognitive → density (tier count, visual complexity)
+ * - Temporal → content length (feature list length, footer info)
+ * - Emotional → motion restraint (animation intensity)
+ * - Valence → (not heavily used - pricing is factual, not tonal)
  */
 
 "use client"
@@ -111,37 +111,35 @@ export function TicketsSection() {
     valence: context.emotionalState.valence,
   })
 
-  /**
-   * Content level based on density
-   */
-  const contentLevel =
-    mode.density === "low" ? "minimal" : mode.density === "medium" ? "reduced" : "full"
-
-  const header = HEADERS[contentLevel]
-  const featureLength = context.userCapacity.cognitive > 0.5 ? "full" : "short"
-
-  /**
-   * Visible tiers based on choice load
-   * Minimal: Only the recommended (premium) tier
-   * Normal: All tiers
-   */
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COGNITIVE → Density (tier count, decision complexity)
+  // Controls how many things compete for attention at once
+  // ═══════════════════════════════════════════════════════════════════════════
   const visibleTiers =
-    mode.choiceLoad === "minimal" ? TIERS.filter((t) => t.highlight) : TIERS
+    mode.density === "low" ? TIERS.filter((t) => t.highlight) : TIERS
 
-  /**
-   * CTA pulse only when motion is expressive and energy is high
-   */
-  const pulseIntensity = mode.motion === "expressive" ? 0.05 : 0
-
-  /**
-   * Grid columns based on visible tiers
-   */
   const gridClass =
     visibleTiers.length === 1 ? "max-w-md mx-auto" : "grid md:grid-cols-3 gap-6 items-stretch"
 
-  /**
-   * Animation class based on motion mode
-   */
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMPORAL → Content Length (feature list verbosity, header detail, footer)
+  // Controls how much time the UI asks from the user
+  // ═══════════════════════════════════════════════════════════════════════════
+  const featureLength = context.userCapacity.temporal > 0.5 ? "full" : "short"
+
+  const headerContent =
+    context.userCapacity.temporal > 0.5
+      ? HEADERS.full
+      : context.userCapacity.temporal > 0.3
+        ? HEADERS.reduced
+        : HEADERS.minimal
+
+  const showFeatures = context.userCapacity.temporal > 0.35
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EMOTIONAL → Motion Restraint (animation intensity)
+  // Low emotional = no surprises, calm UI
+  // ═══════════════════════════════════════════════════════════════════════════
   const sectionAnimClass = mode.motion !== "off" ? "sacred-fade" : ""
 
   return (
@@ -159,17 +157,17 @@ export function TicketsSection() {
             id="tickets-title"
             className="text-4xl md:text-6xl font-black tracking-tight mb-4"
           >
-            {header.title.split(" ").slice(0, -1).join(" ")}
-            {header.title.split(" ").length > 1 && (
-              <span className="text-primary"> {header.title.split(" ").slice(-1)}</span>
+            {headerContent.title.split(" ").slice(0, -1).join(" ")}
+            {headerContent.title.split(" ").length > 1 && (
+              <span className="text-primary"> {headerContent.title.split(" ").slice(-1)}</span>
             )}
-            {header.title.split(" ").length === 1 && (
-              <span className="text-primary">{header.title}</span>
+            {headerContent.title.split(" ").length === 1 && (
+              <span className="text-primary">{headerContent.title}</span>
             )}
           </h2>
-          {header.description && (
+          {headerContent.description && (
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
-              {header.description}
+              {headerContent.description}
             </p>
           )}
         </header>
@@ -186,16 +184,16 @@ export function TicketsSection() {
                 tier={tier}
                 motionMode={mode.motion}
                 featureLength={featureLength}
-                showFeatures={context.userCapacity.cognitive > 0.35}
+                showFeatures={showFeatures}
               />
             </div>
           ))}
         </div>
 
-        {/* Additional info - only when cognitive capacity allows */}
-        {header.footer && context.userCapacity.cognitive > 0.5 && (
+        {/* TEMPORAL: Additional info - only when user has time to read */}
+        {headerContent.footer && context.userCapacity.temporal > 0.5 && (
           <div className={`mt-12 text-center text-sm text-muted-foreground ${sectionAnimClass}`}>
-            <p>{header.footer}</p>
+            <p>{headerContent.footer}</p>
           </div>
         )}
       </div>

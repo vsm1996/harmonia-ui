@@ -1,11 +1,13 @@
 /**
  * Empathy Demo Card
  *
- * A live demonstration of how UI adapts to empathy state:
- * - Content length varies with cognitive capacity
- * - Animation intensity varies with motion mode
- * - Visual density varies with density mode
- * - Tone shifts with emotional valence
+ * A live demonstration of how UI adapts to empathy state.
+ *
+ * STRICT SEPARATION OF CONCERNS:
+ * - Cognitive → density (how many items shown, visual complexity)
+ * - Temporal → content length (full vs abbreviated text)
+ * - Emotional → motion restraint (animation intensity)
+ * - Valence → tone only (greeting warmth, accent color)
  */
 
 "use client"
@@ -15,39 +17,55 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge"
 
 /**
- * Content variants for different cognitive loads
+ * COGNITIVE → Density (how many things compete for attention)
+ * Controls: card count, visible features, visual grouping
  */
-const CONTENT = {
-  full: {
+const DENSITY_CONTENT = {
+  high: {
     title: "Adaptive Interface Demo",
-    description: "This card demonstrates how the empathy system adapts UI in real-time based on your current state.",
-    features: [
-      "Content length adjusts to cognitive capacity",
-      "Animation intensity matches your energy level",
-      "Visual density responds to your available bandwidth",
-      "Tone shifts based on emotional valence",
-    ],
+    featureCount: 4,
     cta: "Explore the Framework",
   },
-  reduced: {
+  medium: {
     title: "Adaptive Interface",
-    description: "UI adapts in real-time to your current state.",
-    features: [
-      "Content adapts to capacity",
-      "Animations match energy",
-    ],
+    featureCount: 2,
     cta: "Explore",
   },
-  minimal: {
+  low: {
     title: "Live Demo",
-    description: null,
-    features: null,
+    featureCount: 0,
     cta: "Go",
   },
 }
 
 /**
- * Tone variants based on valence
+ * TEMPORAL → Content Length (how much time the UI asks)
+ * Controls: description length, feature text verbosity
+ */
+const TEMPORAL_CONTENT = {
+  full: {
+    description: "This card demonstrates how the empathy system adapts UI in real-time based on your current state.",
+    features: [
+      "Cognitive capacity controls visual density",
+      "Temporal capacity controls content length",
+      "Emotional capacity controls motion restraint",
+      "Valence controls tone and expressiveness",
+    ],
+  },
+  abbreviated: {
+    description: "UI adapts in real-time.",
+    features: [
+      "Density from cognitive",
+      "Length from temporal",
+      "Motion from emotional",
+      "Tone from valence",
+    ],
+  },
+}
+
+/**
+ * VALENCE → Tone Only (emotional color, NOT information volume)
+ * Controls: greeting warmth, accent styling, playfulness
  */
 const TONE = {
   positive: {
@@ -75,16 +93,20 @@ export function EmpathyDemoCard() {
   const modeLabel = deriveModeLabel(mode)
   const modeBadgeColor = getModeBadgeColor(modeLabel)
 
-  /**
-   * Content level based on density mode
-   */
-  const contentLevel =
-    mode.density === "low" ? "minimal" : mode.density === "medium" ? "reduced" : "full"
-  const content = CONTENT[contentLevel]
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COGNITIVE → Density (derived via mode.density)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const densityContent = DENSITY_CONTENT[mode.density]
 
-  /**
-   * Tone based on valence
-   */
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMPORAL → Content Length (direct from temporal capacity)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const temporalContent =
+    context.userCapacity.temporal > 0.4 ? TEMPORAL_CONTENT.full : TEMPORAL_CONTENT.abbreviated
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VALENCE → Tone Only (does NOT affect information volume)
+  // ═══════════════════════════════════════════════════════════════════════════
   const toneKey =
     context.emotionalState.valence > 0.2
       ? "positive"
@@ -93,9 +115,10 @@ export function EmpathyDemoCard() {
         : "neutral"
   const tone = TONE[toneKey]
 
-  /**
-   * Animation classes based on motion mode
-   */
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EMOTIONAL → Motion Restraint (derived via mode.motion)
+  // Low emotional = no surprises, no playful micro-interactions
+  // ═══════════════════════════════════════════════════════════════════════════
   const cardAnimClass =
     mode.motion === "expressive"
       ? "morph-fade-in"
@@ -112,6 +135,9 @@ export function EmpathyDemoCard() {
 
   const breatheClass = mode.motion === "expressive" ? "breathe" : ""
 
+  // Combine: features from temporal content, limited by density count
+  const visibleFeatures = temporalContent.features.slice(0, densityContent.featureCount)
+
   return (
     <Card
       className={`max-w-md border-2 transition-colors ${cardAnimClass} ${hoverClass}`}
@@ -125,21 +151,24 @@ export function EmpathyDemoCard() {
           >
             {modeLabel} Mode
           </Badge>
+          {/* Valence controls tone/greeting only */}
           <span className={`text-xs ${tone.accent}`}>{tone.greeting}</span>
         </div>
+        {/* Cognitive controls title complexity */}
         <CardTitle className={mode.motion === "expressive" ? "float" : ""}>
-          {content.title}
+          {densityContent.title}
         </CardTitle>
-        {content.description && (
-          <CardDescription>{content.description}</CardDescription>
+        {/* Temporal controls description length, shown when density allows */}
+        {mode.density !== "low" && (
+          <CardDescription>{temporalContent.description}</CardDescription>
         )}
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Feature list - only shown when content level allows */}
-        {content.features && (
+        {/* Feature list: count from cognitive, text length from temporal */}
+        {visibleFeatures.length > 0 && (
           <ul className="space-y-2">
-            {content.features.map((feature, idx) => (
+            {visibleFeatures.map((feature, idx) => (
               <li
                 key={idx}
                 className={`flex items-start gap-2 text-sm text-muted-foreground ${
@@ -154,25 +183,26 @@ export function EmpathyDemoCard() {
           </ul>
         )}
 
-        {/* CTA button - animation intensity varies */}
+        {/* CTA button - motion restraint from emotional */}
         <button
           className={`w-full py-2 px-4 rounded-md bg-primary text-primary-foreground font-medium text-sm transition-transform ${
             mode.motion === "expressive" ? "hover-pulse" : "hover-lift"
           } ${breatheClass}`}
         >
-          {content.cta}
+          {densityContent.cta}
         </button>
 
-        {/* Live state readout */}
+        {/* Live state readout with hints showing what each controls */}
         <div className="pt-4 border-t border-border">
           <p className="text-xs text-muted-foreground mb-2">Live State</p>
           <div className="grid grid-cols-4 gap-1 text-xs">
-            <StateChip label="Cog" value={context.userCapacity.cognitive} />
-            <StateChip label="Temp" value={context.userCapacity.temporal} />
-            <StateChip label="Emo" value={context.userCapacity.emotional} />
+            <StateChip label="Cog" value={context.userCapacity.cognitive} hint="density" />
+            <StateChip label="Temp" value={context.userCapacity.temporal} hint="length" />
+            <StateChip label="Emo" value={context.userCapacity.emotional} hint="motion" />
             <StateChip
               label="Val"
               value={context.emotionalState.valence}
+              hint="tone"
               signed
             />
           </div>
@@ -185,10 +215,12 @@ export function EmpathyDemoCard() {
 function StateChip({
   label,
   value,
+  hint,
   signed = false,
 }: {
   label: string
   value: number
+  hint: string
   signed?: boolean
 }) {
   const displayValue = signed
@@ -199,6 +231,7 @@ function StateChip({
     <div className="bg-muted/50 rounded px-2 py-1 text-center">
       <p className="text-muted-foreground text-[10px]">{label}</p>
       <p className="font-mono font-medium">{displayValue}</p>
+      <p className="text-muted-foreground text-[9px] opacity-70">{hint}</p>
     </div>
   )
 }

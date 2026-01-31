@@ -1,11 +1,11 @@
 /**
  * Guests Section - Featured Convention Guests
  *
- * Empathy-Driven Adaptations:
- * - Low cognitive: Show fewer guests, simpler bios
- * - Low emotional: Warmer, more welcoming language
- * - Low temporal: Skip "view all" link, show essentials only
- * - Density mode controls grid columns
+ * STRICT SEPARATION OF CONCERNS:
+ * - Cognitive → density (guest count, grid columns, visual complexity)
+ * - Temporal → content length (bio verbosity, "view all" link)
+ * - Emotional → motion restraint (animation intensity)
+ * - Valence → (not used here - tone doesn't apply to factual guest info)
  */
 
 "use client"
@@ -87,41 +87,37 @@ export function GuestsSection() {
     valence: context.emotionalState.valence,
   })
 
-  /**
-   * Content level based on density mode
-   */
-  const contentLevel =
-    mode.density === "low" ? "minimal" : mode.density === "medium" ? "reduced" : "full"
-
-  const header = HEADERS[contentLevel]
-
-  /**
-   * Bio length based on cognitive capacity
-   */
-  const bioLength = context.userCapacity.cognitive > 0.5 ? "full" : "short"
-
-  /**
-   * Filter guests based on density
-   */
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COGNITIVE → Density (guest count, grid columns)
+  // Controls how many things compete for attention at once
+  // ═══════════════════════════════════════════════════════════════════════════
   const visibleGuests =
     mode.density === "low" ? GUESTS.filter((g) => g.featured) : GUESTS
 
-  /**
-   * Grid columns based on density
-   */
   const gridClass =
     mode.density === "low"
       ? "grid-cols-1 sm:grid-cols-2"
       : "grid-cols-2 lg:grid-cols-4"
 
-  /**
-   * Show "view all" link only when choice load is normal
-   */
-  const showViewAll = mode.choiceLoad === "normal" && context.userCapacity.temporal > 0.4
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMPORAL → Content Length (bio verbosity, header detail, view all link)
+  // Controls how much time the UI asks from the user
+  // ═══════════════════════════════════════════════════════════════════════════
+  const bioLength = context.userCapacity.temporal > 0.5 ? "full" : "short"
 
-  /**
-   * Animation class based on motion mode
-   */
+  const headerContent =
+    context.userCapacity.temporal > 0.5
+      ? HEADERS.full
+      : context.userCapacity.temporal > 0.3
+        ? HEADERS.reduced
+        : HEADERS.minimal
+
+  const showViewAll = context.userCapacity.temporal > 0.4
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EMOTIONAL → Motion Restraint (animation intensity)
+  // Low emotional = no surprises, calm UI
+  // ═══════════════════════════════════════════════════════════════════════════
   const sectionAnimClass = mode.motion !== "off" ? "sacred-fade" : ""
 
   return (
@@ -139,12 +135,12 @@ export function GuestsSection() {
             id="guests-title"
             className="text-4xl md:text-6xl font-black tracking-tight mb-4"
           >
-            {header.title.split(" ").slice(0, -1).join(" ")}
-            <span className="text-primary"> {header.title.split(" ").slice(-1)}</span>
+            {headerContent.title.split(" ").slice(0, -1).join(" ")}
+            <span className="text-primary"> {headerContent.title.split(" ").slice(-1)}</span>
           </h2>
-          {header.description && (
+          {headerContent.description && (
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
-              {header.description}
+              {headerContent.description}
             </p>
           )}
         </header>

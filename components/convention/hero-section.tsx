@@ -1,11 +1,11 @@
 /**
  * Hero Section - Convention Landing Hero
  *
- * Empathy-Driven Adaptations:
- * - Low cognitive: Simpler tagline, fewer CTAs
- * - Low emotional: Warmer, more supportive tone
- * - Low temporal: Direct messaging, skip secondary info
- * - Negative valence: Calmer animations, gentler language
+ * STRICT SEPARATION OF CONCERNS:
+ * - Cognitive → density (concurrent info: location, secondary details)
+ * - Temporal → content length (date badge, tagline sub-text)
+ * - Emotional → motion restraint (animation intensity)
+ * - Valence → tone only (CTA language warmth, NOT information)
  */
 
 "use client"
@@ -16,30 +16,34 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 /**
- * Content variants based on capacity state
- * Each key represents a different cognitive/emotional load level
+ * TEMPORAL → Content Length (how much time the UI asks)
+ * Controls: tagline verbosity, secondary text presence
  */
 const TAGLINES = {
   full: {
     main: "Where the discarded become legendary.",
     sub: "The ultimate celebration of outcasts, underdogs, and anime.",
   },
-  reduced: {
+  abbreviated: {
     main: "Where the discarded become legendary.",
-    sub: null, // Remove secondary text when capacity is low
-  },
-  minimal: {
-    main: "Join us in the Abyss.",
-    sub: null,
+    sub: null, // Skip secondary text when temporal is low
   },
 }
 
+/**
+ * VALENCE → Tone Only (emotional color, NOT information volume)
+ * Controls: CTA language warmth/playfulness
+ */
 const TONES = {
+  positive: {
+    cta: "LET'S GO!",
+    secondary: "EXPLORE MORE",
+  },
   neutral: {
     cta: "GET TICKETS",
     secondary: "VIEW SCHEDULE",
   },
-  supportive: {
+  negative: {
     cta: "JOIN US",
     secondary: "LEARN MORE",
   },
@@ -54,30 +58,32 @@ export function HeroSection() {
     valence: context.emotionalState.valence,
   })
 
-  /**
-   * Derive content complexity from mode
-   */
-  const contentLevel =
-    mode.density === "low" ? "minimal" : mode.density === "medium" ? "reduced" : "full"
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMPORAL → Content Length (tagline verbosity)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const tagline =
+    context.userCapacity.temporal > 0.4 ? TAGLINES.full : TAGLINES.abbreviated
 
-  const tagline = TAGLINES[contentLevel]
-  const tone = mode.guidance === "high" || context.emotionalState.valence < 0 ? "supportive" : "neutral"
-  const ctaText = TONES[tone]
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VALENCE → Tone Only (CTA warmth, NOT information volume)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const toneKey =
+    context.emotionalState.valence > 0.2
+      ? "positive"
+      : context.emotionalState.valence < -0.2
+        ? "negative"
+        : "neutral"
+  const ctaText = TONES[toneKey]
 
-  /**
-   * Animation intensity scales with motion mode
-   */
-  const animationIntensity =
-    mode.motion === "off" ? 0.3 : mode.motion === "subtle" ? 0.6 : 1
-
-  /**
-   * Show secondary CTA only when not in minimal mode
-   */
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COGNITIVE → Concurrent Choices (via mode.choiceLoad from temporal)
+  // Show secondary CTA only when temporal allows (user has time to decide)
+  // ═══════════════════════════════════════════════════════════════════════════
   const showSecondaryCTA = mode.choiceLoad === "normal"
 
-  /**
-   * Valence influences color warmth
-   */
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VALENCE → Expressiveness (color warmth shift)
+  // ═══════════════════════════════════════════════════════════════════════════
   const warmthShift = context.emotionalState.valence * 10
 
   return (
@@ -106,7 +112,7 @@ export function HeroSection() {
 
       {/* Main content container */}
       <div className="relative z-10 max-w-5xl mx-auto text-center">
-        {/* Event date badge - hide when temporal is low */}
+        {/* TEMPORAL: Date badge - skip when user has limited time */}
         {context.userCapacity.temporal > 0.3 && (
           <div className={mode.motion !== "off" ? "sacred-fade" : ""}>
             <Badge
@@ -173,7 +179,7 @@ export function HeroSection() {
           )}
         </div>
 
-        {/* Location info - gentle float when expressive */}
+        {/* COGNITIVE: Location info - reduce concurrent info when cognitive is low */}
         {context.userCapacity.cognitive > 0.4 && (
           <p
             className={`mt-12 text-sm text-muted-foreground tracking-widest uppercase ${
@@ -185,8 +191,8 @@ export function HeroSection() {
         )}
       </div>
 
-      {/* Scroll indicator - uses breathe animation, hide when motion is off */}
-      {mode.motion !== "off" && context.userCapacity.cognitive > 0.3 && (
+      {/* EMOTIONAL: Scroll indicator - hide when motion is restrained */}
+      {mode.motion !== "off" && (
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-60 fall"
           aria-hidden="true"
