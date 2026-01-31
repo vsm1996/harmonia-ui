@@ -66,11 +66,12 @@ const TEMPORAL_CONTENT = {
 /**
  * VALENCE → Tone Only (emotional color, NOT information volume)
  * Controls: greeting warmth, accent styling, playfulness
+ * Note: Using darker/more saturated colors for light mode contrast
  */
 const TONE = {
   positive: {
     greeting: "You're doing great!",
-    accent: "text-accent",
+    accent: "text-green-600 dark:text-accent",
   },
   neutral: {
     greeting: "Here's how it works:",
