@@ -1,5 +1,5 @@
 /**
- * Empathy Framework Utilities
+ * Capacity-Adaptive UI Utilities
  *
  * Foundation utilities for Renge (proportional form) transformations
  */

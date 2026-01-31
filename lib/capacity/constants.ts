@@ -1,5 +1,5 @@
 /**
- * Empathy Framework Constants
+ * Capacity-Adaptive UI Constants
  *
  * Renge (Form) - Natural mathematics and proportions
  */

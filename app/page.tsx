@@ -1,8 +1,8 @@
 /**
- * Capacity-Adaptive Framework Demo Page
+ * Capacity-Adaptive UI Framework Demo Page
  *
  * Architecture:
- * - EmpathyProvider wraps the entire app, making ambient fields available
+ * - CapacityProvider wraps the entire app, making ambient fields available
  * - No prop drilling - components read fields directly via hooks
  * - State is shared between this page and /convention
  */
@@ -11,8 +11,8 @@ import Link from "next/link"
 import { AmbientFieldMonitor } from "@/components/ambient-field-monitor"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
-import { EmpathyControls } from "@/components/empathy-controls"
-import { EmpathyDemoCard } from "@/components/empathy-demo-card"
+import { CapacityControls } from "@/components/capacity-controls"
+import { CapacityDemoCard } from "@/components/capacity-demo-card"
 
 export default function Page() {
   return (
@@ -26,9 +26,9 @@ export default function Page() {
                 🧠
               </span>
               <div>
-                <h1 className="text-4xl font-bold tracking-tight text-foreground">Capacity-Adaptive UI Framework</h1>
+                <h1 className="text-4xl font-bold tracking-tight text-foreground">Capacity-Adaptive UI</h1>
                 <p className="text-lg text-muted-foreground mt-2 text-pretty">
-                  A living system that responds to human emotional state through distributed intelligence
+                  A living system that responds to human capacity through distributed intelligence
                 </p>
               </div>
             </div>
@@ -76,9 +76,9 @@ export default function Page() {
         <section>
           <h2 className="text-2xl font-bold tracking-tight mb-2">Live Demo</h2>
           <p className="text-muted-foreground mb-6">
-            Adjust the empathy controls (bottom-right) to see how this card adapts in real-time.
+            Adjust the capacity controls (bottom-right) to see how this card adapts in real-time.
           </p>
-          <EmpathyDemoCard />
+          <CapacityDemoCard />
         </section>
 
         {/* Field Monitor Section */}
@@ -91,8 +91,8 @@ export default function Page() {
         </section>
       </div>
 
-      {/* Shared Empathy Controls - state persists across pages */}
-      <EmpathyControls />
+      {/* Shared Capacity Controls - state persists across pages */}
+      <CapacityControls />
     </main>
   )
 }

@@ -1,5 +1,5 @@
 /**
- * Core Types for Empathy-Driven UI Framework
+ * Core Types for Capacity-Adaptive UI Framework
  *
  * Myoho (Law) - Immutable contracts that govern the system
  */

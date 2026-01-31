@@ -12,7 +12,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { useEnergyField } from "@/lib/empathy"
+import { useEnergyField } from "@/lib/capacity"
 import { Button } from "@/components/ui/button"
 
 const NAV_ITEMS = [

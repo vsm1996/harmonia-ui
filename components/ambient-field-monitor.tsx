@@ -24,12 +24,12 @@ import {
   useEnergyField,
   useAttentionField,
   useEmotionalValenceField,
-  useEmpathyContext,
+  useCapacityContext,
   deriveMode,
   deriveModeLabel,
   getModeBadgeColor,
-} from "@/lib/empathy"
-import type { InterfaceMode, CapacityField } from "@/lib/empathy"
+} from "@/lib/capacity"
+import type { InterfaceMode, CapacityField } from "@/lib/capacity"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "motion/react"
@@ -71,7 +71,7 @@ function MonitorHeader() {
  * Modes: Calm | Focused | Exploratory | Minimal
  */
 function InterfaceModeBadge() {
-  const { context } = useEmpathyContext()
+  const { context } = useCapacityContext()
 
   // Build CapacityField from context
   const field: CapacityField = {
@@ -273,7 +273,7 @@ function FieldCard({ label, value, trend, velocity, description, color, icon, is
  * - Arousal removed for Phase 1 (Phase 2+ feature)
  */
 function CapacityFieldInspector() {
-  const { context } = useEmpathyContext()
+  const { context } = useCapacityContext()
 
   return (
     <Card className="p-6 space-y-4 border-border/50 bg-card/50 backdrop-blur-sm">
@@ -387,14 +387,14 @@ function NextStepsGuide() {
             <p className="text-sm text-muted-foreground leading-relaxed">
               <strong className="text-foreground">Phase 1 Complete:</strong> 4-input control system 
               (cognitive, temporal, emotional, valence) with real-time InterfaceMode derivation. 
-              State persists across pages via EmpathyProvider.
+              State persists across pages via CapacityProvider.
             </p>
           </div>
 
           <div className="flex items-start gap-3">
             <span className="text-green-500 font-bold">Done</span>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Demo Components:</strong> EmpathyDemoCard responds 
+              <strong className="text-foreground">Demo Components:</strong> CapacityDemoCard responds 
               to InterfaceMode with adaptive content density, emotional tone, and CSS animations 
               (sacred-fade, helix-rise, breathe, hover effects).
             </p>

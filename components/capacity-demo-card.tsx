@@ -1,7 +1,7 @@
 /**
- * Empathy Demo Card
+ * Capacity Demo Card
  *
- * A live demonstration of how UI adapts to empathy state.
+ * A live demonstration of how UI adapts to capacity state.
  *
  * STRICT SEPARATION OF CONCERNS:
  * - Cognitive → density (how many items shown, visual complexity)
@@ -12,7 +12,7 @@
 
 "use client"
 
-import { useEmpathyContext, deriveMode, deriveModeLabel, getModeBadgeColor } from "@/lib/empathy"
+import { useCapacityContext, deriveMode, deriveModeLabel, getModeBadgeColor } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -44,7 +44,7 @@ const DENSITY_CONTENT = {
  */
 const TEMPORAL_CONTENT = {
   full: {
-    description: "This card demonstrates how the empathy system adapts UI in real-time based on your current state.",
+    description: "This card demonstrates how the capacity system adapts UI in real-time based on your current state.",
     features: [
       "Cognitive capacity controls visual density",
       "Temporal capacity controls content length",
@@ -82,8 +82,8 @@ const TONE = {
   },
 }
 
-export function EmpathyDemoCard() {
-  const { context } = useEmpathyContext()
+export function CapacityDemoCard() {
+  const { context } = useCapacityContext()
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,

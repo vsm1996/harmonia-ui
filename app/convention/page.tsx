@@ -1,7 +1,7 @@
 /**
  * ABYSS CON - Gachiakuta-Inspired Anime Convention Landing Page
  *
- * This page demonstrates the empathy-driven UI framework in action:
+ * This page demonstrates the capacity-adaptive UI framework in action:
  * - Components respond to ambient fields (energy, attention, valence)
  * - Typography scales based on user cognitive capacity
  * - Animations adapt to user energy levels
@@ -20,7 +20,7 @@ import { EventsSection } from "@/components/convention/events-section"
 import { GuestsSection } from "@/components/convention/guests-section"
 import { TicketsSection } from "@/components/convention/tickets-section"
 import { ConventionNav } from "@/components/convention/convention-nav"
-import { EmpathyControls } from "@/components/empathy-controls"
+import { CapacityControls } from "@/components/capacity-controls"
 import { Footer } from "@/components/convention/footer"
 
 export default function ConventionPage() {
@@ -44,8 +44,8 @@ export default function ConventionPage() {
       {/* Footer with convention details */}
       <Footer />
 
-      {/* Phase 1: Manual empathy controls (bottom-right fixed) */}
-      <EmpathyControls />
+      {/* Phase 1: Manual capacity controls (bottom-right fixed) */}
+      <CapacityControls />
     </main>
   )
 }

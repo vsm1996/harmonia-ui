@@ -1,13 +1,13 @@
 /**
- * Empathy Framework - Public API
+ * Capacity-Adaptive UI Framework - Public API
  *
  * Export only what components need to consume
  */
 
 // Provider & Hooks
 export {
-  EmpathyProvider,
-  useEmpathyContext,
+  CapacityProvider,
+  useCapacityContext,
   useEnergyField,
   useAttentionField,
   useEmotionalValenceField,

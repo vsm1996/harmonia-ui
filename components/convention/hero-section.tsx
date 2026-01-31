@@ -11,7 +11,7 @@
 "use client"
 
 import { motion } from "motion/react"
-import { useEmpathyContext, deriveMode } from "@/lib/empathy"
+import { useCapacityContext, deriveMode } from "@/lib/capacity"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -50,7 +50,7 @@ const TONES = {
 }
 
 export function HeroSection() {
-  const { context } = useEmpathyContext()
+  const { context } = useCapacityContext()
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,

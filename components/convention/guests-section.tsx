@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useEmpathyContext, deriveMode } from "@/lib/empathy"
+import { useCapacityContext, deriveMode } from "@/lib/capacity"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -79,7 +79,7 @@ const HEADERS = {
 }
 
 export function GuestsSection() {
-  const { context } = useEmpathyContext()
+  const { context } = useCapacityContext()
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
@@ -193,7 +193,7 @@ const GUEST_GRADIENTS = [
 
 /**
  * Individual guest card
- * Adapts bio length and hover behavior based on empathy state
+ * Adapts bio length and hover behavior based on capacity state
  */
 function GuestCard({
   guest,

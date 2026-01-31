@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useEmpathyContext, deriveMode } from "@/lib/empathy"
+import { useCapacityContext, deriveMode } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -103,7 +103,7 @@ const HEADERS = {
 }
 
 export function TicketsSection() {
-  const { context } = useEmpathyContext()
+  const { context } = useCapacityContext()
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
@@ -203,7 +203,7 @@ export function TicketsSection() {
 
 /**
  * Individual tier card
- * Adapts feature list and animations based on empathy state
+ * Adapts feature list and animations based on capacity state
  */
 function TierCard({
   tier,

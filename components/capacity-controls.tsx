@@ -23,22 +23,22 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import {
-  useEmpathyContext,
+  useCapacityContext,
   useEnergyField,
   useAttentionField,
   useEmotionalValenceField,
   deriveMode,
   deriveModeLabel,
   getModeBadgeColor,
-} from "@/lib/empathy"
+} from "@/lib/capacity"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-export function EmpathyControls() {
+export function CapacityControls() {
   const [isOpen, setIsOpen] = useState(false)
-  const { context, updateCapacity, updateEmotionalState } = useEmpathyContext()
+  const { context, updateCapacity, updateEmotionalState } = useCapacityContext()
   const energy = useEnergyField()
   const attention = useAttentionField()
   const valence = useEmotionalValenceField()
@@ -79,7 +79,7 @@ export function EmpathyControls() {
               className="shadow-lg bg-background"
             >
               <SettingsIcon className="w-4 h-4 mr-2" />
-              Empathy
+              Capacity
             </Button>
           </motion.div>
         )}
@@ -99,7 +99,7 @@ export function EmpathyControls() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-sm font-semibold">
-                      Empathy Controls
+                      Capacity Controls
                     </CardTitle>
                     <Badge
                       className="text-xs"

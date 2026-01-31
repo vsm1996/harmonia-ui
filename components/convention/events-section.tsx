@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useInView } from "motion/react"
-import { useEmpathyContext, deriveMode } from "@/lib/empathy"
+import { useCapacityContext, deriveMode } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
@@ -130,7 +130,7 @@ const CATEGORY_STYLES: Record<string, string> = {
 }
 
 export function EventsSection() {
-  const { context } = useEmpathyContext()
+  const { context } = useCapacityContext()
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,

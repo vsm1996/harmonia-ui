@@ -1,5 +1,5 @@
 /**
- * Empathy Provider - React Context wrapper for ambient fields
+ * Capacity Provider - React Context wrapper for ambient fields
  *
  * Wraps application root and exposes field hooks
  */
@@ -16,19 +16,19 @@ import { FieldManager } from "./fields/field-manager"
 // Context Definition
 // ============================================================================
 
-interface EmpathyContextValue {
+interface CapacityContextValue {
   context: AmbientContext
   updateCapacity: (capacity: Partial<UserCapacity>) => void
   updateEmotionalState: (state: Partial<EmotionalState>) => void
 }
 
-const EmpathyContext = createContext<EmpathyContextValue | null>(null)
+const CapacityContext = createContext<CapacityContextValue | null>(null)
 
 // ============================================================================
 // Provider Component
 // ============================================================================
 
-export function EmpathyProvider({ children }: { children: React.ReactNode }) {
+export function CapacityProvider({ children }: { children: React.ReactNode }) {
   const [context, setContext] = useState<AmbientContext>(() => FieldManager.getContext())
 
   // Subscribe to field changes
@@ -50,9 +50,9 @@ export function EmpathyProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <EmpathyContext.Provider value={{ context, updateCapacity, updateEmotionalState }}>
+    <CapacityContext.Provider value={{ context, updateCapacity, updateEmotionalState }}>
       {children}
-    </EmpathyContext.Provider>
+    </CapacityContext.Provider>
   )
 }
 
@@ -64,10 +64,10 @@ export function EmpathyProvider({ children }: { children: React.ReactNode }) {
  * Access full ambient context
  * Most components should use specific field hooks instead
  */
-export function useEmpathyContext(): EmpathyContextValue {
-  const context = useContext(EmpathyContext)
+export function useCapacityContext(): CapacityContextValue {
+  const context = useContext(CapacityContext)
   if (!context) {
-    throw new Error("useEmpathyContext must be used within EmpathyProvider")
+    throw new Error("useCapacityContext must be used within CapacityProvider")
   }
   return context
 }
@@ -76,7 +76,7 @@ export function useEmpathyContext(): EmpathyContextValue {
  * Subscribe to energy field only
  */
 export function useEnergyField() {
-  const { context } = useEmpathyContext()
+  const { context } = useCapacityContext()
   return context.energy
 }
 
@@ -84,7 +84,7 @@ export function useEnergyField() {
  * Subscribe to attention field only
  */
 export function useAttentionField() {
-  const { context } = useEmpathyContext()
+  const { context } = useCapacityContext()
   return context.attention
 }
 
@@ -92,7 +92,7 @@ export function useAttentionField() {
  * Subscribe to emotional valence field only
  */
 export function useEmotionalValenceField() {
-  const { context } = useEmpathyContext()
+  const { context } = useCapacityContext()
   return context.emotionalValence
 }
 
@@ -100,6 +100,6 @@ export function useEmotionalValenceField() {
  * Get field update functions (for Phase 1 slider system)
  */
 export function useFieldControls() {
-  const { updateCapacity, updateEmotionalState } = useEmpathyContext()
+  const { updateCapacity, updateEmotionalState } = useCapacityContext()
   return { updateCapacity, updateEmotionalState }
 }
