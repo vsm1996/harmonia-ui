@@ -18,6 +18,7 @@ import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capaci
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
+import { ToxicDrip, AbyssRat } from "./gachiakuta-svgs"
 
 /**
  * Infection progress hook
@@ -177,14 +178,21 @@ export function EventsSection() {
   return (
     <section
       ref={sectionRef}
-      className="py-24 px-4 md:px-8 border-y transition-colors duration-500"
+      className="py-24 px-4 md:px-8 border-y transition-colors duration-500 relative"
       style={{
         backgroundColor: infectedBg,
         borderColor: infectedBorder,
       }}
       aria-labelledby="events-title"
     >
-      <div className="max-w-7xl mx-auto">
+      {/* Decorative SVGs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <ToxicDrip size={24} className="absolute top-8 left-8 text-accent/40" />
+        <ToxicDrip size={18} className="absolute top-12 right-16 text-accent/30" style={{ animationDelay: "-1s" } as React.CSSProperties} />
+        <AbyssRat size={32} className="absolute bottom-8 left-[15%] text-muted-foreground/20" />
+      </div>
+      
+      <div className="max-w-7xl mx-auto relative">
         {/* Section header - vortex-reveal like debris swirling into place */}
         <header className={`mb-16 text-center ${motionMode === "expressive" ? "vortex-reveal" : motionMode === "subtle" ? "bloom" : ""}`}>
           <Badge

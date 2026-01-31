@@ -14,6 +14,7 @@ import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capaci
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { FloatingDebris, BrokenChain } from "./gachiakuta-svgs"
 
 /**
  * Ticket tier data with content variants
@@ -147,10 +148,17 @@ export function TicketsSection() {
 
   return (
     <section
-      className="py-24 px-4 md:px-8"
+      className="py-24 px-4 md:px-8 relative"
       aria-labelledby="tickets-title"
     >
-      <div className="max-w-6xl mx-auto">
+      {/* Decorative SVGs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <FloatingDebris size={28} className="absolute top-12 left-12 text-primary/25" />
+        <BrokenChain size={36} className="absolute top-1/3 right-8 text-muted-foreground/20" />
+        <FloatingDebris size={20} className="absolute bottom-16 right-1/4 text-accent/20" />
+      </div>
+      
+      <div className="max-w-6xl mx-auto relative">
         {/* Section header - vortex-reveal like salvaged treasure emerging */}
         <header className={`mb-16 text-center ${motionMode === "expressive" ? "vortex-reveal" : motionMode === "subtle" ? "bloom" : ""}`}>
           <Badge variant="outline" className={`mb-4 tracking-widest ${motionMode === "expressive" ? "vibrate" : ""}`}>

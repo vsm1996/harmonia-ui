@@ -13,6 +13,7 @@
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { BuzzingFlies, SalvagedWeapon, CrackPattern } from "./gachiakuta-svgs"
 
 /**
  * Guest data with variants for different cognitive loads
@@ -125,10 +126,17 @@ export function GuestsSection() {
 
   return (
     <section
-      className="py-24 px-4 md:px-8 bg-card/50"
+      className="py-24 px-4 md:px-8 bg-card/50 relative"
       aria-labelledby="guests-title"
     >
-      <div className="max-w-7xl mx-auto">
+      {/* Decorative SVGs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <BuzzingFlies size={48} className="absolute top-16 right-8 text-muted-foreground/25" />
+        <SalvagedWeapon size={56} className="absolute bottom-12 left-8 text-primary/15 -rotate-12" />
+        <CrackPattern width={100} height={50} className="absolute top-1/2 right-4 text-muted-foreground/10" />
+      </div>
+      
+      <div className="max-w-7xl mx-auto relative">
         {/* Section header - vortex-reveal like legends emerging from chaos */}
         <header className={`mb-16 text-center ${motionMode === "expressive" ? "vortex-reveal" : motionMode === "subtle" ? "bloom" : ""}`}>
           <Badge variant="outline" className={`mb-4 tracking-widest ${motionMode === "expressive" ? "float" : ""}`}>
