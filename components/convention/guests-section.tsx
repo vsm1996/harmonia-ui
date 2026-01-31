@@ -10,7 +10,9 @@
 
 "use client"
 
+import { useRef } from "react"
 import Image from "next/image"
+import { motion, useInView, useScroll, useTransform, useSpring } from "motion/react"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -175,6 +177,9 @@ const HEADERS = {
 export function GuestsSection() {
   const { context } = useCapacityContext()
   const { mode: effectiveMotion } = useEffectiveMotion()
+  const sectionRef = useRef<HTMLElement>(null)
+  const isInView = useInView(sectionRef, { once: true, margin: "-15%" })
+  
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
@@ -183,6 +188,19 @@ export function GuestsSection() {
   })
   // Use effective motion (respects prefers-reduced-motion)
   const motionMode = effectiveMotion
+  
+  // Spring config based on motion mode
+  const springConfig = motionMode === "expressive" 
+    ? { stiffness: 80, damping: 12 } 
+    : { stiffness: 200, damping: 25 }
+  
+  // Scroll parallax for section
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  })
+  const bgY = useTransform(scrollYProgress, [0, 1], [0, -50])
+  const bgYSpring = useSpring(bgY, springConfig)
 
   // ═══════════════════════════════════════════════════════════════════════════
   // COGNITIVE → Density (guest count, grid columns)
@@ -219,67 +237,133 @@ export function GuestsSection() {
 
   return (
     <section
-      className="py-24 px-4 md:px-8 bg-card/50 relative"
+      ref={sectionRef}
+      className="py-24 px-4 md:px-8 bg-card/50 relative overflow-hidden"
       aria-labelledby="guests-title"
     >
-      {/* Decorative SVGs */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      {/* Decorative SVGs with parallax */}
+      <motion.div 
+        className="absolute inset-0 pointer-events-none overflow-hidden" 
+        aria-hidden="true"
+        style={{ y: motionMode !== "off" ? bgYSpring : 0 }}
+      >
         <BuzzingFlies size={48} className="absolute top-16 right-8 text-muted-foreground/25" />
         <SalvagedWeapon size={56} className="absolute bottom-12 left-8 text-primary/15 -rotate-12" />
         <CrackPattern width={100} height={50} className="absolute top-1/2 right-4 text-muted-foreground/10" />
-      </div>
+      </motion.div>
       
       <div className="max-w-7xl mx-auto relative">
-        {/* Section header - vortex-reveal like legends emerging from chaos */}
-        <header className={`mb-16 text-center ${motionMode === "expressive" ? "vortex-reveal" : motionMode === "subtle" ? "bloom" : ""}`}>
-          <Badge variant="outline" className={`mb-4 tracking-widest ${motionMode === "expressive" ? "float" : ""}`}>
-            GUESTS
-          </Badge>
-          <h2
+        {/* Section header with entrance animation */}
+        <motion.header 
+          className="mb-16 text-center"
+          initial={motionMode !== "off" ? { opacity: 0, y: 40 } : false}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ...springConfig }}
+        >
+          <motion.div
+            initial={motionMode !== "off" ? { scale: 0.8, opacity: 0 } : false}
+            animate={isInView ? { scale: 1, opacity: 1 } : {}}
+            transition={{ duration: 0.4 }}
+          >
+            <Badge variant="outline" className={`mb-4 tracking-widest ${motionMode === "expressive" ? "float" : ""}`}>
+              GUESTS
+            </Badge>
+          </motion.div>
+          <motion.h2
             id="guests-title"
             className="text-4xl md:text-6xl font-black tracking-tight mb-4"
+            initial={motionMode !== "off" ? { opacity: 0, y: 30 } : false}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.1, ...springConfig }}
           >
             {headerContent.title.split(" ").slice(0, -1).join(" ")}
-            <span className="text-primary"> {headerContent.title.split(" ").slice(-1)}</span>
-          </h2>
+            <motion.span 
+              className="text-primary"
+              whileHover={motionMode === "expressive" ? { scale: 1.1, textShadow: "0 0 30px hsl(var(--primary))" } : {}}
+            > {headerContent.title.split(" ").slice(-1)}</motion.span>
+          </motion.h2>
           {headerContent.description && (
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
+            <motion.p 
+              className="text-muted-foreground text-lg max-w-2xl mx-auto text-balance"
+              initial={motionMode !== "off" ? { opacity: 0 } : false}
+              animate={isInView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
               {headerContent.description}
-            </p>
+            </motion.p>
           )}
-        </header>
+        </motion.header>
 
-        {/* Guests grid - helix-rise like outcasts rising from the Abyss */}
-        <div className={`grid ${gridClass} gap-4 md:gap-6`}>
+        {/* Guests grid with staggered entrance */}
+        <motion.div 
+          className={`grid ${gridClass} gap-4 md:gap-6`}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: motionMode === "expressive" ? 0.12 : 0.06,
+                delayChildren: 0.2,
+              },
+            },
+          }}
+        >
           {visibleGuests.map((guest, index) => (
-            <div
+            <motion.div
               key={guest.id}
-              className={motionMode === "expressive" ? "helix-rise" : motionMode === "subtle" ? "gentle-fade" : ""}
-              style={{ animationDelay: `${index * 0.15}s` }}
+              variants={motionMode !== "off" ? {
+                hidden: { 
+                  opacity: 0, 
+                  y: 50,
+                  scale: 0.85,
+                },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  scale: 1,
+                  transition: {
+                    type: "spring",
+                    ...springConfig,
+                  },
+                },
+              } : {}}
             >
               <GuestCard
                 guest={guest}
                 motionMode={motionMode}
                 index={index}
                 bioLength={bioLength}
+                springConfig={springConfig}
               />
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        {/* More guests link - conditionally shown */}
+        {/* More guests link with hover animation */}
         {showViewAll && (
-          <div className={`mt-12 text-center ${motionMode === "expressive" ? "float" : motionMode === "subtle" ? "gentle-fade" : ""}`}>
-            <a
+          <motion.div 
+            className="mt-12 text-center"
+            initial={motionMode !== "off" ? { opacity: 0, y: 20 } : false}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <motion.a
               href="#guests"
-              className={`text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors ${
-                motionMode === "expressive" ? "hover-lift" : ""
-              }`}
+              className="text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors"
+              whileHover={motionMode !== "off" ? { x: 5, scale: 1.05 } : {}}
+              whileTap={motionMode !== "off" ? { scale: 0.98 } : {}}
             >
               View All 50+ Guests
-              <span aria-hidden="true">-&gt;</span>
-            </a>
-          </div>
+              <motion.span 
+                aria-hidden="true"
+                animate={motionMode === "expressive" ? { x: [0, 5, 0] } : {}}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              >
+                -&gt;
+              </motion.span>
+            </motion.a>
+          </motion.div>
         )}
       </div>
     </section>
@@ -298,7 +382,7 @@ const GUEST_GRADIENTS = [
 ] as const
 
 /**
- * Individual guest card
+ * Individual guest card with Framer Motion interactions
  * Adapts bio length and hover behavior based on capacity state
  */
 function GuestCard({
@@ -306,64 +390,80 @@ function GuestCard({
   motionMode,
   index,
   bioLength,
+  springConfig,
 }: {
   guest: (typeof GUESTS)[number]
   motionMode: "off" | "subtle" | "expressive"
   index: number
   bioLength: "full" | "short"
+  springConfig: { stiffness: number; damping: number }
 }) {
   const gradientClass = GUEST_GRADIENTS[index % GUEST_GRADIENTS.length]
   const bio = guest.bio[bioLength]
 
-  /**
-   * Hover class based on motion mode - more thematic variety
-   * Expressive: alternating between hover-expand and hover-pulse
-   * Subtle: hover-lift for gentle feedback
-   * Off: no hover animation
-   */
-  const hoverClass =
-    motionMode === "expressive" 
-      ? index % 2 === 0 ? "hover-expand" : "hover-pulse"
-      : motionMode === "subtle" ? "hover-lift" : ""
-
-  /**
-   * Continuous animation for featured guests in expressive mode
-   */
-  const featuredAnim = guest.featured && motionMode === "expressive" ? "breathe" : ""
-
   return (
-    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 transition-colors ${hoverClass} ${featuredAnim}`}>
-      {/* Guest image */}
-      <div
-        className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}
-      >
-        <Image
-          src={guest.image}
-          alt={`${guest.name} - ${guest.role}`}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-        />
-        {/* Overlay gradient for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
-        {guest.featured && (
-          <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground z-10">
-            Featured
-          </Badge>
-        )}
-      </div>
+    <motion.div
+      className="h-full"
+      whileHover={motionMode !== "off" ? { y: -8 } : {}}
+      whileTap={motionMode !== "off" ? { scale: 0.98 } : {}}
+      transition={{ type: "spring", ...springConfig }}
+    >
+      <Card className="overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 transition-colors">
+        {/* Guest image with hover zoom */}
+        <div
+          className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}
+        >
+          <motion.div 
+            className="absolute inset-0"
+            whileHover={motionMode !== "off" ? { scale: 1.1 } : {}}
+            transition={{ duration: 0.5 }}
+          >
+            <Image
+              src={guest.image}
+              alt={`${guest.name} - ${guest.role}`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            />
+          </motion.div>
+          {/* Overlay gradient for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+          {guest.featured && (
+            <motion.div
+              initial={motionMode !== "off" ? { scale: 0, rotate: -10 } : false}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", delay: 0.3 + index * 0.1 }}
+            >
+              <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground z-10">
+                Featured
+              </Badge>
+            </motion.div>
+          )}
+          
+          {/* Hover overlay effect for expressive mode */}
+          {motionMode === "expressive" && (
+            <motion.div
+              className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              initial={false}
+            />
+          )}
+        </div>
 
-      <CardContent className="p-4">
-        <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
-          {guest.name}
-        </h3>
-        <p className="text-accent text-sm font-medium mb-2">
-          {guest.role}
-        </p>
-        <p className="text-muted-foreground text-sm line-clamp-2">
-          {bio}
-        </p>
-      </CardContent>
-    </Card>
+        <CardContent className="p-4">
+          <motion.h3 
+            className="font-bold text-lg group-hover:text-primary transition-colors"
+            whileHover={motionMode === "expressive" ? { x: 5 } : {}}
+          >
+            {guest.name}
+          </motion.h3>
+          <p className="text-accent text-sm font-medium mb-2">
+            {guest.role}
+          </p>
+          <p className="text-muted-foreground text-sm line-clamp-2">
+            {bio}
+          </p>
+        </CardContent>
+      </Card>
+    </motion.div>
   )
 }

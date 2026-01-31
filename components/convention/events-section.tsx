@@ -13,7 +13,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useInView } from "motion/react"
+import { motion, useInView, useSpring, useTransform, useScroll } from "motion/react"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -179,6 +179,21 @@ export function EventsSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const isInView = useInView(sectionRef, { once: true, margin: "-20%" })
   const infectionProgress = useInfectionProgress(isInView)
+  
+  // Scroll-based animations
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  })
+  
+  // Spring config adapts to motion mode
+  const springConfig = motionMode === "expressive" 
+    ? { stiffness: 100, damping: 15 } 
+    : { stiffness: 200, damping: 30 }
+  
+  // Header parallax (subtle movement)
+  const headerY = useTransform(scrollYProgress, [0, 0.5], [50, 0])
+  const headerYSpring = useSpring(headerY, springConfig)
   /**
    * Grid columns adapt to density mode
    */
@@ -227,43 +242,93 @@ export function EventsSection() {
       </div>
       
       <div className="max-w-7xl mx-auto relative">
-        {/* Section header - vortex-reveal like debris swirling into place */}
-        <header className={`mb-16 text-center ${motionMode === "expressive" ? "vortex-reveal" : motionMode === "subtle" ? "bloom" : ""}`}>
-          <Badge
-            variant="outline"
-            className={`mb-4 tracking-widest transition-colors duration-300 ${
-              motionMode === "expressive" ? "vibrate" : ""
-            }`}
-            style={{
-              borderColor: `oklch(${lightness} ${chroma} ${hue} / 0.5)`,
-              color: infectedColor,
-            }}
+        {/* Section header with scroll-linked motion */}
+        <motion.header 
+          className="mb-16 text-center"
+          style={{ y: motionMode !== "off" ? headerYSpring : 0 }}
+        >
+          <motion.div
+            initial={motionMode !== "off" ? { opacity: 0, scale: 0.8 } : false}
+            animate={isInView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.5 }}
           >
-            SCHEDULE
-          </Badge>
-          <h2
+            <Badge
+              variant="outline"
+              className={`mb-4 tracking-widest transition-colors duration-300 ${
+                motionMode === "expressive" ? "vibrate" : ""
+              }`}
+              style={{
+                borderColor: `oklch(${lightness} ${chroma} ${hue} / 0.5)`,
+                color: infectedColor,
+              }}
+            >
+              SCHEDULE
+            </Badge>
+          </motion.div>
+          <motion.h2
             id="events-title"
             className="text-4xl md:text-6xl font-black tracking-tight mb-4"
+            initial={motionMode !== "off" ? { opacity: 0, y: 40 } : false}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.1, ...springConfig }}
           >
             <InfectedText text="Descend Into" infectColor={infectedColor} />
-            <span style={{ color: infectedColor }}> The Events</span>
-          </h2>
-          <p
+            <motion.span 
+              style={{ color: infectedColor }}
+              whileHover={motionMode === "expressive" ? { scale: 1.05 } : {}}
+            > The Events</motion.span>
+          </motion.h2>
+          <motion.p
             className="text-lg max-w-2xl mx-auto text-balance transition-colors duration-300"
             style={{ color: `oklch(${lightness} ${chroma} ${hue} / 0.7)` }}
+            initial={motionMode !== "off" ? { opacity: 0, y: 20 } : false}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
             Three days of panels, competitions, screenings, and experiences
             designed for true outcasts.
-          </p>
-        </header>
+          </motion.p>
+        </motion.header>
 
-        {/* Events grid - spiral-in like salvaged items being thrown up */}
-        <div className={`grid ${gridClass} gap-6`}>
+        {/* Events grid with staggered motion entrance */}
+        <motion.div 
+          className={`grid ${gridClass} gap-6`}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: motionMode === "expressive" ? 0.15 : 0.08,
+              },
+            },
+          }}
+        >
           {EVENTS.map((event, index) => (
-            <div
+            <motion.div
               key={event.id}
-              className={motionMode === "expressive" ? "spiral-in" : motionMode === "subtle" ? "helix-rise" : ""}
-              style={{ animationDelay: `${index * 0.12}s` }}
+              variants={motionMode !== "off" ? {
+                hidden: { 
+                  opacity: 0, 
+                  y: 60,
+                  rotateX: motionMode === "expressive" ? 15 : 0,
+                  scale: 0.9,
+                },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  rotateX: 0,
+                  scale: 1,
+                  transition: {
+                    type: "spring",
+                    ...springConfig,
+                  },
+                },
+              } : {}}
+              whileHover={motionMode !== "off" ? { 
+                y: -8,
+                transition: { type: "spring", stiffness: 300, damping: 20 },
+              } : {}}
             >
               <EventCard
                 event={event}
@@ -276,9 +341,9 @@ export function EventsSection() {
                 density={mode.density}
                 guidance={mode.guidance}
               />
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* View all link */}
         <div className={`mt-12 text-center ${motionMode === "expressive" ? "float" : motionMode === "subtle" ? "gentle-fade" : ""}`}>
