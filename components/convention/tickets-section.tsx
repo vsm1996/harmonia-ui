@@ -140,7 +140,7 @@ export function TicketsSection() {
   // EMOTIONAL → Motion Restraint (animation intensity)
   // Low emotional = no surprises, calm UI
   // ═══════════════════════════════════════════════════════════════════════════
-  const sectionAnimClass = mode.motion !== "off" ? "sacred-fade" : ""
+  const sectionAnimClass = mode.motion === "subtle" ? "helix-rise" : ""
 
   return (
     <section
@@ -148,9 +148,9 @@ export function TicketsSection() {
       aria-labelledby="tickets-title"
     >
       <div className="max-w-6xl mx-auto">
-        {/* Section header - morph-fade-in for organic reveal */}
-        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "helix-rise" : sectionAnimClass}`}>
-          <Badge variant="outline" className="mb-4 tracking-widest">
+        {/* Section header - vortex-reveal like salvaged treasure emerging */}
+        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "bloom" : ""}`}>
+          <Badge variant="outline" className={`mb-4 tracking-widest ${mode.motion === "expressive" ? "vibrate" : ""}`}>
             TICKETS
           </Badge>
           <h2
@@ -172,12 +172,12 @@ export function TicketsSection() {
           )}
         </header>
 
-        {/* Pricing grid - adapts to visible tiers */}
+        {/* Pricing grid - morph-fade like trash transforming into treasure */}
         <div className={gridClass}>
           {visibleTiers.map((tier, index) => (
             <div
               key={tier.id}
-              className={mode.motion === "expressive" ? "spiral-in" : sectionAnimClass}
+              className={mode.motion === "expressive" ? "morph-fade-in" : mode.motion === "subtle" ? "gentle-fade" : ""}
               style={{ animationDelay: `${index * 0.2}s` }}
             >
               <TierCard
@@ -185,6 +185,7 @@ export function TicketsSection() {
                 motionMode={mode.motion}
                 featureLength={featureLength}
                 showFeatures={showFeatures}
+                index={index}
               />
             </div>
           ))}
@@ -192,7 +193,7 @@ export function TicketsSection() {
 
         {/* TEMPORAL: Additional info - only when user has time to read */}
         {headerContent.footer && context.userCapacity.temporal > 0.5 && (
-          <div className={`mt-12 text-center text-sm text-muted-foreground ${sectionAnimClass}`}>
+          <div className={`mt-12 text-center text-sm text-muted-foreground ${mode.motion === "expressive" ? "float" : mode.motion === "subtle" ? "gentle-fade" : ""}`}>
             <p>{headerContent.footer}</p>
           </div>
         )}
@@ -210,36 +211,42 @@ function TierCard({
   motionMode,
   featureLength,
   showFeatures,
+  index,
 }: {
   tier: (typeof TIERS)[number]
   motionMode: "off" | "subtle" | "expressive"
   featureLength: "full" | "short"
   showFeatures: boolean
+  index: number
 }) {
   const description = tier.description[featureLength]
   const features = tier.features[featureLength]
 
   /**
-   * Hover class based on motion mode
+   * Hover class based on motion mode - more thematic variety
    */
   const hoverClass =
-    motionMode === "expressive" ? "hover-expand" : motionMode === "subtle" ? "hover-lift" : ""
+    motionMode === "expressive" 
+      ? tier.highlight ? "hover-pulse" : "hover-expand"
+      : motionMode === "subtle" ? "hover-lift" : ""
 
   /**
-   * CTA animation: pulse for highlighted tier when expressive
+   * Continuous animation for highlighted tier - swelling like energy building
    */
-  const ctaAnimClass = tier.highlight && motionMode === "expressive" ? "pulse" : ""
+  const highlightAnim = tier.highlight && motionMode === "expressive" ? "swelling" : ""
 
   return (
     <Card
-      className={`h-full flex flex-col ${hoverClass} ${
+      className={`h-full flex flex-col ${hoverClass} ${highlightAnim} ${
         tier.highlight
           ? "border-primary bg-primary/5 relative"
           : ""
       }`}
     >
       {tier.highlight && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
+        <Badge className={`absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground ${
+          motionMode === "expressive" ? "vibrate" : ""
+        }`}>
           Recommended
         </Badge>
       )}
@@ -261,7 +268,9 @@ function TierCard({
           <ul className="space-y-3" role="list">
             {features.map((feature, idx) => (
               <li key={idx} className="flex items-start gap-3 text-sm">
-                <CheckIcon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <CheckIcon className={`w-5 h-5 text-primary shrink-0 mt-0.5 ${
+                  motionMode === "expressive" && tier.highlight ? "pulse" : ""
+                }`} />
                 <span>{feature}</span>
               </li>
             ))}
@@ -270,9 +279,9 @@ function TierCard({
       </CardContent>
 
       <CardFooter>
-        <div className={`w-full ${ctaAnimClass}`}>
+        <div className="w-full">
           <Button
-            className={`w-full ${tier.highlight ? "hover-pulse" : "hover-expand"}`}
+            className={`w-full ${tier.highlight && motionMode === "expressive" ? "hover-pulse" : "hover-expand"}`}
             variant={tier.highlight ? "default" : "outline"}
             size="lg"
           >

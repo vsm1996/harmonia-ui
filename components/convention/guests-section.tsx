@@ -118,7 +118,7 @@ export function GuestsSection() {
   // EMOTIONAL → Motion Restraint (animation intensity)
   // Low emotional = no surprises, calm UI
   // ═══════════════════════════════════════════════════════════════════════════
-  const sectionAnimClass = mode.motion !== "off" ? "sacred-fade" : ""
+  const sectionAnimClass = mode.motion === "subtle" ? "spiral-in" : ""
 
   return (
     <section
@@ -126,9 +126,9 @@ export function GuestsSection() {
       aria-labelledby="guests-title"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section header - bloom animation for organic reveal */}
-        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "bloom" : sectionAnimClass}`}>
-          <Badge variant="outline" className="mb-4 tracking-widest">
+        {/* Section header - vortex-reveal like legends emerging from chaos */}
+        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "bloom" : ""}`}>
+          <Badge variant="outline" className={`mb-4 tracking-widest ${mode.motion === "expressive" ? "float" : ""}`}>
             GUESTS
           </Badge>
           <h2
@@ -145,12 +145,12 @@ export function GuestsSection() {
           )}
         </header>
 
-        {/* Guests grid - adapts columns to density */}
+        {/* Guests grid - helix-rise like outcasts rising from the Abyss */}
         <div className={`grid ${gridClass} gap-4 md:gap-6`}>
           {visibleGuests.map((guest, index) => (
             <div
               key={guest.id}
-              className={mode.motion === "expressive" ? "helix-rise" : sectionAnimClass}
+              className={mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "gentle-fade" : ""}
               style={{ animationDelay: `${index * 0.15}s` }}
             >
               <GuestCard
@@ -165,13 +165,15 @@ export function GuestsSection() {
 
         {/* More guests link - conditionally shown */}
         {showViewAll && (
-          <div className={`mt-12 text-center ${sectionAnimClass}`}>
+          <div className={`mt-12 text-center ${mode.motion === "expressive" ? "float" : mode.motion === "subtle" ? "gentle-fade" : ""}`}>
             <a
               href="#guests"
-              className="text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors hover-lift"
+              className={`text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors ${
+                mode.motion === "expressive" ? "hover-lift" : ""
+              }`}
             >
               View All 50+ Guests
-              <span aria-hidden="true">→</span>
+              <span aria-hidden="true">-&gt;</span>
             </a>
           </div>
         )}
@@ -210,16 +212,23 @@ function GuestCard({
   const bio = guest.bio[bioLength]
 
   /**
-   * Hover class based on motion mode
-   * Expressive: hover-pulse for energetic feedback
-   * Subtle: hover-expand for gentle feedback
+   * Hover class based on motion mode - more thematic variety
+   * Expressive: alternating between hover-expand and hover-pulse
+   * Subtle: hover-lift for gentle feedback
    * Off: no hover animation
    */
   const hoverClass =
-    motionMode === "expressive" ? "hover-expand" : motionMode === "subtle" ? "hover-lift" : ""
+    motionMode === "expressive" 
+      ? index % 2 === 0 ? "hover-expand" : "hover-pulse"
+      : motionMode === "subtle" ? "hover-lift" : ""
+
+  /**
+   * Continuous animation for featured guests in expressive mode
+   */
+  const featuredAnim = guest.featured && motionMode === "expressive" ? "breathe" : ""
 
   return (
-    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 transition-colors ${hoverClass}`}>
+    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 transition-colors ${hoverClass} ${featuredAnim}`}>
       {/* Abstract image placeholder */}
       <div
         className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}

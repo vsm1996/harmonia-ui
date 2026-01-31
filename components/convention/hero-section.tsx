@@ -114,36 +114,40 @@ export function HeroSection() {
       <div className="relative z-10 max-w-5xl mx-auto text-center">
         {/* TEMPORAL: Date badge - skip when user has limited time */}
         {context.userCapacity.temporal > 0.3 && (
-          <div className={mode.motion !== "off" ? "sacred-fade" : ""}>
+          <div className={mode.motion === "expressive" ? "fall" : mode.motion === "subtle" ? "gentle-fade" : ""}>
             <Badge
               variant="outline"
-              className="mb-6 text-sm tracking-widest uppercase border-primary/50"
+              className={`mb-6 text-sm tracking-widest uppercase border-primary/50 ${
+                mode.motion === "expressive" ? "vibrate" : ""
+              }`}
+              style={{ animationDelay: "0.3s" }}
             >
               August 15-17, 2026
             </Badge>
           </div>
         )}
 
-        {/* Main title - uses vortex-reveal for dramatic entrance */}
+        {/* Main title - uses vortex-reveal for dramatic debris-spinning entrance */}
         <h1
           id="hero-title"
           className={`font-sans font-black tracking-tighter leading-none mb-6 ${
-            mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "sacred-fade" : ""
+            mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "bloom" : ""
           }`}
           style={{
             fontSize: "clamp(3rem, 15vw, 12rem)",
             filter: `hue-rotate(${warmthShift}deg)`,
           }}
         >
-          <span className="block text-primary">ABYSS</span>
+          <span className={`block text-primary ${mode.motion === "expressive" ? "breathe" : ""}`}>ABYSS</span>
           <span className="block text-foreground/90">CON</span>
         </h1>
 
-        {/* Tagline - helix-rise for uplifting reveal */}
+        {/* Tagline - helix-rise like rising from the Abyss */}
         <p
           className={`text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance ${
-            mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "sacred-fade" : ""
+            mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "gentle-fade" : ""
           }`}
+          style={{ animationDelay: "0.5s" }}
         >
           {tagline.main}
           {tagline.sub && (
@@ -154,16 +158,17 @@ export function HeroSection() {
           )}
         </p>
 
-        {/* CTA buttons - spiral-in for dynamic entrance */}
+        {/* CTA buttons - spiral-in like debris thrown from the depths */}
         <div
           className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${
-            mode.motion === "expressive" ? "spiral-in" : mode.motion === "subtle" ? "sacred-fade" : ""
+            mode.motion === "expressive" ? "spiral-in" : mode.motion === "subtle" ? "helix-rise" : ""
           }`}
+          style={{ animationDelay: "0.7s" }}
         >
           <Button 
             size="lg" 
             className={`text-lg px-8 py-6 font-bold tracking-wide ${
-              mode.motion === "expressive" ? "hover-pulse" : "hover-expand"
+              mode.motion === "expressive" ? "hover-pulse swelling" : "hover-expand"
             }`}
           >
             {ctaText.cta}
@@ -172,7 +177,9 @@ export function HeroSection() {
             <Button
               size="lg"
               variant="outline"
-              className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent hover-lift"
+              className={`text-lg px-8 py-6 font-medium tracking-wide bg-transparent ${
+                mode.motion === "expressive" ? "hover-lift wave" : "hover-lift"
+              }`}
             >
               {ctaText.secondary}
             </Button>
@@ -183,8 +190,9 @@ export function HeroSection() {
         {context.userCapacity.cognitive > 0.4 && (
           <p
             className={`mt-12 text-sm text-muted-foreground tracking-widest uppercase ${
-              mode.motion === "expressive" ? "float sacred-fade" : mode.motion === "subtle" ? "sacred-fade" : ""
+              mode.motion === "expressive" ? "float" : mode.motion === "subtle" ? "gentle-fade" : ""
             }`}
+            style={{ animationDelay: "1s" }}
           >
             Los Angeles Convention Center
           </p>

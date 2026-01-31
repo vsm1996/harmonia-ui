@@ -149,9 +149,9 @@ export function EventsSection() {
       : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
 
   /**
-   * Animation class based on motion mode
+   * Animation class based on motion mode - uses morph-fade for trash-punk aesthetic
    */
-  const sectionAnimClass = mode.motion !== "off" ? "sacred-fade" : ""
+  const sectionAnimClass = mode.motion === "subtle" ? "morph-fade-in" : ""
 
   /**
    * Color interpolation based on infection progress
@@ -181,11 +181,13 @@ export function EventsSection() {
       aria-labelledby="events-title"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section header - vortex-reveal for dramatic entrance */}
-        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "vortex-reveal" : sectionAnimClass}`}>
+        {/* Section header - vortex-reveal like debris swirling into place */}
+        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "bloom" : ""}`}>
           <Badge
             variant="outline"
-            className="mb-4 tracking-widest transition-colors duration-300"
+            className={`mb-4 tracking-widest transition-colors duration-300 ${
+              mode.motion === "expressive" ? "vibrate" : ""
+            }`}
             style={{
               borderColor: `oklch(${lightness} ${chroma} ${hue} / 0.5)`,
               color: infectedColor,
@@ -209,33 +211,36 @@ export function EventsSection() {
           </p>
         </header>
 
-        {/* Events grid - spiral-in for dynamic card reveals */}
+        {/* Events grid - spiral-in like salvaged items being thrown up */}
         <div className={`grid ${gridClass} gap-6`}>
           {EVENTS.map((event, index) => (
             <div
               key={event.id}
-              className={mode.motion === "expressive" ? "spiral-in" : sectionAnimClass}
-              style={{ animationDelay: `${index * 0.15}s` }}
+              className={mode.motion === "expressive" ? "spiral-in" : mode.motion === "subtle" ? "helix-rise" : ""}
+              style={{ animationDelay: `${index * 0.12}s` }}
             >
               <EventCard
                 event={event}
                 infectedColor={infectedColor}
                 infectedColorDim={infectedColorDim}
                 motionMode={mode.motion}
+                index={index}
               />
             </div>
           ))}
         </div>
 
         {/* View all link */}
-        <div className={`mt-12 text-center ${sectionAnimClass}`}>
+        <div className={`mt-12 text-center ${mode.motion === "expressive" ? "float" : mode.motion === "subtle" ? "gentle-fade" : ""}`}>
           <a
             href="#schedule"
-            className="font-medium tracking-wide inline-flex items-center gap-2 transition-colors hover:opacity-80 hover-lift"
+            className={`font-medium tracking-wide inline-flex items-center gap-2 transition-colors hover:opacity-80 ${
+              mode.motion === "expressive" ? "hover-lift" : ""
+            }`}
             style={{ color: infectedColor }}
           >
             View Full Schedule
-            <span aria-hidden="true">→</span>
+            <span aria-hidden="true">-&gt;</span>
           </a>
         </div>
       </div>
@@ -260,23 +265,34 @@ function EventCard({
   infectedColor,
   infectedColorDim,
   motionMode,
+  index,
 }: {
   event: (typeof EVENTS)[number]
   infectedColor: string
   infectedColorDim: string
   motionMode: "off" | "subtle" | "expressive"
+  index: number
 }) {
   const categoryStyle = CATEGORY_STYLES[event.category] || "bg-secondary text-secondary-foreground"
 
   /**
-   * Hover class based on motion mode
+   * Hover class based on motion mode - more varied animations
    */
   const hoverClass =
-    motionMode === "expressive" ? "hover-expand" : motionMode === "subtle" ? "hover-lift" : ""
+    motionMode === "expressive" 
+      ? index % 2 === 0 ? "hover-expand" : "hover-lift"
+      : motionMode === "subtle" ? "hover-lift" : ""
+
+  /**
+   * Subtle continuous animation for expressive mode - alternating effects
+   */
+  const continuousAnim = motionMode === "expressive" 
+    ? index % 3 === 0 ? "wave" : index % 3 === 1 ? "" : ""
+    : ""
 
   return (
     <Card
-      className={`h-full flex flex-col bg-background/50 backdrop-blur-sm transition-transform duration-300 ease-out ${hoverClass}`}
+      className={`h-full flex flex-col bg-background/50 backdrop-blur-sm transition-transform duration-300 ease-out ${hoverClass} ${continuousAnim}`}
       style={{
         borderColor: `color-mix(in oklch, ${infectedColor} 30%, transparent)`,
       }}
@@ -286,7 +302,9 @@ function EventCard({
           <CardTitle className="text-xl font-bold">
             {event.title}
           </CardTitle>
-          <Badge className={`shrink-0 ${categoryStyle}`}>{event.category}</Badge>
+          <Badge className={`shrink-0 ${categoryStyle} ${motionMode === "expressive" ? "pulse" : ""}`}>
+            {event.category}
+          </Badge>
         </div>
         <CardDescription className="text-base line-clamp-3">
           {event.description}
