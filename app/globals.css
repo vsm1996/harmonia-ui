@@ -163,6 +163,19 @@
 }
 
 /* ANIMATIONS */
+
+    /* Scan Line - industrial tech effect for cards */
+    @keyframes scanLine {
+      0%, 100% { 
+        opacity: 0;
+        transform: scaleX(0.3);
+      }
+      50% { 
+        opacity: 0.8;
+        transform: scaleX(1);
+      }
+    }
+
     /* Vortex Reveal (Slow like the earth's pulse) */
     .vortex-reveal {
       animation: vortexAnim 1.2s cubic-bezier(0.4, 0.0, 0.6, 1) both; /* both = backwards + forwards */

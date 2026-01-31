@@ -264,13 +264,11 @@ export function EventsSection() {
  * Individual event card component
  * Separated for clarity and potential reuse
  *
- * Height consistency:
- * - Uses flex-col with flex-1 on description area
- * - CardContent pushed to bottom with mt-auto
- *
- * Infection support:
- * - Receives transitioning colors from parent section
- * - Border and hover states use infected color
+ * Design: Industrial salvage aesthetic with:
+ * - Corner cuts mimicking torn/damaged metal
+ * - Gradient overlays for depth
+ * - Animated accent lines on hover
+ * - Category-colored top bar
  */
 function EventCard({
   event,
@@ -286,58 +284,134 @@ function EventCard({
   index: number
 }) {
   const categoryStyle = CATEGORY_STYLES[event.category] || "bg-secondary text-secondary-foreground"
+  const categoryBgColor = CATEGORY_STYLES[event.category]?.split(" ")[0] || "bg-secondary"
 
   /**
-   * Hover class based on motion mode - more varied animations
+   * Hover class based on motion mode
    */
   const hoverClass =
     motionMode === "expressive" 
-      ? index % 2 === 0 ? "hover-expand" : "hover-lift"
+      ? "hover-expand" 
       : motionMode === "subtle" ? "hover-lift" : ""
 
-  /**
-   * Subtle continuous animation for expressive mode - alternating effects
-   */
-  const continuousAnim = motionMode === "expressive" 
-    ? index % 3 === 0 ? "wave" : index % 3 === 1 ? "" : ""
-    : ""
-
   return (
-    <Card
-      className={`h-full flex flex-col bg-background/50 backdrop-blur-sm transition-transform duration-300 ease-out ${hoverClass} ${continuousAnim}`}
-      style={{
-        borderColor: `color-mix(in oklch, ${infectedColor} 30%, transparent)`,
-      }}
-    >
-      <CardHeader className="flex-1">
-        <div className="flex items-start justify-between gap-4">
-          <CardTitle className="text-xl font-bold">
-            {event.title}
-          </CardTitle>
-          <Badge className={`shrink-0 ${categoryStyle} ${motionMode === "expressive" ? "pulse" : ""}`}>
-            {event.category}
-          </Badge>
-        </div>
-        <CardDescription className="text-base line-clamp-3">
-          {event.description}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="mt-auto pt-0">
-        <div
-          className="flex flex-col gap-1 text-sm"
-          style={{ color: infectedColorDim }}
-        >
-          <span className="flex items-center gap-2">
-            <ClockIcon />
-            {event.time}
-          </span>
-          <span className="flex items-center gap-2">
-            <MapPinIcon />
-            {event.location}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
+    <div className={`group h-full ${hoverClass}`}>
+      <Card
+        className="h-full flex flex-col bg-card/80 backdrop-blur-sm transition-all duration-300 ease-out overflow-hidden relative border-0"
+        style={{
+          clipPath: "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+        }}
+      >
+        {/* Top accent bar with category color */}
+        <div 
+          className={`h-1 w-full ${categoryBgColor} transition-all duration-300 group-hover:h-1.5`}
+          style={{ 
+            boxShadow: motionMode === "expressive" ? `0 0 12px 2px color-mix(in oklch, ${infectedColor} 50%, transparent)` : undefined 
+          }}
+        />
+        
+        {/* Corner cut accent - top right */}
+        <div 
+          className="absolute top-0 right-0 w-3 h-3 transition-colors duration-300"
+          style={{ 
+            background: `linear-gradient(135deg, transparent 50%, ${infectedColor} 50%)`,
+            opacity: 0.6,
+          }}
+        />
+        
+        {/* Corner cut accent - bottom left */}
+        <div 
+          className="absolute bottom-0 left-0 w-3 h-3 transition-colors duration-300"
+          style={{ 
+            background: `linear-gradient(-45deg, transparent 50%, ${infectedColor} 50%)`,
+            opacity: 0.4,
+          }}
+        />
+
+        {/* Hover glow effect */}
+        <div 
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          style={{
+            background: `radial-gradient(ellipse at 50% 0%, color-mix(in oklch, ${infectedColor} 15%, transparent) 0%, transparent 70%)`,
+          }}
+        />
+
+        {/* Left edge accent line */}
+        <div 
+          className="absolute left-0 top-1 bottom-1 w-px transition-all duration-300 group-hover:w-0.5"
+          style={{ 
+            background: `linear-gradient(to bottom, transparent, ${infectedColor}, transparent)`,
+            opacity: 0.3,
+          }}
+        />
+
+        <CardHeader className="flex-1 pb-3 pt-5">
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <CardTitle className="text-lg font-bold leading-tight group-hover:text-foreground transition-colors">
+              {event.title}
+            </CardTitle>
+            <Badge 
+              className={`shrink-0 text-xs font-semibold uppercase tracking-wider ${categoryStyle} ${motionMode === "expressive" ? "pulse" : ""}`}
+              style={{
+                boxShadow: motionMode === "expressive" ? `0 0 8px 1px color-mix(in oklch, ${infectedColor} 30%, transparent)` : undefined
+              }}
+            >
+              {event.category}
+            </Badge>
+          </div>
+          <CardDescription className="text-sm leading-relaxed line-clamp-3 text-muted-foreground/90">
+            {event.description}
+          </CardDescription>
+        </CardHeader>
+
+        {/* Divider line */}
+        <div 
+          className="mx-4 h-px transition-colors duration-300"
+          style={{ background: `linear-gradient(to right, transparent, ${infectedColor}, transparent)`, opacity: 0.2 }}
+        />
+
+        <CardContent className="pt-3 pb-4">
+          <div className="flex flex-col gap-2 text-sm">
+            <span 
+              className="flex items-center gap-2.5 transition-colors duration-300"
+              style={{ color: infectedColorDim }}
+            >
+              <span 
+                className="flex items-center justify-center w-6 h-6 rounded-md transition-colors duration-300"
+                style={{ background: `color-mix(in oklch, ${infectedColor} 15%, transparent)` }}
+              >
+                <ClockIcon />
+              </span>
+              <span className="font-medium">{event.time}</span>
+            </span>
+            <span 
+              className="flex items-center gap-2.5 transition-colors duration-300"
+              style={{ color: infectedColorDim }}
+            >
+              <span 
+                className="flex items-center justify-center w-6 h-6 rounded-md transition-colors duration-300"
+                style={{ background: `color-mix(in oklch, ${infectedColor} 15%, transparent)` }}
+              >
+                <MapPinIcon />
+              </span>
+              <span className="font-medium">{event.location}</span>
+            </span>
+          </div>
+        </CardContent>
+
+        {/* Bottom scan line effect for expressive mode */}
+        {motionMode === "expressive" && (
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-px"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${infectedColor}, transparent)`,
+              animation: "scanLine 3s ease-in-out infinite",
+              animationDelay: `${index * 0.5}s`,
+            }}
+          />
+        )}
+      </Card>
+    </div>
   )
 }
 
