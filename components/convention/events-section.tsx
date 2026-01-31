@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useInView } from "motion/react"
-import { useCapacityContext, deriveMode } from "@/lib/capacity"
+import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
@@ -131,12 +131,16 @@ const CATEGORY_STYLES: Record<string, string> = {
 
 export function EventsSection() {
   const { context } = useCapacityContext()
+  const { mode: effectiveMotion } = useEffectiveMotion()
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
     emotional: context.userCapacity.emotional,
     valence: context.emotionalState.valence,
   })
+  // Use effective motion (respects prefers-reduced-motion)
+  const motionMode = effectiveMotion
+  
   const sectionRef = useRef<HTMLElement>(null)
   const isInView = useInView(sectionRef, { once: true, margin: "-20%" })
   const infectionProgress = useInfectionProgress(isInView)
@@ -182,11 +186,11 @@ export function EventsSection() {
     >
       <div className="max-w-7xl mx-auto">
         {/* Section header - vortex-reveal like debris swirling into place */}
-        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "bloom" : ""}`}>
+        <header className={`mb-16 text-center ${motionMode === "expressive" ? "vortex-reveal" : motionMode === "subtle" ? "bloom" : ""}`}>
           <Badge
             variant="outline"
             className={`mb-4 tracking-widest transition-colors duration-300 ${
-              mode.motion === "expressive" ? "vibrate" : ""
+              motionMode === "expressive" ? "vibrate" : ""
             }`}
             style={{
               borderColor: `oklch(${lightness} ${chroma} ${hue} / 0.5)`,
@@ -216,14 +220,14 @@ export function EventsSection() {
           {EVENTS.map((event, index) => (
             <div
               key={event.id}
-              className={mode.motion === "expressive" ? "spiral-in" : mode.motion === "subtle" ? "helix-rise" : ""}
+              className={motionMode === "expressive" ? "spiral-in" : motionMode === "subtle" ? "helix-rise" : ""}
               style={{ animationDelay: `${index * 0.12}s` }}
             >
               <EventCard
                 event={event}
                 infectedColor={infectedColor}
                 infectedColorDim={infectedColorDim}
-                motionMode={mode.motion}
+                motionMode={motionMode}
                 index={index}
               />
             </div>
@@ -231,11 +235,11 @@ export function EventsSection() {
         </div>
 
         {/* View all link */}
-        <div className={`mt-12 text-center ${mode.motion === "expressive" ? "float" : mode.motion === "subtle" ? "gentle-fade" : ""}`}>
+        <div className={`mt-12 text-center ${motionMode === "expressive" ? "float" : motionMode === "subtle" ? "gentle-fade" : ""}`}>
           <a
             href="#schedule"
             className={`font-medium tracking-wide inline-flex items-center gap-2 transition-colors hover:opacity-80 ${
-              mode.motion === "expressive" ? "hover-lift" : ""
+              motionMode === "expressive" ? "hover-lift" : ""
             }`}
             style={{ color: infectedColor }}
           >

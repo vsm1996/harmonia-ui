@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useCapacityContext, deriveMode } from "@/lib/capacity"
+import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -104,12 +104,15 @@ const HEADERS = {
 
 export function TicketsSection() {
   const { context } = useCapacityContext()
+  const { mode: effectiveMotion } = useEffectiveMotion()
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
     emotional: context.userCapacity.emotional,
     valence: context.emotionalState.valence,
   })
+  // Use effective motion (respects prefers-reduced-motion)
+  const motionMode = effectiveMotion
 
   // ═══════════════════════════════════════════════════════════════════════════
   // COGNITIVE → Density (tier count, decision complexity)
@@ -140,7 +143,7 @@ export function TicketsSection() {
   // EMOTIONAL → Motion Restraint (animation intensity)
   // Low emotional = no surprises, calm UI
   // ═══════════════════════════════════════════════════════════════════════════
-  const sectionAnimClass = mode.motion === "subtle" ? "helix-rise" : ""
+  const sectionAnimClass = motionMode === "subtle" ? "helix-rise" : ""
 
   return (
     <section
@@ -149,8 +152,8 @@ export function TicketsSection() {
     >
       <div className="max-w-6xl mx-auto">
         {/* Section header - vortex-reveal like salvaged treasure emerging */}
-        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "bloom" : ""}`}>
-          <Badge variant="outline" className={`mb-4 tracking-widest ${mode.motion === "expressive" ? "vibrate" : ""}`}>
+        <header className={`mb-16 text-center ${motionMode === "expressive" ? "vortex-reveal" : motionMode === "subtle" ? "bloom" : ""}`}>
+          <Badge variant="outline" className={`mb-4 tracking-widest ${motionMode === "expressive" ? "vibrate" : ""}`}>
             TICKETS
           </Badge>
           <h2
@@ -177,12 +180,12 @@ export function TicketsSection() {
           {visibleTiers.map((tier, index) => (
             <div
               key={tier.id}
-              className={mode.motion === "expressive" ? "morph-fade-in" : mode.motion === "subtle" ? "gentle-fade" : ""}
+              className={motionMode === "expressive" ? "morph-fade-in" : motionMode === "subtle" ? "gentle-fade" : ""}
               style={{ animationDelay: `${index * 0.2}s` }}
             >
               <TierCard
                 tier={tier}
-                motionMode={mode.motion}
+                motionMode={motionMode}
                 featureLength={featureLength}
                 showFeatures={showFeatures}
                 index={index}
@@ -193,7 +196,7 @@ export function TicketsSection() {
 
         {/* TEMPORAL: Additional info - only when user has time to read */}
         {headerContent.footer && context.userCapacity.temporal > 0.5 && (
-          <div className={`mt-12 text-center text-sm text-muted-foreground ${mode.motion === "expressive" ? "float" : mode.motion === "subtle" ? "gentle-fade" : ""}`}>
+          <div className={`mt-12 text-center text-sm text-muted-foreground ${motionMode === "expressive" ? "float" : motionMode === "subtle" ? "gentle-fade" : ""}`}>
             <p>{headerContent.footer}</p>
           </div>
         )}

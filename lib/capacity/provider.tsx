@@ -9,8 +9,10 @@
 import type React from "react"
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react"
-import type { AmbientContext, UserCapacity, EmotionalState } from "./types"
+import type { AmbientContext, UserCapacity, EmotionalState, MotionMode, CapacityField, InterfaceMode } from "./types"
 import { FieldManager } from "./fields/field-manager"
+import { deriveMode } from "./mode"
+import { MOTION_TOKENS } from "./constants"
 
 // ============================================================================
 // Context Definition
@@ -102,4 +104,63 @@ export function useEmotionalValenceField() {
 export function useFieldControls() {
   const { updateCapacity, updateEmotionalState } = useCapacityContext()
   return { updateCapacity, updateEmotionalState }
+}
+
+/**
+ * Detect system prefers-reduced-motion preference
+ * Returns true if user has requested reduced motion
+ */
+export function usePrefersReducedMotion(): boolean {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    // Check initial value
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
+    setPrefersReducedMotion(mediaQuery.matches)
+
+    // Listen for changes
+    const handleChange = (event: MediaQueryListEvent) => {
+      setPrefersReducedMotion(event.matches)
+    }
+
+    mediaQuery.addEventListener("change", handleChange)
+    return () => mediaQuery.removeEventListener("change", handleChange)
+  }, [])
+
+  return prefersReducedMotion
+}
+
+/**
+ * Get effective motion mode with system preference override
+ * 
+ * System prefers-reduced-motion is a HARD OVERRIDE - non-negotiable on safety.
+ * This ensures accessibility compliance regardless of derived mode.
+ */
+export function useEffectiveMotion(): {
+  mode: MotionMode
+  tokens: typeof MOTION_TOKENS.off
+  prefersReducedMotion: boolean
+} {
+  const { context } = useCapacityContext()
+  const prefersReducedMotion = usePrefersReducedMotion()
+
+  // Build CapacityField from context
+  const field: CapacityField = {
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  }
+
+  // Derive mode from field
+  const derivedMode = deriveMode(field)
+  
+  // System preference is a HARD OVERRIDE
+  const effectiveMode: MotionMode = prefersReducedMotion ? "off" : derivedMode.motion
+
+  return {
+    mode: effectiveMode,
+    tokens: MOTION_TOKENS[effectiveMode],
+    prefersReducedMotion,
+  }
 }

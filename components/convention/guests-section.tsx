@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useCapacityContext, deriveMode } from "@/lib/capacity"
+import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -80,12 +80,15 @@ const HEADERS = {
 
 export function GuestsSection() {
   const { context } = useCapacityContext()
+  const { mode: effectiveMotion } = useEffectiveMotion()
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
     emotional: context.userCapacity.emotional,
     valence: context.emotionalState.valence,
   })
+  // Use effective motion (respects prefers-reduced-motion)
+  const motionMode = effectiveMotion
 
   // ═══════════════════════════════════════════════════════════════════════════
   // COGNITIVE → Density (guest count, grid columns)
@@ -118,7 +121,7 @@ export function GuestsSection() {
   // EMOTIONAL → Motion Restraint (animation intensity)
   // Low emotional = no surprises, calm UI
   // ═══════════════════════════════════════════════════════════════════════════
-  const sectionAnimClass = mode.motion === "subtle" ? "spiral-in" : ""
+  const sectionAnimClass = motionMode === "subtle" ? "spiral-in" : ""
 
   return (
     <section
@@ -127,8 +130,8 @@ export function GuestsSection() {
     >
       <div className="max-w-7xl mx-auto">
         {/* Section header - vortex-reveal like legends emerging from chaos */}
-        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "bloom" : ""}`}>
-          <Badge variant="outline" className={`mb-4 tracking-widest ${mode.motion === "expressive" ? "float" : ""}`}>
+        <header className={`mb-16 text-center ${motionMode === "expressive" ? "vortex-reveal" : motionMode === "subtle" ? "bloom" : ""}`}>
+          <Badge variant="outline" className={`mb-4 tracking-widest ${motionMode === "expressive" ? "float" : ""}`}>
             GUESTS
           </Badge>
           <h2
@@ -150,12 +153,12 @@ export function GuestsSection() {
           {visibleGuests.map((guest, index) => (
             <div
               key={guest.id}
-              className={mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "gentle-fade" : ""}
+              className={motionMode === "expressive" ? "helix-rise" : motionMode === "subtle" ? "gentle-fade" : ""}
               style={{ animationDelay: `${index * 0.15}s` }}
             >
               <GuestCard
                 guest={guest}
-                motionMode={mode.motion}
+                motionMode={motionMode}
                 index={index}
                 bioLength={bioLength}
               />
@@ -165,11 +168,11 @@ export function GuestsSection() {
 
         {/* More guests link - conditionally shown */}
         {showViewAll && (
-          <div className={`mt-12 text-center ${mode.motion === "expressive" ? "float" : mode.motion === "subtle" ? "gentle-fade" : ""}`}>
+          <div className={`mt-12 text-center ${motionMode === "expressive" ? "float" : motionMode === "subtle" ? "gentle-fade" : ""}`}>
             <a
               href="#guests"
               className={`text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors ${
-                mode.motion === "expressive" ? "hover-lift" : ""
+                motionMode === "expressive" ? "hover-lift" : ""
               }`}
             >
               View All 50+ Guests

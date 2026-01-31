@@ -12,6 +12,8 @@ export {
   useAttentionField,
   useEmotionalValenceField,
   useFieldControls,
+  usePrefersReducedMotion,
+  useEffectiveMotion,
 } from "./provider"
 
 // Types
@@ -41,7 +43,7 @@ export type {
 export { deriveMode, deriveModeLabel, getModeBadgeColor } from "./mode"
 
 // Constants
-export { PHI, PHI_INVERSE, FIBONACCI, FEEDBACK_FREQUENCIES, DEFAULT_COMPONENT_RESPONSE } from "./constants"
+export { PHI, PHI_INVERSE, FIBONACCI, FEEDBACK_FREQUENCIES, DEFAULT_COMPONENT_RESPONSE, MOTION_TOKENS } from "./constants"
 
 // Signal Bus
 export { SignalBus, SIGNAL_TYPES } from "./signals/signal-bus"

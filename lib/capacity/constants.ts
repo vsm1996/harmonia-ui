@@ -112,3 +112,45 @@ export const PREFERS_REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
 
 /** Maximum animation duration (ms) for time-sensitive users */
 export const MAX_ANIMATION_DURATION_MS = 300
+
+// ============================================================================
+// Motion Tokens
+// ============================================================================
+
+/**
+ * Motion tokens by mode
+ * 
+ * "off" means no decorative motion, NOT no transitions at all.
+ * You still keep: opacity fades, height/visibility transitions, focus transitions.
+ * This preserves usability and avoids "broken UI" feelings.
+ * 
+ * "subtle" = grounded, low-amplitude, slow easing
+ * "expressive" = playful, elastic, higher amplitude
+ */
+export const MOTION_TOKENS = {
+  off: {
+    durationFast: 0,
+    durationBase: 0,
+    durationSlow: 0,
+    easing: "linear",
+    // Essential transitions still allowed
+    essentialDuration: 150,
+    essentialEasing: "ease-out",
+  },
+  subtle: {
+    durationFast: 120,
+    durationBase: 220,
+    durationSlow: 420,
+    easing: "ease-out",
+    essentialDuration: 150,
+    essentialEasing: "ease-out",
+  },
+  expressive: {
+    durationFast: 140,
+    durationBase: 280,
+    durationSlow: 520,
+    easing: "cubic-bezier(0.34, 1.56, 0.64, 1)", // Spring-like
+    essentialDuration: 150,
+    essentialEasing: "ease-out",
+  },
+} as const

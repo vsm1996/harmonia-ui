@@ -11,7 +11,7 @@
 "use client"
 
 import { motion } from "motion/react"
-import { useCapacityContext, deriveMode } from "@/lib/capacity"
+import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -51,12 +51,17 @@ const TONES = {
 
 export function HeroSection() {
   const { context } = useCapacityContext()
+  const { mode: effectiveMotion } = useEffectiveMotion()
+  
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
     emotional: context.userCapacity.emotional,
     valence: context.emotionalState.valence,
   })
+  
+  // Use effective motion (respects prefers-reduced-motion) instead of derived mode.motion
+  const motionMode = effectiveMotion
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TEMPORAL → Content Length (tagline verbosity)
@@ -114,11 +119,11 @@ export function HeroSection() {
       <div className="relative z-10 max-w-5xl mx-auto text-center">
         {/* TEMPORAL: Date badge - skip when user has limited time */}
         {context.userCapacity.temporal > 0.3 && (
-          <div className={mode.motion === "expressive" ? "fall" : mode.motion === "subtle" ? "gentle-fade" : ""}>
+          <div className={motionMode === "expressive" ? "fall" : motionMode === "subtle" ? "gentle-fade" : ""}>
             <Badge
               variant="outline"
               className={`mb-6 text-sm tracking-widest uppercase border-primary/50 ${
-                mode.motion === "expressive" ? "vibrate" : ""
+                motionMode === "expressive" ? "vibrate" : ""
               }`}
               style={{ animationDelay: "0.3s" }}
             >
@@ -131,21 +136,21 @@ export function HeroSection() {
         <h1
           id="hero-title"
           className={`font-sans font-black tracking-tighter leading-none mb-6 ${
-            mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "bloom" : ""
+            motionMode === "expressive" ? "vortex-reveal" : motionMode === "subtle" ? "bloom" : ""
           }`}
           style={{
             fontSize: "clamp(3rem, 15vw, 12rem)",
             filter: `hue-rotate(${warmthShift}deg)`,
           }}
         >
-          <span className={`block text-primary ${mode.motion === "expressive" ? "breathe" : ""}`}>ABYSS</span>
+          <span className={`block text-primary ${motionMode === "expressive" ? "breathe" : ""}`}>ABYSS</span>
           <span className="block text-foreground/90">CON</span>
         </h1>
 
         {/* Tagline - helix-rise like rising from the Abyss */}
         <p
           className={`text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance ${
-            mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "gentle-fade" : ""
+            motionMode === "expressive" ? "helix-rise" : motionMode === "subtle" ? "gentle-fade" : ""
           }`}
           style={{ animationDelay: "0.5s" }}
         >
@@ -161,14 +166,14 @@ export function HeroSection() {
         {/* CTA buttons - spiral-in like debris thrown from the depths */}
         <div
           className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${
-            mode.motion === "expressive" ? "spiral-in" : mode.motion === "subtle" ? "helix-rise" : ""
+            motionMode === "expressive" ? "spiral-in" : motionMode === "subtle" ? "helix-rise" : ""
           }`}
           style={{ animationDelay: "0.7s" }}
         >
           <Button 
             size="lg" 
             className={`text-lg px-8 py-6 font-bold tracking-wide ${
-              mode.motion === "expressive" ? "hover-pulse swelling" : "hover-expand"
+              motionMode === "expressive" ? "hover-pulse swelling" : "hover-expand"
             }`}
           >
             {ctaText.cta}
@@ -178,7 +183,7 @@ export function HeroSection() {
               size="lg"
               variant="outline"
               className={`text-lg px-8 py-6 font-medium tracking-wide bg-transparent ${
-                mode.motion === "expressive" ? "hover-lift wave" : "hover-lift"
+                motionMode === "expressive" ? "hover-lift wave" : "hover-lift"
               }`}
             >
               {ctaText.secondary}
@@ -190,7 +195,7 @@ export function HeroSection() {
         {context.userCapacity.cognitive > 0.4 && (
           <p
             className={`mt-12 text-sm text-muted-foreground tracking-widest uppercase ${
-              mode.motion === "expressive" ? "float" : mode.motion === "subtle" ? "gentle-fade" : ""
+              motionMode === "expressive" ? "float" : motionMode === "subtle" ? "gentle-fade" : ""
             }`}
             style={{ animationDelay: "1s" }}
           >
@@ -199,8 +204,8 @@ export function HeroSection() {
         )}
       </div>
 
-      {/* EMOTIONAL: Scroll indicator - hide when motion is restrained */}
-      {mode.motion !== "off" && (
+      {/* EMOTIONAL: Scroll indicator - hide when motion is off */}
+      {motionMode !== "off" && (
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-60 fall"
           aria-hidden="true"
