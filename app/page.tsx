@@ -7,8 +7,10 @@
  * - This page is just a shell; all logic lives in composed components
  */
 
+import Link from "next/link"
 import { AmbientFieldMonitor } from "@/components/ambient-field-monitor"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Badge } from "@/components/ui/badge"
 
 export default function Page() {
   return (
@@ -39,6 +41,29 @@ export default function Page() {
               (golden ratio), and the Resonance (solfeggio frequencies) working together to create interfaces that
               breathe with the user.
             </p>
+          </div>
+
+          {/* Implementation Example CTA */}
+          <div className="pt-4">
+            <Link
+              href="/convention"
+              className="inline-flex items-center gap-3 px-4 py-3 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-colors group"
+            >
+              <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+                Example
+              </Badge>
+              <div>
+                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                  Abyss Con - Gachiakuta Convention
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  See the framework in action with adaptive content, density modes, and emotional response
+                </p>
+              </div>
+              <span className="text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true">
+                →
+              </span>
+            </Link>
           </div>
         </div>
       </header>
