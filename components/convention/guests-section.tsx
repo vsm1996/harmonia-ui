@@ -10,6 +10,7 @@
 
 "use client"
 
+import Image from "next/image"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -23,6 +24,7 @@ const GUESTS = [
     id: "kei-urana",
     name: "Kei Urana",
     role: "Gachiakuta Creator",
+    image: "/images/guests/kei-urana.jpg",
     bio: {
       full: "The mastermind behind the world of the Abyss. First US appearance.",
       short: "Creator of Gachiakuta. First US visit.",
@@ -33,6 +35,7 @@ const GUESTS = [
     id: "voice-actor-1",
     name: "Yuki Kaji",
     role: "Voice Actor",
+    image: "/images/guests/yuki-kaji.jpg",
     bio: {
       full: "Known for Eren Yeager, bringing intensity to every role.",
       short: "Voice of Eren Yeager.",
@@ -43,6 +46,7 @@ const GUESTS = [
     id: "animator-1",
     name: "Shingo Yamashita",
     role: "Key Animator",
+    image: "/images/guests/shingo-yamashita.jpg",
     bio: {
       full: "Action sequences that define modern anime aesthetics.",
       short: "Legendary action animator.",
@@ -53,6 +57,7 @@ const GUESTS = [
     id: "cosplay-judge",
     name: "Vampy Bit Me",
     role: "Cosplay Judge",
+    image: "/images/guests/vampy-bit-me.jpg",
     bio: {
       full: "Professional cosplayer and craftsmanship expert.",
       short: "Pro cosplayer & judge.",
@@ -240,23 +245,24 @@ function GuestCard({
 
   return (
     <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 transition-colors ${hoverClass} ${featuredAnim}`}>
-      {/* Abstract image placeholder */}
+      {/* Guest image */}
       <div
         className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}
       >
-        <div
-          className="absolute inset-0 opacity-40 mix-blend-overlay"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          }}
-          aria-hidden="true"
+        <Image
+          src={guest.image}
+          alt={`${guest.name} - ${guest.role}`}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
         />
+        {/* Overlay gradient for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
         {guest.featured && (
-          <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground">
+          <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground z-10">
             Featured
           </Badge>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
       </div>
 
       <CardContent className="p-4">
