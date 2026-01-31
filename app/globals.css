@@ -165,7 +165,7 @@
 /* ANIMATIONS */
     /* Vortex Reveal (Slow like the earth's pulse) */
     .vortex-reveal {
-      animation: vortexAnim 4.44s cubic-bezier(0.4, 0.0, 0.6, 1) forwards; /* Smooth, organic growth */
+      animation: vortexAnim 1.2s cubic-bezier(0.4, 0.0, 0.6, 1) both; /* both = backwards + forwards */
     }
     @keyframes vortexAnim {
       0% { transform: scale(0.8) rotate(20deg); opacity: 0; }
@@ -174,7 +174,7 @@
 
     /* Helix Rise (Energizing, like a plant sprouting) */
     .helix-rise {
-      animation: helixAnim 4.44s ease-out forwards; /* Gradual and uplifting */
+      animation: helixAnim 1s ease-out both;
     }
     @keyframes helixAnim {
       0% { transform: translateY(50px) rotate(10deg); opacity: 0; }
@@ -183,7 +183,7 @@
 
     /* Gentle Fade (Slow and steady entrance) */
     .gentle-fade {
-      animation: gentleFadeAnim 4.44s ease-in-out forwards;
+      animation: gentleFadeAnim 0.8s ease-in-out both;
     }
     @keyframes gentleFadeAnim {
       0% { transform: scale(0.95); opacity: 0; }
@@ -191,12 +191,12 @@
     }
     /* Alias for backwards compatibility */
     .sacred-fade {
-      animation: gentleFadeAnim 4.44s ease-in-out forwards;
+      animation: gentleFadeAnim 0.8s ease-in-out both;
     }
 
     /* Spiral In (Dynamic, like a whirlwind) */
     .spiral-in {
-      animation: spiralAnim 4.44s cubic-bezier(0.75, 0.2, 0.5, 1) forwards; /* Spirals in with rapid energy */
+      animation: spiralAnim 1s cubic-bezier(0.75, 0.2, 0.5, 1) both;
     }
     @keyframes spiralAnim {
       0% { transform: translate(-30px, 30px) rotate(-12deg); opacity: 0; }
@@ -226,7 +226,7 @@
 
     /* Morph Fade In (Slow morph, like a liquid transforming) */
     .morph-fade-in {
-      animation: morphFadeAnim 4.44s ease-in-out forwards; /* Organic transformation */
+      animation: morphFadeAnim 1.2s ease-in-out both;
     }
     @keyframes morphFadeAnim {
       0% {
@@ -295,10 +295,10 @@
 
     /* Blooming (Slow, like the opening of a flower) */
     .bloom {
-      animation: bloomAnim 7.77s ease-in-out forwards; /* Gradual unfolding */
+      animation: bloomAnim 1.2s ease-in-out both;
     }
     @keyframes bloomAnim {
-      0% { transform: scale(0.9); opacity: 0.8; }
+      0% { transform: scale(0.9); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
 
