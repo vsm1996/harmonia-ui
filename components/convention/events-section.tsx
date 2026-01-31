@@ -65,54 +65,88 @@ function useInfectionProgress(isInView: boolean) {
 /**
  * Event data structure
  * In production, this would come from a CMS or API
+ * 
+ * Content variants for temporal adaptation:
+ * - full: Complete description for high temporal capacity
+ * - short: Abbreviated for low temporal capacity
  */
 const EVENTS = [
   {
     id: "cosplay-championship",
     title: "Cosplay Championship",
-    description: "Transform trash into treasure. Build your weapons from discarded materials.",
+    shortTitle: "Cosplay Champ",
+    description: {
+      full: "Transform trash into treasure. Build your weapons from discarded materials and compete for glory.",
+      short: "Build weapons from trash. Compete for glory.",
+    },
     category: "Competition",
     time: "Saturday, 2:00 PM",
+    shortTime: "Sat 2PM",
     location: "Main Hall",
   },
   {
     id: "artist-alley",
     title: "Artist Alley",
-    description: "200+ independent artists showcasing manga, prints, and original works.",
+    shortTitle: "Artist Alley",
+    description: {
+      full: "200+ independent artists showcasing manga, prints, and original works from around the world.",
+      short: "200+ artists. Manga, prints, originals.",
+    },
     category: "Exhibition",
     time: "All Days",
+    shortTime: "All Days",
     location: "Hall B",
   },
   {
     id: "gachiakuta-panel",
     title: "Gachiakuta Creator Panel",
-    description: "Exclusive Q&A with Kei Urana. First time at a US convention.",
+    shortTitle: "Creator Panel",
+    description: {
+      full: "Exclusive Q&A with Kei Urana. First time at a US convention. Don't miss this historic moment.",
+      short: "Q&A with Kei Urana. First US appearance.",
+    },
     category: "Panel",
     time: "Sunday, 11:00 AM",
+    shortTime: "Sun 11AM",
     location: "Panel Room A",
   },
   {
     id: "abyss-escape",
     title: "The Abyss Escape Room",
-    description: "Survive the depths. Solve puzzles using discarded objects to escape.",
+    shortTitle: "Abyss Escape",
+    description: {
+      full: "Survive the depths. Solve puzzles using discarded objects to escape before time runs out.",
+      short: "Puzzle escape room. Survive the depths.",
+    },
     category: "Interactive",
     time: "All Days",
+    shortTime: "All Days",
     location: "Experience Zone",
   },
   {
     id: "midnight-screening",
     title: "Midnight Anime Screening",
-    description: "Dark, gritty anime marathon. Not for the faint of heart.",
+    shortTitle: "Late Screening",
+    description: {
+      full: "Dark, gritty anime marathon featuring underground classics. Not for the faint of heart.",
+      short: "Dark anime marathon. Underground classics.",
+    },
     category: "Screening",
     time: "Fri & Sat, 12:00 AM",
+    shortTime: "Fri-Sat 12AM",
     location: "Theater 1",
   },
   {
     id: "trash-art-workshop",
     title: "Trash Art Workshop",
-    description: "Learn to create art from discarded materials with professional artists.",
+    shortTitle: "Art Workshop",
+    description: {
+      full: "Learn to create stunning art from discarded materials with professional artists and take home your creation.",
+      short: "Create art from trash. Take it home.",
+    },
     category: "Workshop",
     time: "Saturday, 10:00 AM",
+    shortTime: "Sat 10AM",
     location: "Workshop Room",
   },
 ] as const
@@ -237,6 +271,10 @@ export function EventsSection() {
                 infectedColorDim={infectedColorDim}
                 motionMode={motionMode}
                 index={index}
+                cognitiveCapacity={context.userCapacity.cognitive}
+                temporalCapacity={context.userCapacity.temporal}
+                density={mode.density}
+                guidance={mode.guidance}
               />
             </div>
           ))}
@@ -262,13 +300,17 @@ export function EventsSection() {
 
 /**
  * Individual event card component
- * Separated for clarity and potential reuse
- *
- * Design: Industrial salvage aesthetic with:
- * - Corner cuts mimicking torn/damaged metal
- * - Gradient overlays for depth
- * - Animated accent lines on hover
- * - Category-colored top bar
+ * 
+ * CAPACITY ADAPTATIONS:
+ * ┌─────────────────┬────────────────────────────────────────────────────────┐
+ * │ Cognitive       │ Visual complexity, description visibility, title size │
+ * │ Low (<0.35)     │ Simplified card, hide description, larger title       │
+ * │ High (>0.75)    │ Full decorations, all details visible                 │
+ * ├─────────────────┼────────────────────────────────────────────────────────┤
+ * │ Temporal        │ Content length, time format, metadata detail          │
+ * │ Low (<0.35)     │ Short descriptions, abbreviated times                 │
+ * │ High            │ Full descriptions, complete time info                 │
+ * └─────────────────┴────────────────────────────────────────────────────────┘
  */
 function EventCard({
   event,
@@ -276,131 +318,214 @@ function EventCard({
   infectedColorDim,
   motionMode,
   index,
+  cognitiveCapacity,
+  temporalCapacity,
+  density,
+  guidance,
 }: {
   event: (typeof EVENTS)[number]
   infectedColor: string
   infectedColorDim: string
   motionMode: "off" | "subtle" | "expressive"
   index: number
+  cognitiveCapacity: number
+  temporalCapacity: number
+  density: "low" | "medium" | "high"
+  guidance: "low" | "medium" | "high"
 }) {
   const categoryStyle = CATEGORY_STYLES[event.category] || "bg-secondary text-secondary-foreground"
   const categoryBgColor = CATEGORY_STYLES[event.category]?.split(" ")[0] || "bg-secondary"
 
-  /**
-   * Hover class based on motion mode
-   */
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COGNITIVE ADAPTATIONS
+  // ═══════════════════════════════════════════════════════════════════════════
+  const isLowCognitive = cognitiveCapacity < 0.35
+  const isHighCognitive = cognitiveCapacity > 0.75
+  
+  // Show description only when cognitive capacity allows processing more info
+  const showDescription = cognitiveCapacity > 0.25
+  // Show decorative elements only with sufficient cognitive bandwidth
+  const showDecorations = cognitiveCapacity > 0.4
+  // Simplified layout for low cognitive capacity
+  const useSimplifiedLayout = isLowCognitive
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMPORAL ADAPTATIONS
+  // ═══════════════════════════════════════════════════════════════════════════
+  const isLowTemporal = temporalCapacity < 0.35
+  
+  // Use short or full content based on temporal capacity
+  const title = isLowTemporal ? event.shortTitle : event.title
+  const description = isLowTemporal ? event.description.short : event.description.full
+  const time = isLowTemporal ? event.shortTime : event.time
+  // Show location only when user has time to process it
+  const showLocation = temporalCapacity > 0.3
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VISUAL ADAPTATIONS
+  // ═══════════════════════════════════════════════════════════════════════════
   const hoverClass =
     motionMode === "expressive" 
       ? "hover-expand" 
       : motionMode === "subtle" ? "hover-lift" : ""
 
+  // Simplified card style for low cognitive
+  const cardClipPath = useSimplifiedLayout 
+    ? undefined 
+    : "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))"
+
   return (
     <div className={`group h-full ${hoverClass}`}>
       <Card
-        className="h-full flex flex-col bg-card/80 backdrop-blur-sm transition-all duration-300 ease-out overflow-hidden relative border-0"
-        style={{
-          clipPath: "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
-        }}
+        className={`h-full flex flex-col backdrop-blur-sm transition-all duration-300 ease-out overflow-hidden relative ${
+          useSimplifiedLayout 
+            ? "bg-card border border-border/50" 
+            : "bg-card/80 border-0"
+        }`}
+        style={{ clipPath: cardClipPath }}
       >
         {/* Top accent bar with category color */}
         <div 
-          className={`h-1 w-full ${categoryBgColor} transition-all duration-300 group-hover:h-1.5`}
+          className={`w-full ${categoryBgColor} transition-all duration-300 ${
+            useSimplifiedLayout ? "h-2" : "h-1 group-hover:h-1.5"
+          }`}
           style={{ 
-            boxShadow: motionMode === "expressive" ? `0 0 12px 2px color-mix(in oklch, ${infectedColor} 50%, transparent)` : undefined 
+            boxShadow: motionMode === "expressive" && showDecorations 
+              ? `0 0 12px 2px color-mix(in oklch, ${infectedColor} 50%, transparent)` 
+              : undefined 
           }}
         />
         
-        {/* Corner cut accent - top right */}
-        <div 
-          className="absolute top-0 right-0 w-3 h-3 transition-colors duration-300"
-          style={{ 
-            background: `linear-gradient(135deg, transparent 50%, ${infectedColor} 50%)`,
-            opacity: 0.6,
-          }}
-        />
-        
-        {/* Corner cut accent - bottom left */}
-        <div 
-          className="absolute bottom-0 left-0 w-3 h-3 transition-colors duration-300"
-          style={{ 
-            background: `linear-gradient(-45deg, transparent 50%, ${infectedColor} 50%)`,
-            opacity: 0.4,
-          }}
-        />
+        {/* Decorative corners - only shown with sufficient cognitive capacity */}
+        {showDecorations && (
+          <>
+            {/* Corner cut accent - top right */}
+            <div 
+              className="absolute top-0 right-0 w-3 h-3 transition-colors duration-300"
+              style={{ 
+                background: `linear-gradient(135deg, transparent 50%, ${infectedColor} 50%)`,
+                opacity: 0.6,
+              }}
+            />
+            
+            {/* Corner cut accent - bottom left */}
+            <div 
+              className="absolute bottom-0 left-0 w-3 h-3 transition-colors duration-300"
+              style={{ 
+                background: `linear-gradient(-45deg, transparent 50%, ${infectedColor} 50%)`,
+                opacity: 0.4,
+              }}
+            />
 
-        {/* Hover glow effect */}
-        <div 
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-          style={{
-            background: `radial-gradient(ellipse at 50% 0%, color-mix(in oklch, ${infectedColor} 15%, transparent) 0%, transparent 70%)`,
-          }}
-        />
+            {/* Hover glow effect */}
+            <div 
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse at 50% 0%, color-mix(in oklch, ${infectedColor} 15%, transparent) 0%, transparent 70%)`,
+              }}
+            />
 
-        {/* Left edge accent line */}
-        <div 
-          className="absolute left-0 top-1 bottom-1 w-px transition-all duration-300 group-hover:w-0.5"
-          style={{ 
-            background: `linear-gradient(to bottom, transparent, ${infectedColor}, transparent)`,
-            opacity: 0.3,
-          }}
-        />
+            {/* Left edge accent line */}
+            <div 
+              className="absolute left-0 top-1 bottom-1 w-px transition-all duration-300 group-hover:w-0.5"
+              style={{ 
+                background: `linear-gradient(to bottom, transparent, ${infectedColor}, transparent)`,
+                opacity: 0.3,
+              }}
+            />
+          </>
+        )}
 
-        <CardHeader className="flex-1 pb-3 pt-5">
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <CardTitle className="text-lg font-bold leading-tight group-hover:text-foreground transition-colors">
-              {event.title}
+        <CardHeader className={`flex-1 ${useSimplifiedLayout ? "pb-2 pt-4" : "pb-3 pt-5"}`}>
+          <div className={`flex items-start justify-between gap-3 ${showDescription ? "mb-2" : "mb-0"}`}>
+            <CardTitle className={`font-bold leading-tight group-hover:text-foreground transition-colors ${
+              useSimplifiedLayout ? "text-base" : "text-lg"
+            }`}>
+              {title}
             </CardTitle>
             <Badge 
-              className={`shrink-0 text-xs font-semibold uppercase tracking-wider ${categoryStyle} ${motionMode === "expressive" ? "pulse" : ""}`}
+              className={`shrink-0 font-semibold uppercase tracking-wider ${categoryStyle} ${
+                motionMode === "expressive" && showDecorations ? "pulse" : ""
+              } ${useSimplifiedLayout ? "text-[10px] px-1.5 py-0.5" : "text-xs"}`}
               style={{
-                boxShadow: motionMode === "expressive" ? `0 0 8px 1px color-mix(in oklch, ${infectedColor} 30%, transparent)` : undefined
+                boxShadow: motionMode === "expressive" && showDecorations 
+                  ? `0 0 8px 1px color-mix(in oklch, ${infectedColor} 30%, transparent)` 
+                  : undefined
               }}
             >
               {event.category}
             </Badge>
           </div>
-          <CardDescription className="text-sm leading-relaxed line-clamp-3 text-muted-foreground/90">
-            {event.description}
-          </CardDescription>
+          
+          {/* Description - hidden at low cognitive capacity */}
+          {showDescription && (
+            <CardDescription className={`leading-relaxed text-muted-foreground/90 ${
+              useSimplifiedLayout ? "text-xs line-clamp-2" : "text-sm line-clamp-3"
+            }`}>
+              {description}
+            </CardDescription>
+          )}
+          
+          {/* High guidance hint for low cognitive */}
+          {guidance === "high" && !showDescription && (
+            <p className="text-xs text-muted-foreground/60 italic mt-1">
+              Tap for details
+            </p>
+          )}
         </CardHeader>
 
-        {/* Divider line */}
-        <div 
-          className="mx-4 h-px transition-colors duration-300"
-          style={{ background: `linear-gradient(to right, transparent, ${infectedColor}, transparent)`, opacity: 0.2 }}
-        />
+        {/* Divider line - only when showing full content */}
+        {showDecorations && (
+          <div 
+            className="mx-4 h-px transition-colors duration-300"
+            style={{ background: `linear-gradient(to right, transparent, ${infectedColor}, transparent)`, opacity: 0.2 }}
+          />
+        )}
 
-        <CardContent className="pt-3 pb-4">
-          <div className="flex flex-col gap-2 text-sm">
+        <CardContent className={useSimplifiedLayout ? "pt-2 pb-3" : "pt-3 pb-4"}>
+          <div className={`flex ${useSimplifiedLayout ? "flex-row items-center gap-4" : "flex-col gap-2"} text-sm`}>
+            {/* Time - always shown but format adapts to temporal capacity */}
             <span 
-              className="flex items-center gap-2.5 transition-colors duration-300"
+              className="flex items-center gap-2 transition-colors duration-300"
               style={{ color: infectedColorDim }}
             >
-              <span 
-                className="flex items-center justify-center w-6 h-6 rounded-md transition-colors duration-300"
-                style={{ background: `color-mix(in oklch, ${infectedColor} 15%, transparent)` }}
-              >
+              {showDecorations ? (
+                <span 
+                  className="flex items-center justify-center w-6 h-6 rounded-md transition-colors duration-300"
+                  style={{ background: `color-mix(in oklch, ${infectedColor} 15%, transparent)` }}
+                >
+                  <ClockIcon />
+                </span>
+              ) : (
                 <ClockIcon />
-              </span>
-              <span className="font-medium">{event.time}</span>
+              )}
+              <span className={useSimplifiedLayout ? "text-xs font-medium" : "font-medium"}>{time}</span>
             </span>
-            <span 
-              className="flex items-center gap-2.5 transition-colors duration-300"
-              style={{ color: infectedColorDim }}
-            >
+            
+            {/* Location - hidden at low temporal capacity */}
+            {showLocation && (
               <span 
-                className="flex items-center justify-center w-6 h-6 rounded-md transition-colors duration-300"
-                style={{ background: `color-mix(in oklch, ${infectedColor} 15%, transparent)` }}
+                className="flex items-center gap-2 transition-colors duration-300"
+                style={{ color: infectedColorDim }}
               >
-                <MapPinIcon />
+                {showDecorations ? (
+                  <span 
+                    className="flex items-center justify-center w-6 h-6 rounded-md transition-colors duration-300"
+                    style={{ background: `color-mix(in oklch, ${infectedColor} 15%, transparent)` }}
+                  >
+                    <MapPinIcon />
+                  </span>
+                ) : (
+                  <MapPinIcon />
+                )}
+                <span className={useSimplifiedLayout ? "text-xs font-medium" : "font-medium"}>{event.location}</span>
               </span>
-              <span className="font-medium">{event.location}</span>
-            </span>
+            )}
           </div>
         </CardContent>
 
-        {/* Bottom scan line effect for expressive mode */}
-        {motionMode === "expressive" && (
+        {/* Bottom scan line effect - only for expressive mode with decorations */}
+        {motionMode === "expressive" && showDecorations && (
           <div 
             className="absolute bottom-0 left-0 right-0 h-px"
             style={{
