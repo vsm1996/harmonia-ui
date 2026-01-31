@@ -20,7 +20,7 @@ import { EventsSection } from "@/components/convention/events-section"
 import { GuestsSection } from "@/components/convention/guests-section"
 import { TicketsSection } from "@/components/convention/tickets-section"
 import { ConventionNav } from "@/components/convention/convention-nav"
-import { EmpathyControls } from "@/components/convention/empathy-controls"
+import { EmpathyControls } from "@/components/empathy-controls"
 import { Footer } from "@/components/convention/footer"
 
 export default function ConventionPage() {

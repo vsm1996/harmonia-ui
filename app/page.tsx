@@ -4,13 +4,15 @@
  * Architecture:
  * - EmpathyProvider wraps the entire app, making ambient fields available
  * - No prop drilling - components read fields directly via hooks
- * - This page is just a shell; all logic lives in composed components
+ * - State is shared between this page and /convention
  */
 
 import Link from "next/link"
 import { AmbientFieldMonitor } from "@/components/ambient-field-monitor"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
+import { EmpathyControls } from "@/components/empathy-controls"
+import { EmpathyDemoCard } from "@/components/empathy-demo-card"
 
 export default function Page() {
   return (
@@ -69,9 +71,28 @@ export default function Page() {
       </header>
 
       {/* Main content area */}
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <AmbientFieldMonitor />
+      <div className="mx-auto max-w-6xl px-6 py-12 space-y-12">
+        {/* Live Demo Section */}
+        <section>
+          <h2 className="text-2xl font-bold tracking-tight mb-2">Live Demo</h2>
+          <p className="text-muted-foreground mb-6">
+            Adjust the empathy controls (bottom-right) to see how this card adapts in real-time.
+          </p>
+          <EmpathyDemoCard />
+        </section>
+
+        {/* Field Monitor Section */}
+        <section>
+          <h2 className="text-2xl font-bold tracking-tight mb-2">Ambient Field Monitor</h2>
+          <p className="text-muted-foreground mb-6">
+            The underlying field system that derives interface behavior from user state.
+          </p>
+          <AmbientFieldMonitor />
+        </section>
       </div>
+
+      {/* Shared Empathy Controls - state persists across pages */}
+      <EmpathyControls />
     </main>
   )
 }
