@@ -46,16 +46,6 @@ function InputsToModeFlow() {
   const label = deriveModeLabel(mode)
   const badgeColor = getModeBadgeColor(label)
 
-  // Build active effects list
-  const activeEffects: string[] = []
-  if (mode.density === "low") activeEffects.push("Simpler layouts, fewer items")
-  if (mode.density === "high") activeEffects.push("Dense layouts, full features")
-  if (mode.guidance === "high") activeEffects.push("More helper text visible")
-  if (mode.choiceLoad === "minimal") activeEffects.push("Smart defaults, fewer choices")
-  if (mode.motion === "subtle") activeEffects.push("Calm, predictable animations")
-  if (mode.motion === "expressive") activeEffects.push("Playful micro-interactions")
-  if (mode.contrast === "boosted") activeEffects.push("Higher contrast")
-
   return (
     <Card className="overflow-hidden border-border/50">
       {/* Three-column flow */}
@@ -102,29 +92,21 @@ function InputsToModeFlow() {
           </div>
         </div>
 
-        {/* Column 3: Effects */}
+        {/* Column 3: UI Effects */}
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">3</span>
-            Active Effects
+            UI Effects
           </div>
           
-          <div className="space-y-2">
-            {activeEffects.length > 0 ? (
-              activeEffects.map((effect, i) => (
-                <div 
-                  key={i}
-                  className="flex items-center gap-3 py-2 px-3 rounded-lg bg-primary/5 border border-primary/20"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                  <span className="text-sm text-foreground">{effect}</span>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground py-2">
-                Standard UI behavior (no special adaptations)
-              </p>
-            )}
+          <div className="space-y-1.5">
+            <EffectRow active={mode.density === "low"} text="Fewer items shown, simpler layouts" />
+            <EffectRow active={mode.density === "high"} text="Full feature display, dense grids" />
+            <EffectRow active={mode.guidance === "high"} text="More labels, helper text visible" />
+            <EffectRow active={mode.choiceLoad === "minimal"} text="Reduced options, smart defaults" />
+            <EffectRow active={mode.motion === "subtle"} text="Calm animations, no surprises" />
+            <EffectRow active={mode.motion === "expressive"} text="Playful micro-interactions" />
+            <EffectRow active={mode.contrast === "boosted"} text="Higher contrast for accessibility" />
           </div>
         </div>
       </div>
@@ -191,6 +173,19 @@ function ModePill({ label, value }: { label: string; value: string }) {
       <span className="text-muted-foreground">{label}:</span>
       <span className="font-medium text-foreground">{value}</span>
     </span>
+  )
+}
+
+/**
+ * Effect row showing active/inactive state
+ */
+function EffectRow({ active, text }: { active: boolean; text: string }) {
+  return (
+    <div className={`py-1.5 text-sm transition-opacity ${active ? "opacity-100" : "opacity-40"}`}>
+      <span className={active ? "text-foreground font-medium" : "text-muted-foreground"}>
+        {active ? "-> " : "   "}{text}
+      </span>
+    </div>
   )
 }
 
