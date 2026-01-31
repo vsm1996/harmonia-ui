@@ -1,7 +1,7 @@
 /**
  * Capacity-Adaptive UI Utilities
  *
- * Foundation utilities for Renge (proportional form) transformations
+ * Foundation utilities for proportional design transformations
  */
 
 export * from "./typography"

@@ -1,11 +1,11 @@
 /**
  * Capacity-Adaptive UI Constants
  *
- * Renge (Form) - Natural mathematics and proportions
+ * Structural Principles Layer - Mathematical foundations for proportional design
  */
 
 // ============================================================================
-// Golden Ratio & Fibonacci
+// Proportional Systems (Golden Ratio, Fibonacci)
 // ============================================================================
 
 /** Golden ratio φ */
@@ -18,21 +18,18 @@ export const PHI_INVERSE = 0.618033988749895
 export const FIBONACCI = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144] as const
 
 // ============================================================================
-// Solfeggio Frequencies (Hz)
+// Auditory Feedback Frequencies (Hz) - Phase 3
 // ============================================================================
 
 /**
- * Kyo (Resonance) - Frequencies for depth signaling
- * Mapped to UI hierarchy depth (sub-audible + haptic)
+ * Frequency ranges for optional auditory feedback
+ * Used for interaction confirmation and depth signaling
+ * Note: These are constrained ranges, not healing claims
  */
-export const SOLFEGGIO_FREQUENCIES = {
-  root: 396, // Root/foundation elements
-  stability: 417, // Stable containers
-  harmony: 528, // Primary content
-  connection: 639, // Interactive elements
-  expression: 741, // Dynamic content
-  intuition: 852, // Guidance/hints
-  unity: 963, // Meta/system level
+export const FEEDBACK_FREQUENCIES = {
+  low: 396, // Foundation/root elements
+  mid: 528, // Primary interactive content
+  high: 741, // Dynamic/feedback elements
 } as const
 
 // ============================================================================

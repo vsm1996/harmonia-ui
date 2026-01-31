@@ -1,29 +1,15 @@
 /**
- * Ambient Field Monitor - Development tool for visualizing framework state
+ * Mode Derivation Monitor - Shows how inputs become interface modes
  *
- * Architecture Decision: Modular, composable structure
- * - Each field gets its own visualization component
- * - Components subscribe to specific fields only (no over-fetching)
- * - Visual design inspired by instrument panels: precision, clarity, readability
- *
- * Design Philosophy:
- * - Dark mode optimized for long development sessions
- * - Monospace fonts for numeric precision
- * - Color-coded by field type using OKLCH for perceptual uniformity
- * - Trend indicators for temporal awareness
- *
- * Phase 1 Updates:
- * - CapacityField as first-class input (4 inputs: cognitive, temporal, emotional, valence)
- * - InterfaceMode badge showing derived coherent state
- * - Arousal removed for Phase 1 (Phase 2+ feature)
+ * Simplified for clarity:
+ * - Your Inputs (4 values)
+ * - Derivation Logic (thresholds and rules)
+ * - Resulting Mode (what the UI does)
  */
 
 "use client"
 
 import {
-  useEnergyField,
-  useAttentionField,
-  useEmotionalValenceField,
   useCapacityContext,
   deriveMode,
   deriveModeLabel,
@@ -32,48 +18,24 @@ import {
 import type { InterfaceMode, CapacityField } from "@/lib/capacity"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { motion } from "motion/react"
 
 export function AmbientFieldMonitor() {
   return (
-    <div className="space-y-8">
-      <MonitorHeader />
-      <InterfaceModeBadge />
-      <FieldVisualizationGrid />
-      <CapacityFieldInspector />
+    <div className="space-y-6">
+      <InputsToModeFlow />
+      <DerivationLogicExplainer />
       <NextStepsGuide />
     </div>
   )
 }
 
 /**
- * Header section with title and description
- * Design: Clear hierarchy using size and color contrast
+ * Inputs → Mode Flow
+ * Shows the complete derivation: your inputs, the thresholds, the resulting mode
  */
-function MonitorHeader() {
-  return (
-    <header className="space-y-3">
-      <h2 className="text-3xl font-bold tracking-tight text-foreground">Ambient Field Monitor</h2>
-      <p className="text-muted-foreground max-w-2xl text-balance">
-        Real-time visualization of the Field → Mode → Components pipeline.
-        The CapacityField (4 inputs) derives an InterfaceMode, which drives all UI adaptations.
-      </p>
-    </header>
-  )
-}
-
-/**
- * Interface Mode Badge - Shows the derived coherent UI state
- *
- * This is the key insight: don't show "sliders controlling random stuff"
- * Instead show "a coherent interface state" derived from the field.
- *
- * Modes: Calm | Focused | Exploratory | Minimal
- */
-function InterfaceModeBadge() {
+function InputsToModeFlow() {
   const { context } = useCapacityContext()
 
-  // Build CapacityField from context
   const field: CapacityField = {
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
@@ -81,349 +43,254 @@ function InterfaceModeBadge() {
     valence: context.emotionalState.valence,
   }
 
-  // Derive mode and label
   const mode = deriveMode(field)
   const label = deriveModeLabel(mode)
   const badgeColor = getModeBadgeColor(label)
 
-  return (
-    <Card className="p-4 border-border/50 bg-card/50 backdrop-blur-sm">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-muted-foreground">Interface Mode:</span>
-          <Badge
-            className="text-sm font-semibold px-3 py-1"
-            style={{
-              backgroundColor: badgeColor,
-              color: "oklch(0.12 0 0)",
-            }}
-          >
-            {label}
-          </Badge>
-        </div>
-
-        {/* Mode details */}
-        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-          <ModeIndicator label="Density" value={mode.density} />
-          <ModeIndicator label="Guidance" value={mode.guidance} />
-          <ModeIndicator label="Motion" value={mode.motion} />
-          <ModeIndicator label="Contrast" value={mode.contrast} />
-          <ModeIndicator label="Choices" value={mode.choiceLoad} />
-        </div>
-      </div>
-    </Card>
-  )
-}
-
-/**
- * Small mode indicator pill
- */
-function ModeIndicator({ label, value }: { label: string; value: string }) {
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/50">
-      <span className="text-muted-foreground">{label}:</span>
-      <span className="font-mono text-foreground">{value}</span>
-    </span>
-  )
-}
-
-/**
- * Grid layout for the three field visualizations
- * Architecture: Responsive grid that adapts to viewport
- * - Mobile: Stacked (1 column)
- * - Tablet+: Side-by-side (3 columns)
- */
-function FieldVisualizationGrid() {
-  const energy = useEnergyField()
-  const attention = useAttentionField()
-  const emotionalValence = useEmotionalValenceField()
+  // Threshold evaluations (same logic as mode.ts)
+  const lowCognitive = field.cognitive < 0.35
+  const highCognitive = field.cognitive > 0.75
+  const lowEmotional = field.emotional < 0.35
+  const lowTemporal = field.temporal < 0.35
+  const highValence = field.valence > 0.25
+  const negValence = field.valence < -0.25
 
   return (
-    <div className="grid gap-6 md:grid-cols-3">
-      {/* Energy Field - Drives animation intensity and complexity */}
-      <FieldCard
-        label="Energy Field"
-        value={energy.value}
-        trend={energy.trend}
-        velocity={energy.velocity}
-        description="Geometric mean of cognitive, temporal, and emotional capacity"
-        color="oklch(0.7 0.19 142)" // Green - growth, vitality
-        icon="⚡"
-      />
-
-      {/* Attention Field - Influences information density */}
-      <FieldCard
-        label="Attention Field"
-        value={attention.value}
-        trend={attention.trend}
-        velocity={attention.velocity}
-        description="Temporal pressure and focus demand"
-        color="oklch(0.65 0.24 264)" // Blue - focus, clarity
-        icon="👁"
-      />
-
-      {/* Emotional Valence - Affects color warmth and framing */}
-      <FieldCard
-        label="Emotional Valence"
-        value={emotionalValence.value}
-        trend={emotionalValence.trend}
-        velocity={emotionalValence.velocity}
-        description="Positive/negative affect direction"
-        color="oklch(0.72 0.21 41)" // Orange - warmth, emotion
-        icon="💛"
-        isBipolar
-      />
-    </div>
-  )
-}
-
-/**
- * Individual field visualization card
- *
- * Design Decisions:
- * - Large numeric display for at-a-glance monitoring
- * - Animated progress bar for visual feedback
- * - Trend arrow with color coding (green=rising, red=falling, gray=stable)
- * - Velocity indicator for rate of change awareness
- */
-interface FieldCardProps {
-  label: string
-  value: number
-  trend: "rising" | "falling" | "stable"
-  velocity?: number
-  description: string
-  color: string
-  icon: string
-  isBipolar?: boolean
-}
-
-function FieldCard({ label, value, trend, velocity, description, color, icon, isBipolar = false }: FieldCardProps) {
-  // Normalization: Bipolar values (-1 to 1) need remapping to 0-100% for progress bars
-  const displayValue = isBipolar ? ((value + 1) / 2) * 100 : value * 100
-
-  // Trend visualization: Rising ↑, Falling ↓, Stable →
-  const trendConfig = {
-    rising: { icon: "↑", color: "text-green-500", label: "Rising" },
-    falling: { icon: "↓", color: "text-red-500", label: "Falling" },
-    stable: { icon: "→", color: "text-muted-foreground", label: "Stable" },
-  }[trend]
-
-  return (
-    <Card className="p-6 space-y-5 border-border/50 bg-card/50 backdrop-blur-sm">
-      {/* Header: Label + Icon + Trend */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl" role="img" aria-label={label}>
-              {icon}
-            </span>
-            <h3 className="text-lg font-semibold text-foreground">{label}</h3>
+    <Card className="p-6 border-border/50">
+      <div className="grid gap-6 lg:grid-cols-[1fr_auto_1fr_auto_1fr]">
+        {/* Column 1: Your Inputs */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Your Inputs
+          </h3>
+          <div className="space-y-2">
+            <InputRow 
+              label="cognitive" 
+              value={field.cognitive} 
+              threshold={lowCognitive ? "< 0.35 (low)" : highCognitive ? "> 0.75 (high)" : "0.35-0.75"}
+              isTriggered={lowCognitive || highCognitive}
+            />
+            <InputRow 
+              label="temporal" 
+              value={field.temporal} 
+              threshold={lowTemporal ? "< 0.35 (low)" : ">= 0.35"}
+              isTriggered={lowTemporal}
+            />
+            <InputRow 
+              label="emotional" 
+              value={field.emotional} 
+              threshold={lowEmotional ? "< 0.35 (low)" : ">= 0.35"}
+              isTriggered={lowEmotional}
+            />
+            <InputRow 
+              label="valence" 
+              value={field.valence} 
+              threshold={negValence ? "< -0.25 (neg)" : highValence ? "> 0.25 (pos)" : "-0.25 to 0.25"}
+              isTriggered={negValence || highValence}
+              isBipolar
+            />
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
         </div>
 
-        {/* Trend Indicator */}
-        <div className="flex flex-col items-end gap-1">
-          <span className={`text-2xl font-mono ${trendConfig.color}`} aria-label={`Trend: ${trendConfig.label}`}>
-            {trendConfig.icon}
-          </span>
-          {velocity !== undefined && (
-            <span className="text-xs text-muted-foreground font-mono" title="Rate of change per second">
-              {velocity.toFixed(3)}/s
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Numeric Value Display */}
-      <div className="space-y-3">
-        <div className="flex items-baseline gap-2">
-          <span className="text-4xl font-bold font-mono tabular-nums text-foreground">
-            {isBipolar ? value.toFixed(2) : (value * 100).toFixed(0)}
-          </span>
-          {!isBipolar && <span className="text-xl text-muted-foreground">%</span>}
-          {isBipolar && (
-            <span className="text-sm text-muted-foreground">
-              ({value > 0 ? "positive" : value < 0 ? "negative" : "neutral"})
-            </span>
-          )}
+        {/* Arrow */}
+        <div className="hidden lg:flex items-center justify-center text-2xl text-muted-foreground">
+          →
         </div>
 
-        {/* Animated Progress Bar */}
-        <div className="relative h-3 bg-muted/50 rounded-full overflow-hidden">
-          <motion.div
-            className="absolute inset-y-0 left-0 rounded-full"
-            style={{ backgroundColor: color }}
-            initial={{ width: `${displayValue}%` }}
-            animate={{ width: `${displayValue}%` }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
-          />
+        {/* Column 2: Derived Mode */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Derived Mode
+          </h3>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <Badge
+                className="text-lg font-bold px-4 py-2"
+                style={{ backgroundColor: badgeColor, color: "oklch(0.12 0 0)" }}
+              >
+                {label}
+              </Badge>
+            </div>
+            <div className="space-y-1 text-sm">
+              <ModeProperty label="density" value={mode.density} source="cognitive" />
+              <ModeProperty label="guidance" value={mode.guidance} source="cognitive + temporal" />
+              <ModeProperty label="choiceLoad" value={mode.choiceLoad} source="temporal" />
+              <ModeProperty label="motion" value={mode.motion} source="emotional + valence" />
+              <ModeProperty label="contrast" value={mode.contrast} source="valence" />
+            </div>
+          </div>
         </div>
-      </div>
-    </Card>
-  )
-}
 
-/**
- * CapacityField Inspector - Shows the canonical 4-input model
- *
- * Architecture Decision: Renamed from "Raw State Inspector"
- * - CapacityField is the FIRST-CLASS input object
- * - Shows all 4 inputs: cognitive, temporal, emotional, valence
- * - Arousal removed for Phase 1 (Phase 2+ feature)
- */
-function CapacityFieldInspector() {
-  const { context } = useCapacityContext()
+        {/* Arrow */}
+        <div className="hidden lg:flex items-center justify-center text-2xl text-muted-foreground">
+          →
+        </div>
 
-  return (
-    <Card className="p-6 space-y-4 border-border/50 bg-card/50 backdrop-blur-sm">
-      <div className="flex items-center gap-2">
-        <span className="text-xl">🔬</span>
-        <h3 className="text-lg font-semibold text-foreground">CapacityField Inspector</h3>
-        <Badge variant="outline" className="text-xs">Phase 1</Badge>
-      </div>
-
-      <p className="text-xs text-muted-foreground">
-        The canonical 4-input model that drives the entire framework.
-        Field → Mode → Tokens → Components.
-      </p>
-
-      {/* CapacityField as a single unified object */}
-      <div className="space-y-3">
-        <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-          CapacityField
-        </h4>
-        <div className="grid gap-2 sm:grid-cols-2">
-          <StateRow
-            label="cognitive"
-            value={context.userCapacity.cognitive}
-            unit="0-1"
-            description="bandwidth available"
-          />
-          <StateRow
-            label="temporal"
-            value={context.userCapacity.temporal}
-            unit="0-1"
-            description="time/effort budget"
-          />
-          <StateRow
-            label="emotional"
-            value={context.userCapacity.emotional}
-            unit="0-1"
-            description="load tolerance"
-          />
-          <StateRow
-            label="valence"
-            value={context.emotionalState.valence}
-            unit="-1 to 1"
-            description="emotional direction"
-            isBipolar
-          />
+        {/* Column 3: UI Effects */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            UI Effects
+          </h3>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <EffectRow 
+              condition={mode.density === "low"} 
+              text="Fewer items shown, simpler layouts"
+            />
+            <EffectRow 
+              condition={mode.density === "high"} 
+              text="Full feature display, dense grids"
+            />
+            <EffectRow 
+              condition={mode.guidance === "high"} 
+              text="More labels, helper text visible"
+            />
+            <EffectRow 
+              condition={mode.choiceLoad === "minimal"} 
+              text="Reduced options, smart defaults"
+            />
+            <EffectRow 
+              condition={mode.motion === "subtle"} 
+              text="Calm animations, no surprises"
+            />
+            <EffectRow 
+              condition={mode.motion === "expressive"} 
+              text="Playful micro-interactions"
+            />
+            <EffectRow 
+              condition={mode.contrast === "boosted"} 
+              text="Higher contrast for accessibility"
+            />
+          </div>
         </div>
       </div>
     </Card>
   )
 }
 
-/**
- * Individual state value row with label and formatted value
- * Design: Monospace for alignment, semantic colors for different value types
- */
-interface StateRowProps {
+function InputRow({ 
+  label, 
+  value, 
+  threshold, 
+  isTriggered,
+  isBipolar = false 
+}: { 
   label: string
   value: number
-  unit: string
-  description?: string
+  threshold: string
+  isTriggered: boolean
   isBipolar?: boolean
-}
-
-function StateRow({ label, value, unit, description, isBipolar = false }: StateRowProps) {
-  // Color coding based on value range
-  const getValueColor = () => {
-    if (isBipolar) {
-      if (value > 0.3) return "text-green-500"
-      if (value < -0.3) return "text-red-500"
-      return "text-yellow-500"
-    }
-    if (value > 0.7) return "text-green-500"
-    if (value < 0.3) return "text-red-500"
-    return "text-yellow-500"
-  }
-
+}) {
   return (
-    <div className="flex justify-between items-center py-2 px-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-colors">
-      <div className="flex flex-col">
-        <span className="text-sm font-mono text-foreground">{label}</span>
-        {description && (
-          <span className="text-xs text-muted-foreground">{description}</span>
-        )}
-      </div>
-      <div className="flex items-baseline gap-2">
-        <span className={`text-base font-mono font-semibold tabular-nums ${getValueColor()}`}>
-          {value.toFixed(3)}
+    <div className={`flex justify-between items-center py-2 px-3 rounded-md transition-colors ${
+      isTriggered ? "bg-primary/10 border border-primary/30" : "bg-muted/30"
+    }`}>
+      <span className="font-mono text-sm">{label}</span>
+      <div className="flex items-center gap-3">
+        <span className="font-mono font-bold tabular-nums">
+          {isBipolar ? (value >= 0 ? "+" : "") + value.toFixed(2) : value.toFixed(2)}
         </span>
-        <span className="text-xs text-muted-foreground font-mono">{unit}</span>
+        <span className={`text-xs ${isTriggered ? "text-primary font-medium" : "text-muted-foreground"}`}>
+          {threshold}
+        </span>
       </div>
     </div>
   )
 }
 
+function ModeProperty({ label, value, source }: { label: string; value: string; source: string }) {
+  return (
+    <div className="flex justify-between items-center py-1">
+      <span className="font-mono text-muted-foreground">{label}:</span>
+      <div className="flex items-center gap-2">
+        <span className="font-mono font-semibold text-foreground">{value}</span>
+        <span className="text-xs text-muted-foreground/60">from {source}</span>
+      </div>
+    </div>
+  )
+}
+
+function EffectRow({ condition, text }: { condition: boolean; text: string }) {
+  return (
+    <div className={`py-1 ${condition ? "text-foreground font-medium" : "opacity-40"}`}>
+      {condition ? "→ " : "  "}{text}
+    </div>
+  )
+}
+
 /**
- * Next Steps Guide - Helps developers understand what to build next
- * UX Decision: Always provide clear next actions in dev tools
+ * Derivation Logic Explainer - Shows the exact rules
+ */
+function DerivationLogicExplainer() {
+  return (
+    <Card className="p-6 border-border/50 bg-muted/20">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+        Derivation Rules
+      </h3>
+      <div className="grid gap-4 md:grid-cols-2 text-sm">
+        <div className="space-y-2">
+          <p className="font-medium text-foreground">Cognitive controls density:</p>
+          <ul className="space-y-1 text-muted-foreground font-mono text-xs">
+            <li>{"cognitive < 0.35 → density: low"}</li>
+            <li>{"cognitive > 0.75 → density: high"}</li>
+            <li>{"else → density: medium"}</li>
+          </ul>
+        </div>
+        <div className="space-y-2">
+          <p className="font-medium text-foreground">Temporal controls choices:</p>
+          <ul className="space-y-1 text-muted-foreground font-mono text-xs">
+            <li>{"temporal < 0.35 → choiceLoad: minimal"}</li>
+            <li>{"else → choiceLoad: normal"}</li>
+          </ul>
+        </div>
+        <div className="space-y-2">
+          <p className="font-medium text-foreground">Emotional controls motion:</p>
+          <ul className="space-y-1 text-muted-foreground font-mono text-xs">
+            <li>{"emotional < 0.35 → motion: subtle"}</li>
+            <li>{"else if valence > 0.25 → motion: expressive"}</li>
+            <li>{"else → motion: subtle"}</li>
+          </ul>
+        </div>
+        <div className="space-y-2">
+          <p className="font-medium text-foreground">Valence controls tone:</p>
+          <ul className="space-y-1 text-muted-foreground font-mono text-xs">
+            <li>{"valence < -0.25 → contrast: boosted"}</li>
+            <li>{"else → contrast: standard"}</li>
+          </ul>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+/**
+ * Next Steps Guide
  */
 function NextStepsGuide() {
   return (
-    <Card className="p-6 border-border/50 bg-gradient-to-br from-blue-500/5 to-purple-500/5">
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🚀</span>
-          <h3 className="text-lg font-semibold text-foreground">Next Steps</h3>
+    <Card className="p-6 border-border/50">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+        Roadmap
+      </h3>
+      <div className="space-y-3 text-sm">
+        <div className="flex items-start gap-3">
+          <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">Done</Badge>
+          <p className="text-muted-foreground">
+            <strong className="text-foreground">Phase 1:</strong> Manual 4-input controls with mode derivation
+          </p>
         </div>
-
-        <div className="space-y-3">
-          <div className="flex items-start gap-3">
-            <span className="text-green-500 font-bold">Done</span>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Phase 1 Complete:</strong> 4-input control system 
-              (cognitive, temporal, emotional, valence) with real-time InterfaceMode derivation. 
-              State persists across pages via CapacityProvider.
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <span className="text-green-500 font-bold">Done</span>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Demo Components:</strong> CapacityDemoCard responds 
-              to InterfaceMode with adaptive content density, emotional tone, and CSS animations 
-              (sacred-fade, helix-rise, breathe, hover effects).
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <span className="text-green-500 font-bold">Done</span>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Convention Page:</strong> Full implementation 
-              showing adaptive hero, events (with infection color), guests, and tickets sections.
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <span className="text-yellow-500 font-bold">Next</span>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Phase 2:</strong> Add real user signal inputs 
-              (scroll velocity, time-on-page, interaction patterns) to automatically modulate 
-              CapacityField without manual controls.
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <span className="text-muted-foreground font-bold">Future</span>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Phase 3:</strong> Arousal dimension, solfeggio 
-              frequency integration, and golden ratio proportional scaling for sacred geometry layouts.
-            </p>
-          </div>
+        <div className="flex items-start gap-3">
+          <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/30">Next</Badge>
+          <p className="text-muted-foreground">
+            <strong className="text-foreground">Phase 2:</strong> Automatic signals (scroll velocity, time-on-page, 
+            interaction patterns) to modulate inputs without manual controls
+          </p>
+        </div>
+        <div className="flex items-start gap-3">
+          <Badge variant="outline" className="text-xs">Future</Badge>
+          <p className="text-muted-foreground">
+            <strong className="text-foreground">Phase 3:</strong> Arousal dimension, multimodal feedback, 
+            proportional scaling systems
+          </p>
         </div>
       </div>
     </Card>

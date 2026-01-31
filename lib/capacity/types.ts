@@ -1,7 +1,7 @@
 /**
  * Core Types for Capacity-Adaptive UI Framework
  *
- * Myoho (Law) - Immutable contracts that govern the system
+ * Type definitions that govern the capacity-adaptive system
  */
 
 // ============================================================================
@@ -276,7 +276,7 @@ export interface AmbientContext {
 }
 
 // ============================================================================
-// Typography Types (Renge - Proportional Form)
+// Typography Types
 // ============================================================================
 
 /**

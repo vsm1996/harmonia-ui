@@ -36,12 +36,12 @@ export default function Page() {
             <ThemeToggle />
           </div>
 
-          {/* Philosophy callout */}
+          {/* Core concept callout */}
           <div className="pt-4 border-t border-border/20">
             <p className="text-sm text-muted-foreground max-w-3xl text-balance leading-relaxed">
-              <strong className="text-foreground">Myoho-Renge-Kyo:</strong> The Law (distributed state), the Form
-              (golden ratio), and the Resonance (solfeggio frequencies) working together to create interfaces that
-              breathe with the user.
+              <strong className="text-foreground">How it works:</strong> Four capacity inputs (cognitive, temporal, 
+              emotional, valence) derive a coherent interface mode. Components adapt density, content length, 
+              motion, and tone based on that mode - not individual slider values.
             </p>
           </div>
 
@@ -59,7 +59,7 @@ export default function Page() {
                   Abyss Con - Gachiakuta Convention
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  See the framework in action with adaptive content, density modes, and emotional response
+                  See the framework in action with adaptive content density, motion, and tone
                 </p>
               </div>
               <span className="text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true">
@@ -81,11 +81,11 @@ export default function Page() {
           <CapacityDemoCard />
         </section>
 
-        {/* Field Monitor Section */}
+        {/* Mode Derivation Section */}
         <section>
-          <h2 className="text-2xl font-bold tracking-tight mb-2">Ambient Field Monitor</h2>
+          <h2 className="text-2xl font-bold tracking-tight mb-2">Mode Derivation</h2>
           <p className="text-muted-foreground mb-6">
-            The underlying field system that derives interface behavior from user state.
+            See exactly how your inputs become a coherent interface mode.
           </p>
           <AmbientFieldMonitor />
         </section>
