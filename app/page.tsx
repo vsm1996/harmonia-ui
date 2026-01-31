@@ -1,5 +1,5 @@
 /**
- * Empathy Framework Demo Page
+ * Capacity-Adaptive Framework Demo Page
  *
  * Architecture:
  * - EmpathyProvider wraps the entire app, making ambient fields available
@@ -26,7 +26,7 @@ export default function Page() {
                 🧠
               </span>
               <div>
-                <h1 className="text-4xl font-bold tracking-tight text-foreground">Empathy-Driven UI Framework</h1>
+                <h1 className="text-4xl font-bold tracking-tight text-foreground">Capacity-Adaptive UI Framework</h1>
                 <p className="text-lg text-muted-foreground mt-2 text-pretty">
                   A living system that responds to human emotional state through distributed intelligence
                 </p>
