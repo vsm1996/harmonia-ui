@@ -371,27 +371,60 @@ function StateRow({ label, value, unit, description, isBipolar = false }: StateR
 /**
  * Next Steps Guide - Helps developers understand what to build next
  * UX Decision: Always provide clear next actions in dev tools
- *
- * Updated: Changed "3-slider" to "4 inputs" for accuracy
  */
 function NextStepsGuide() {
   return (
     <Card className="p-6 border-border/50 bg-gradient-to-br from-blue-500/5 to-purple-500/5">
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-center gap-2">
           <span className="text-xl">🚀</span>
           <h3 className="text-lg font-semibold text-foreground">Next Steps</h3>
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          <strong className="text-foreground">Phase 1:</strong> Build the 4-input control system
-          (cognitive, temporal, emotional, valence) to manually adjust CapacityField and see
-          the InterfaceMode and fields update in real-time.
-        </p>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          <strong className="text-foreground">Then:</strong> Create components that respond to the
-          derived InterfaceMode — showing content, layout, and interaction adaptations based on
-          the coherent state (not individual sliders).
-        </p>
+
+        <div className="space-y-3">
+          <div className="flex items-start gap-3">
+            <span className="text-green-500 font-bold">Done</span>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <strong className="text-foreground">Phase 1 Complete:</strong> 4-input control system 
+              (cognitive, temporal, emotional, valence) with real-time InterfaceMode derivation. 
+              State persists across pages via EmpathyProvider.
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="text-green-500 font-bold">Done</span>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <strong className="text-foreground">Demo Components:</strong> EmpathyDemoCard responds 
+              to InterfaceMode with adaptive content density, emotional tone, and CSS animations 
+              (sacred-fade, helix-rise, breathe, hover effects).
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="text-green-500 font-bold">Done</span>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <strong className="text-foreground">Convention Page:</strong> Full implementation 
+              showing adaptive hero, events (with infection color), guests, and tickets sections.
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="text-yellow-500 font-bold">Next</span>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <strong className="text-foreground">Phase 2:</strong> Add real user signal inputs 
+              (scroll velocity, time-on-page, interaction patterns) to automatically modulate 
+              CapacityField without manual controls.
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="text-muted-foreground font-bold">Future</span>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <strong className="text-foreground">Phase 3:</strong> Arousal dimension, solfeggio 
+              frequency integration, and golden ratio proportional scaling for sacred geometry layouts.
+            </p>
+          </div>
+        </div>
       </div>
     </Card>
   )
