@@ -13,8 +13,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { motion, useInView } from "motion/react"
-import { useEnergyField, useAttentionField } from "@/lib/empathy"
+import { useInView } from "motion/react"
+import { useEmpathyContext, deriveMode } from "@/lib/empathy"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
@@ -130,28 +130,28 @@ const CATEGORY_STYLES: Record<string, string> = {
 }
 
 export function EventsSection() {
-  const energy = useEnergyField()
-  const attention = useAttentionField()
+  const { context } = useEmpathyContext()
+  const mode = deriveMode({
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  })
   const sectionRef = useRef<HTMLElement>(null)
   const isInView = useInView(sectionRef, { once: true, margin: "-20%" })
   const infectionProgress = useInfectionProgress(isInView)
-
   /**
-   * Grid columns adapt to energy level
-   * Low energy: simpler 1-2 column layout (less cognitive load)
-   * High energy: denser 3 column layout (can process more)
+   * Grid columns adapt to density mode
    */
   const gridClass =
-    energy.value < 0.4
+    mode.density === "low"
       ? "grid-cols-1 md:grid-cols-2"
       : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
 
   /**
-   * Animation stagger based on attention
-   * Higher attention = faster stagger (user is engaged)
-   * Lower attention = slower, gentler reveal
+   * Animation class based on motion mode
    */
-  const staggerDelay = 0.15 - attention.value * 0.08
+  const sectionAnimClass = mode.motion !== "off" ? "sacred-fade" : ""
 
   /**
    * Color interpolation based on infection progress
@@ -181,14 +181,8 @@ export function EventsSection() {
       aria-labelledby="events-title"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section header */}
-        <motion.header
-          className="mb-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-        >
+        {/* Section header - vortex-reveal for dramatic entrance */}
+        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "vortex-reveal" : sectionAnimClass}`}>
           <Badge
             variant="outline"
             className="mb-4 tracking-widest transition-colors duration-300"
@@ -213,47 +207,37 @@ export function EventsSection() {
             Three days of panels, competitions, screenings, and experiences
             designed for true outcasts.
           </p>
-        </motion.header>
+        </header>
 
-        {/* Events grid */}
+        {/* Events grid - spiral-in for dynamic card reveals */}
         <div className={`grid ${gridClass} gap-6`}>
           {EVENTS.map((event, index) => (
-            <motion.div
+            <div
               key={event.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{
-                duration: 0.5,
-                delay: index * staggerDelay,
-              }}
+              className={mode.motion === "expressive" ? "spiral-in" : sectionAnimClass}
+              style={{ animationDelay: `${index * 0.15}s` }}
             >
               <EventCard
                 event={event}
                 infectedColor={infectedColor}
                 infectedColorDim={infectedColorDim}
+                motionMode={mode.motion}
               />
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* View all link */}
-        <motion.div
-          className="mt-12 text-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-        >
+        <div className={`mt-12 text-center ${sectionAnimClass}`}>
           <a
             href="#schedule"
-            className="font-medium tracking-wide inline-flex items-center gap-2 transition-colors hover:opacity-80"
+            className="font-medium tracking-wide inline-flex items-center gap-2 transition-colors hover:opacity-80 hover-lift"
             style={{ color: infectedColor }}
           >
             View Full Schedule
             <span aria-hidden="true">→</span>
           </a>
-        </motion.div>
+        </div>
       </div>
     </section>
   )
@@ -275,16 +259,24 @@ function EventCard({
   event,
   infectedColor,
   infectedColorDim,
+  motionMode,
 }: {
   event: (typeof EVENTS)[number]
   infectedColor: string
   infectedColorDim: string
+  motionMode: "off" | "subtle" | "expressive"
 }) {
   const categoryStyle = CATEGORY_STYLES[event.category] || "bg-secondary text-secondary-foreground"
 
+  /**
+   * Hover class based on motion mode
+   */
+  const hoverClass =
+    motionMode === "expressive" ? "hover-expand" : motionMode === "subtle" ? "hover-lift" : ""
+
   return (
     <Card
-      className="h-full flex flex-col bg-background/50 backdrop-blur-sm transition-transform duration-300 ease-out hover:scale-[1.02]"
+      className={`h-full flex flex-col bg-background/50 backdrop-blur-sm transition-transform duration-300 ease-out ${hoverClass}`}
       style={{
         borderColor: `color-mix(in oklch, ${infectedColor} 30%, transparent)`,
       }}

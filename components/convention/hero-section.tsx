@@ -108,51 +108,36 @@ export function HeroSection() {
       <div className="relative z-10 max-w-5xl mx-auto text-center">
         {/* Event date badge - hide when temporal is low */}
         {context.userCapacity.temporal > 0.3 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.6 * animationIntensity,
-              delay: 0.2,
-            }}
-          >
+          <div className={mode.motion !== "off" ? "sacred-fade" : ""}>
             <Badge
               variant="outline"
               className="mb-6 text-sm tracking-widest uppercase border-primary/50"
             >
               August 15-17, 2026
             </Badge>
-          </motion.div>
+          </div>
         )}
 
-        {/* Main title */}
-        <motion.h1
+        {/* Main title - uses vortex-reveal for dramatic entrance */}
+        <h1
           id="hero-title"
-          className="font-sans font-black tracking-tighter leading-none mb-6"
+          className={`font-sans font-black tracking-tighter leading-none mb-6 ${
+            mode.motion === "expressive" ? "vortex-reveal" : mode.motion === "subtle" ? "sacred-fade" : ""
+          }`}
           style={{
             fontSize: "clamp(3rem, 15vw, 12rem)",
             filter: `hue-rotate(${warmthShift}deg)`,
           }}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.8 * animationIntensity,
-            delay: 0.3,
-          }}
         >
           <span className="block text-primary">ABYSS</span>
           <span className="block text-foreground/90">CON</span>
-        </motion.h1>
+        </h1>
 
-        {/* Tagline - adapts to cognitive/emotional load */}
-        <motion.p
-          className="text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.6 * animationIntensity,
-            delay: 0.5,
-          }}
+        {/* Tagline - helix-rise for uplifting reveal */}
+        <p
+          className={`text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance ${
+            mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "sacred-fade" : ""
+          }`}
         >
           {tagline.main}
           {tagline.sub && (
@@ -161,77 +146,55 @@ export function HeroSection() {
               <span className="text-foreground/60">{tagline.sub}</span>
             </>
           )}
-        </motion.p>
+        </p>
 
-        {/* CTA buttons - reduce options when choice load is minimal */}
-        <motion.div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.6 * animationIntensity,
-            delay: 0.7,
-          }}
+        {/* CTA buttons - spiral-in for dynamic entrance */}
+        <div
+          className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${
+            mode.motion === "expressive" ? "spiral-in" : mode.motion === "subtle" ? "sacred-fade" : ""
+          }`}
         >
-          <Button size="lg" className="text-lg px-8 py-6 font-bold tracking-wide">
+          <Button 
+            size="lg" 
+            className={`text-lg px-8 py-6 font-bold tracking-wide ${
+              mode.motion === "expressive" ? "hover-pulse" : "hover-expand"
+            }`}
+          >
             {ctaText.cta}
           </Button>
           {showSecondaryCTA && (
             <Button
               size="lg"
               variant="outline"
-              className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent"
+              className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent hover-lift"
             >
               {ctaText.secondary}
             </Button>
           )}
-        </motion.div>
+        </div>
 
-        {/* Location info - show only when cognitive capacity allows */}
+        {/* Location info - gentle float when expressive */}
         {context.userCapacity.cognitive > 0.4 && (
-          <motion.p
-            className="mt-12 text-sm text-muted-foreground tracking-widest uppercase"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-              duration: 0.6 * animationIntensity,
-              delay: 0.9,
-            }}
+          <p
+            className={`mt-12 text-sm text-muted-foreground tracking-widest uppercase ${
+              mode.motion === "expressive" ? "float sacred-fade" : mode.motion === "subtle" ? "sacred-fade" : ""
+            }`}
           >
             Los Angeles Convention Center
-          </motion.p>
+          </p>
         )}
       </div>
 
-      {/* Scroll indicator - hide when motion is off or low energy */}
+      {/* Scroll indicator - uses breathe animation, hide when motion is off */}
       {mode.motion !== "off" && context.userCapacity.cognitive > 0.3 && (
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          animate={{
-            y: [0, 8, 0],
-            opacity: 0.6,
-          }}
-          transition={{
-            y: {
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            },
-          }}
+        <div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-60 fall"
           aria-hidden="true"
         >
           <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center pt-2">
-            <motion.div
-              className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full"
-              animate={{ y: [0, 12, 0] }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
+            <div className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full floatWave" />
           </div>
-        </motion.div>
+        </div>
       )}
     </section>
   )

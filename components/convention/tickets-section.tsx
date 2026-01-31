@@ -10,7 +10,6 @@
 
 "use client"
 
-import { motion } from "motion/react"
 import { useEmpathyContext, deriveMode } from "@/lib/empathy"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -140,20 +139,19 @@ export function TicketsSection() {
   const gridClass =
     visibleTiers.length === 1 ? "max-w-md mx-auto" : "grid md:grid-cols-3 gap-6 items-stretch"
 
+  /**
+   * Animation class based on motion mode
+   */
+  const sectionAnimClass = mode.motion !== "off" ? "sacred-fade" : ""
+
   return (
     <section
       className="py-24 px-4 md:px-8"
       aria-labelledby="tickets-title"
     >
       <div className="max-w-6xl mx-auto">
-        {/* Section header */}
-        <motion.header
-          className="mb-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-        >
+        {/* Section header - morph-fade-in for organic reveal */}
+        <header className={`mb-16 text-center ${mode.motion === "expressive" ? "helix-rise" : sectionAnimClass}`}>
           <Badge variant="outline" className="mb-4 tracking-widest">
             TICKETS
           </Badge>
@@ -174,42 +172,31 @@ export function TicketsSection() {
               {header.description}
             </p>
           )}
-        </motion.header>
+        </header>
 
         {/* Pricing grid - adapts to visible tiers */}
         <div className={gridClass}>
           {visibleTiers.map((tier, index) => (
-            <motion.div
+            <div
               key={tier.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.1,
-              }}
+              className={mode.motion === "expressive" ? "spiral-in" : sectionAnimClass}
+              style={{ animationDelay: `${index * 0.2}s` }}
             >
               <TierCard
                 tier={tier}
-                pulseIntensity={pulseIntensity}
+                motionMode={mode.motion}
                 featureLength={featureLength}
                 showFeatures={context.userCapacity.cognitive > 0.35}
               />
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* Additional info - only when cognitive capacity allows */}
         {header.footer && context.userCapacity.cognitive > 0.5 && (
-          <motion.div
-            className="mt-12 text-center text-sm text-muted-foreground"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5 }}
-          >
+          <div className={`mt-12 text-center text-sm text-muted-foreground ${sectionAnimClass}`}>
             <p>{header.footer}</p>
-          </motion.div>
+          </div>
         )}
       </div>
     </section>
@@ -218,25 +205,36 @@ export function TicketsSection() {
 
 /**
  * Individual tier card
- * Adapts feature list based on cognitive capacity
+ * Adapts feature list and animations based on empathy state
  */
 function TierCard({
   tier,
-  pulseIntensity,
+  motionMode,
   featureLength,
   showFeatures,
 }: {
   tier: (typeof TIERS)[number]
-  pulseIntensity: number
+  motionMode: "off" | "subtle" | "expressive"
   featureLength: "full" | "short"
   showFeatures: boolean
 }) {
   const description = tier.description[featureLength]
   const features = tier.features[featureLength]
 
+  /**
+   * Hover class based on motion mode
+   */
+  const hoverClass =
+    motionMode === "expressive" ? "hover-expand" : motionMode === "subtle" ? "hover-lift" : ""
+
+  /**
+   * CTA animation: pulse for highlighted tier when expressive
+   */
+  const ctaAnimClass = tier.highlight && motionMode === "expressive" ? "pulse" : ""
+
   return (
     <Card
-      className={`h-full flex flex-col ${
+      className={`h-full flex flex-col ${hoverClass} ${
         tier.highlight
           ? "border-primary bg-primary/5 relative"
           : ""
@@ -254,7 +252,7 @@ function TierCard({
       </CardHeader>
 
       <CardContent className="flex-1">
-        <div className="text-center mb-6">
+        <div className={`text-center mb-6 ${tier.highlight && motionMode === "expressive" ? "breathe" : ""}`}>
           <span className="text-5xl font-black text-foreground">
             ${tier.price}
           </span>
@@ -274,27 +272,15 @@ function TierCard({
       </CardContent>
 
       <CardFooter>
-        <motion.div
-          className="w-full"
-          animate={
-            tier.highlight && pulseIntensity > 0
-              ? { scale: [1, 1 + pulseIntensity, 1] }
-              : {}
-          }
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        >
+        <div className={`w-full ${ctaAnimClass}`}>
           <Button
-            className="w-full"
+            className={`w-full ${tier.highlight ? "hover-pulse" : "hover-expand"}`}
             variant={tier.highlight ? "default" : "outline"}
             size="lg"
           >
             {tier.highlight ? "Get Started" : `Select ${tier.name}`}
           </Button>
-        </motion.div>
+        </div>
       </CardFooter>
     </Card>
   )
