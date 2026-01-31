@@ -32,6 +32,28 @@ const GUESTS = [
     featured: true,
   },
   {
+    id: "zeno-robinson",
+    name: "Zeno Robinson",
+    role: "Voice Actor",
+    image: "/images/guests/zeno-robinson.jpg",
+    bio: {
+      full: "The voice of Hawks in My Hero Academia, bringing charm and depth to fan-favorite characters.",
+      short: "Voice of Hawks (My Hero Academia).",
+    },
+    featured: true,
+  },
+  {
+    id: "anairis-quinones",
+    name: "Anairis Quinones",
+    role: "Voice Actor",
+    image: "/images/guests/anairis-quinones.jpg",
+    bio: {
+      full: "Powerhouse voice behind Mirko in My Hero Academia. Breaking barriers in anime dubbing.",
+      short: "Voice of Mirko (My Hero Academia).",
+    },
+    featured: true,
+  },
+  {
     id: "voice-actor-1",
     name: "Yuki Kaji",
     role: "Voice Actor",
