@@ -1,5 +1,5 @@
 /**
- * Empathy Controls - Phase 1 Manual Input System (4 Inputs)
+ * Capacity-Adaptive UI Controls - Phase 1 Manual Input System (4 Inputs)
  *
  * STRICT SEPARATION OF CONCERNS:
  * ┌─────────────┬────────────────────────────────────┬─────────────────────────────┐
