@@ -14,6 +14,7 @@ import { motion } from "motion/react"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { AnimatedDumpster } from "./animated-dumpster"
 
 /**
  * TEMPORAL → Content Length (how much time the UI asks)
@@ -204,15 +205,13 @@ export function HeroSection() {
         )}
       </div>
 
-      {/* EMOTIONAL: Scroll indicator - hide when motion is off */}
+      {/* EMOTIONAL: Animated dumpster scroll indicator - hide when motion is off */}
       {motionMode !== "off" && (
         <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-60 fall"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground/50 fall hover:text-primary/70 transition-colors cursor-pointer"
           aria-hidden="true"
         >
-          <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center pt-2">
-            <div className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full floatWave" />
-          </div>
+          <AnimatedDumpster size={56} />
         </div>
       )}
     </section>
