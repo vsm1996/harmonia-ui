@@ -30,8 +30,7 @@ export function AmbientFieldMonitor() {
 }
 
 /**
- * Inputs → Mode Flow
- * Shows the complete derivation: your inputs, the thresholds, the resulting mode
+ * Inputs to Mode Flow - Visual pipeline showing derivation
  */
 function InputsToModeFlow() {
   const { context } = useCapacityContext()
@@ -47,119 +46,85 @@ function InputsToModeFlow() {
   const label = deriveModeLabel(mode)
   const badgeColor = getModeBadgeColor(label)
 
-  // Threshold evaluations (same logic as mode.ts)
-  const lowCognitive = field.cognitive < 0.35
-  const highCognitive = field.cognitive > 0.75
-  const lowEmotional = field.emotional < 0.35
-  const lowTemporal = field.temporal < 0.35
-  const highValence = field.valence > 0.25
-  const negValence = field.valence < -0.25
+  // Build active effects list
+  const activeEffects: string[] = []
+  if (mode.density === "low") activeEffects.push("Simpler layouts, fewer items")
+  if (mode.density === "high") activeEffects.push("Dense layouts, full features")
+  if (mode.guidance === "high") activeEffects.push("More helper text visible")
+  if (mode.choiceLoad === "minimal") activeEffects.push("Smart defaults, fewer choices")
+  if (mode.motion === "subtle") activeEffects.push("Calm, predictable animations")
+  if (mode.motion === "expressive") activeEffects.push("Playful micro-interactions")
+  if (mode.contrast === "boosted") activeEffects.push("Higher contrast")
 
   return (
-    <Card className="p-6 border-border/50">
-      <div className="grid gap-6 lg:grid-cols-[1fr_auto_1fr_auto_1fr]">
-        {/* Column 1: Your Inputs */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+    <Card className="overflow-hidden border-border/50">
+      {/* Three-column flow */}
+      <div className="grid lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-border/50">
+        
+        {/* Column 1: Inputs */}
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">1</span>
             Your Inputs
-          </h3>
-          <div className="space-y-2">
-            <InputRow 
-              label="cognitive" 
-              value={field.cognitive} 
-              threshold={lowCognitive ? "< 0.35 (low)" : highCognitive ? "> 0.75 (high)" : "0.35-0.75"}
-              isTriggered={lowCognitive || highCognitive}
-            />
-            <InputRow 
-              label="temporal" 
-              value={field.temporal} 
-              threshold={lowTemporal ? "< 0.35 (low)" : ">= 0.35"}
-              isTriggered={lowTemporal}
-            />
-            <InputRow 
-              label="emotional" 
-              value={field.emotional} 
-              threshold={lowEmotional ? "< 0.35 (low)" : ">= 0.35"}
-              isTriggered={lowEmotional}
-            />
-            <InputRow 
-              label="valence" 
-              value={field.valence} 
-              threshold={negValence ? "< -0.25 (neg)" : highValence ? "> 0.25 (pos)" : "-0.25 to 0.25"}
-              isTriggered={negValence || highValence}
-              isBipolar
-            />
           </div>
-        </div>
-
-        {/* Arrow */}
-        <div className="hidden lg:flex items-center justify-center text-2xl text-muted-foreground">
-          →
-        </div>
-
-        {/* Column 2: Derived Mode */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Derived Mode
-          </h3>
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Badge
-                className="text-lg font-bold px-4 py-2"
-                style={{ backgroundColor: badgeColor, color: "oklch(0.12 0 0)" }}
-              >
-                {label}
-              </Badge>
-            </div>
-            <div className="space-y-1 text-sm">
-              <ModeProperty label="density" value={mode.density} source="cognitive" />
-              <ModeProperty label="guidance" value={mode.guidance} source="cognitive + temporal" />
-              <ModeProperty label="choiceLoad" value={mode.choiceLoad} source="temporal" />
-              <ModeProperty label="motion" value={mode.motion} source="emotional + valence" />
-              <ModeProperty label="contrast" value={mode.contrast} source="valence" />
-            </div>
+            <InputGauge label="Cognitive" value={field.cognitive} description="mental bandwidth" />
+            <InputGauge label="Temporal" value={field.temporal} description="time available" />
+            <InputGauge label="Emotional" value={field.emotional} description="resilience" />
+            <InputGauge label="Valence" value={field.valence} description="mood" isBipolar />
           </div>
         </div>
 
-        {/* Arrow */}
-        <div className="hidden lg:flex items-center justify-center text-2xl text-muted-foreground">
-          →
+        {/* Column 2: Mode */}
+        <div className="p-6 space-y-4 bg-muted/30">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">2</span>
+            Derived Mode
+          </div>
+          
+          {/* Large mode badge */}
+          <div className="flex flex-col items-center py-4">
+            <Badge
+              className="text-xl font-bold px-6 py-3 shadow-lg"
+              style={{ backgroundColor: badgeColor, color: "white" }}
+            >
+              {label}
+            </Badge>
+          </div>
+
+          {/* Mode properties as pills */}
+          <div className="flex flex-wrap gap-2 justify-center">
+            <ModePill label="density" value={mode.density} />
+            <ModePill label="guidance" value={mode.guidance} />
+            <ModePill label="choices" value={mode.choiceLoad} />
+            <ModePill label="motion" value={mode.motion} />
+            <ModePill label="contrast" value={mode.contrast} />
+          </div>
         </div>
 
-        {/* Column 3: UI Effects */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            UI Effects
-          </h3>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <EffectRow 
-              condition={mode.density === "low"} 
-              text="Fewer items shown, simpler layouts"
-            />
-            <EffectRow 
-              condition={mode.density === "high"} 
-              text="Full feature display, dense grids"
-            />
-            <EffectRow 
-              condition={mode.guidance === "high"} 
-              text="More labels, helper text visible"
-            />
-            <EffectRow 
-              condition={mode.choiceLoad === "minimal"} 
-              text="Reduced options, smart defaults"
-            />
-            <EffectRow 
-              condition={mode.motion === "subtle"} 
-              text="Calm animations, no surprises"
-            />
-            <EffectRow 
-              condition={mode.motion === "expressive"} 
-              text="Playful micro-interactions"
-            />
-            <EffectRow 
-              condition={mode.contrast === "boosted"} 
-              text="Higher contrast for accessibility"
-            />
+        {/* Column 3: Effects */}
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">3</span>
+            Active Effects
+          </div>
+          
+          <div className="space-y-2">
+            {activeEffects.length > 0 ? (
+              activeEffects.map((effect, i) => (
+                <div 
+                  key={i}
+                  className="flex items-center gap-3 py-2 px-3 rounded-lg bg-primary/5 border border-primary/20"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                  <span className="text-sm text-foreground">{effect}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground py-2">
+                Standard UI behavior (no special adaptations)
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -167,53 +132,65 @@ function InputsToModeFlow() {
   )
 }
 
-function InputRow({ 
+/**
+ * Visual gauge for input values
+ */
+function InputGauge({ 
   label, 
   value, 
-  threshold, 
-  isTriggered,
+  description,
   isBipolar = false 
 }: { 
   label: string
   value: number
-  threshold: string
-  isTriggered: boolean
+  description: string
   isBipolar?: boolean
 }) {
+  // For bipolar, remap -1..1 to 0..100
+  const percentage = isBipolar ? ((value + 1) / 2) * 100 : value * 100
+  
+  // Color based on value
+  const getColor = () => {
+    if (isBipolar) {
+      if (value < -0.25) return "bg-amber-500"
+      if (value > 0.25) return "bg-emerald-500"
+      return "bg-sky-500"
+    }
+    if (value < 0.35) return "bg-amber-500"
+    if (value > 0.75) return "bg-emerald-500"
+    return "bg-sky-500"
+  }
+
   return (
-    <div className={`flex justify-between items-center py-2 px-3 rounded-md transition-colors ${
-      isTriggered ? "bg-primary/10 border border-primary/30" : "bg-muted/30"
-    }`}>
-      <span className="font-mono text-sm">{label}</span>
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-baseline">
+        <span className="text-sm font-medium text-foreground">{label}</span>
+        <span className="text-xs text-muted-foreground">{description}</span>
+      </div>
       <div className="flex items-center gap-3">
-        <span className="font-mono font-bold tabular-nums">
-          {isBipolar ? (value >= 0 ? "+" : "") + value.toFixed(2) : value.toFixed(2)}
-        </span>
-        <span className={`text-xs ${isTriggered ? "text-primary font-medium" : "text-muted-foreground"}`}>
-          {threshold}
+        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+          <div 
+            className={`h-full rounded-full transition-all duration-300 ${getColor()}`}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+        <span className="text-sm font-mono tabular-nums w-12 text-right text-foreground">
+          {isBipolar ? (value >= 0 ? "+" : "") + value.toFixed(1) : (value * 100).toFixed(0) + "%"}
         </span>
       </div>
     </div>
   )
 }
 
-function ModeProperty({ label, value, source }: { label: string; value: string; source: string }) {
+/**
+ * Small pill showing a mode property
+ */
+function ModePill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-center py-1">
-      <span className="font-mono text-muted-foreground">{label}:</span>
-      <div className="flex items-center gap-2">
-        <span className="font-mono font-semibold text-foreground">{value}</span>
-        <span className="text-xs text-muted-foreground/60">from {source}</span>
-      </div>
-    </div>
-  )
-}
-
-function EffectRow({ condition, text }: { condition: boolean; text: string }) {
-  return (
-    <div className={`py-1 ${condition ? "text-foreground font-medium" : "opacity-40"}`}>
-      {condition ? "→ " : "  "}{text}
-    </div>
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background border border-border text-xs">
+      <span className="text-muted-foreground">{label}:</span>
+      <span className="font-medium text-foreground">{value}</span>
+    </span>
   )
 }
 
