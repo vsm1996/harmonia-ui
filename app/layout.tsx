@@ -9,7 +9,7 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Empathy-Driven UI Framework",
+  title: "Capacity-Adaptive UI Framework",
   description: "A living system that responds to human emotional state through distributed intelligence",
   generator: "v0.app",
   icons: {
