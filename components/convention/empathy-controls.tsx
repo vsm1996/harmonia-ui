@@ -149,15 +149,13 @@ export function EmpathyControls() {
                   highLabel="Centered"
                 />
 
-                {/* Emotional Valence */}
+                {/* Emotional Valence - Bipolar slider */}
                 <div className="pt-2 border-t border-border">
-                  <SliderControl
+                  <ValenceSliderControl
                     label="Emotional Valence"
                     description="Overall mood direction"
-                    value={(context.emotionalState.valence + 1) / 2}
-                    onChange={(v) => updateEmotionalState({ valence: v * 2 - 1 })}
-                    lowLabel="Negative"
-                    highLabel="Positive"
+                    value={context.emotionalState.valence}
+                    onChange={(v) => updateEmotionalState({ valence: v })}
                   />
                 </div>
 
@@ -198,6 +196,8 @@ export function EmpathyControls() {
                     <span className="font-medium">{mode.guidance}</span>
                     <span className="text-muted-foreground">Motion:</span>
                     <span className="font-medium">{mode.motion}</span>
+                    <span className="text-muted-foreground">Contrast:</span>
+                    <span className="font-medium">{mode.contrast}</span>
                     <span className="text-muted-foreground">Choices:</span>
                     <span className="font-medium">{mode.choiceLoad}</span>
                   </div>
@@ -248,6 +248,51 @@ function SliderControl({
       <div className="flex justify-between text-xs text-muted-foreground">
         <span>{lowLabel}</span>
         <span>{highLabel}</span>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Bipolar slider control for valence (-1 to +1)
+ */
+function ValenceSliderControl({
+  label,
+  description,
+  value,
+  onChange,
+}: {
+  label: string
+  description: string
+  value: number
+  onChange: (value: number) => void
+}) {
+  // Map -1 to +1 range to 0-1 for slider
+  const sliderValue = (value + 1) / 2
+
+  // Display value with sign
+  const displayValue = value >= 0 ? `+${value.toFixed(2)}` : value.toFixed(2)
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-baseline">
+        <label className="text-sm font-medium">{label}</label>
+        <span className="text-xs text-muted-foreground tabular-nums font-mono">
+          {displayValue}
+        </span>
+      </div>
+      <Slider
+        value={[sliderValue]}
+        onValueChange={([v]) => onChange(v * 2 - 1)}
+        min={0}
+        max={1}
+        step={0.01}
+        className="w-full"
+      />
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>Negative</span>
+        <span className="opacity-50">Neutral</span>
+        <span>Positive</span>
       </div>
     </div>
   )
