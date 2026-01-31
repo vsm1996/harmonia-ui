@@ -12,8 +12,8 @@
 
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { motion, useInView, useSpring, useTransform, useScroll } from "motion/react"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { motion, useInView, useSpring, useTransform, useScroll, AnimatePresence } from "motion/react"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -398,6 +398,11 @@ function EventCard({
   density: "low" | "medium" | "high"
   guidance: "low" | "medium" | "high"
 }) {
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EXPANDABLE STATE - allows tap-to-reveal when description is hidden
+  // ═══════════════════════════════════════════════════════════════════════════
+  const [isExpanded, setIsExpanded] = useState(false)
+  
   const categoryStyle = CATEGORY_STYLES[event.category] || "bg-secondary text-secondary-foreground"
   const categoryBgColor = CATEGORY_STYLES[event.category]?.split(" ")[0] || "bg-secondary"
 
@@ -407,12 +412,15 @@ function EventCard({
   const isLowCognitive = cognitiveCapacity < 0.35
   const isHighCognitive = cognitiveCapacity > 0.75
   
-  // Show description only when cognitive capacity allows processing more info
-  const showDescription = cognitiveCapacity > 0.25
+  // Show description based on cognitive capacity OR if user has tapped to expand
+  const shouldAutoShowDescription = cognitiveCapacity > 0.25
+  const showDescription = shouldAutoShowDescription || isExpanded
   // Show decorative elements only with sufficient cognitive bandwidth
   const showDecorations = cognitiveCapacity > 0.4
-  // Simplified layout for low cognitive capacity
-  const useSimplifiedLayout = isLowCognitive
+  // Simplified layout for low cognitive capacity (but not when expanded)
+  const useSimplifiedLayout = isLowCognitive && !isExpanded
+  // Show tap hint when description is hidden by default
+  const showTapHint = guidance === "high" && !shouldAutoShowDescription && !isExpanded
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TEMPORAL ADAPTATIONS
@@ -420,11 +428,11 @@ function EventCard({
   const isLowTemporal = temporalCapacity < 0.35
   
   // Use short or full content based on temporal capacity
-  const title = isLowTemporal ? event.shortTitle : event.title
+  const title = isLowTemporal && !isExpanded ? event.shortTitle : event.title
   const description = isLowTemporal ? event.description.short : event.description.full
-  const time = isLowTemporal ? event.shortTime : event.time
-  // Show location only when user has time to process it
-  const showLocation = temporalCapacity > 0.3
+  const time = isLowTemporal && !isExpanded ? event.shortTime : event.time
+  // Show location only when user has time to process it OR expanded
+  const showLocation = temporalCapacity > 0.3 || isExpanded
 
   // ═══════════════════════════════════════════════════════════════════════════
   // VISUAL ADAPTATIONS
@@ -439,6 +447,13 @@ function EventCard({
     ? undefined 
     : "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))"
 
+  // Handle card click to expand/collapse
+  const handleCardClick = useCallback(() => {
+    if (!shouldAutoShowDescription) {
+      setIsExpanded(prev => !prev)
+    }
+  }, [shouldAutoShowDescription])
+
   return (
     <div className={`group h-full ${hoverClass}`}>
       <Card
@@ -446,8 +461,18 @@ function EventCard({
           useSimplifiedLayout 
             ? "bg-card border border-border/50" 
             : "bg-card/80 border-0"
-        }`}
+        } ${!shouldAutoShowDescription ? "cursor-pointer" : ""}`}
         style={{ clipPath: cardClipPath }}
+        onClick={handleCardClick}
+        role={!shouldAutoShowDescription ? "button" : undefined}
+        aria-expanded={!shouldAutoShowDescription ? isExpanded : undefined}
+        tabIndex={!shouldAutoShowDescription ? 0 : undefined}
+        onKeyDown={!shouldAutoShowDescription ? (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            handleCardClick()
+          }
+        } : undefined}
       >
         {/* Top accent bar with category color */}
         <div 
@@ -522,21 +547,38 @@ function EventCard({
             </Badge>
           </div>
           
-          {/* Description - hidden at low cognitive capacity */}
-          {showDescription && (
-            <CardDescription className={`leading-relaxed text-muted-foreground/90 ${
-              useSimplifiedLayout ? "text-xs line-clamp-2" : "text-sm line-clamp-3"
-            }`}>
-              {description}
-            </CardDescription>
-          )}
-          
-          {/* High guidance hint for low cognitive */}
-          {guidance === "high" && !showDescription && (
-            <p className="text-xs text-muted-foreground/60 italic mt-1">
-              Tap for details
-            </p>
-          )}
+          {/* Description - animated reveal when tapped */}
+          <AnimatePresence mode="wait">
+            {showDescription && (
+              <motion.div
+                key="description"
+                initial={isExpanded ? { opacity: 0, height: 0 } : false}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                <CardDescription className={`leading-relaxed text-muted-foreground/90 ${
+                  useSimplifiedLayout ? "text-xs line-clamp-2" : "text-sm line-clamp-3"
+                }`}>
+                  {description}
+                </CardDescription>
+              </motion.div>
+            )}
+            
+            {/* Tap hint - shown when description is collapsed */}
+            {showTapHint && (
+              <motion.p 
+                key="hint"
+                className="text-xs text-muted-foreground/60 italic mt-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                Tap for details
+              </motion.p>
+            )}
+          </AnimatePresence>
         </CardHeader>
 
         {/* Divider line - only when showing full content */}
