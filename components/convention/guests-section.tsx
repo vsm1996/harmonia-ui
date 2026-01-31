@@ -76,6 +76,72 @@ const GUESTS = [
     featured: false,
   },
   {
+    id: "steve-blum",
+    name: "Steve Blum",
+    role: "Voice Actor",
+    image: "/images/guests/steve-blum.jpg",
+    bio: {
+      full: "Legendary voice of Spike Spiegel in Cowboy Bebop. Over 400+ anime and game roles.",
+      short: "Voice of Spike Spiegel (Cowboy Bebop).",
+    },
+    featured: false,
+  },
+  {
+    id: "cristina-vee",
+    name: "Cristina Vee",
+    role: "Voice Actor",
+    image: "/images/guests/cristina-vee.jpg",
+    bio: {
+      full: "Voice of Homura in Madoka Magica and Marinette in Miraculous Ladybug. Singer and director.",
+      short: "Voice of Homura (Madoka Magica).",
+    },
+    featured: false,
+  },
+  {
+    id: "bryce-papenbrook",
+    name: "Bryce Papenbrook",
+    role: "Voice Actor",
+    image: "/images/guests/bryce-papenbrook.jpg",
+    bio: {
+      full: "The voice behind Eren Yeager (English), Kirito, and Inosuke. A titan of anime dubbing.",
+      short: "Voice of Eren (English), Kirito, Inosuke.",
+    },
+    featured: false,
+  },
+  {
+    id: "erica-mendez",
+    name: "Erica Mendez",
+    role: "Voice Actor",
+    image: "/images/guests/erica-mendez.jpg",
+    bio: {
+      full: "Voice of Ryuko in Kill la Kill and Gon in Hunter x Hunter. Versatile and iconic.",
+      short: "Voice of Ryuko (Kill la Kill).",
+    },
+    featured: false,
+  },
+  {
+    id: "yutaka-nakamura",
+    name: "Yutaka Nakamura",
+    role: "Key Animator",
+    image: "/images/guests/yutaka-nakamura.jpg",
+    bio: {
+      full: "The animation genius behind iconic fight scenes in My Hero Academia and Mob Psycho 100.",
+      short: "Legendary fight scene animator.",
+    },
+    featured: false,
+  },
+  {
+    id: "mitsuo-iso",
+    name: "Mitsuo Iso",
+    role: "Animator/Director",
+    image: "/images/guests/mitsuo-iso.jpg",
+    bio: {
+      full: "Creator of Dennou Coil. Pioneer of full limited animation technique.",
+      short: "Creator of Dennou Coil.",
+    },
+    featured: false,
+  },
+  {
     id: "cosplay-judge",
     name: "Vampy Bit Me",
     role: "Cosplay Judge",
