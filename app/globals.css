@@ -161,3 +161,198 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ANIMATIONS */
+    /* Vortex Reveal (Slow like the earth's pulse) */
+    .vortex-reveal {
+      animation: vortexAnim 4.44s cubic-bezier(0.4, 0.0, 0.6, 1) forwards; /* Smooth, organic growth */
+    }
+    @keyframes vortexAnim {
+      0% { transform: scale(0.8) rotate(20deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* Helix Rise (Energizing, like a plant sprouting) */
+    .helix-rise {
+      animation: helixAnim 4.44s ease-out forwards; /* Gradual and uplifting */
+    }
+    @keyframes helixAnim {
+      0% { transform: translateY(50px) rotate(10deg); opacity: 0; }
+      100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    }
+
+    /* Sacred Fade (Slow and steady, like a flower blooming) */
+    .sacred-fade {
+      animation: sacredFadeAnim 4.44s ease-in-out forwards; /* Slow, deep, transformative */
+    }
+    @keyframes sacredFadeAnim {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Spiral In (Dynamic, like a whirlwind) */
+    .spiral-in {
+      animation: spiralAnim 4.44s cubic-bezier(0.75, 0.2, 0.5, 1) forwards; /* Spirals in with rapid energy */
+    }
+    @keyframes spiralAnim {
+      0% { transform: translate(-30px, 30px) rotate(-12deg); opacity: 0; }
+      100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    }
+
+    /* Pulsing (Heartbeat rhythm) */
+    .pulse {
+      animation: pulseAnim 4.44s infinite ease-in-out; /* Slow, rhythmic pulse */
+    }
+    @keyframes pulseAnim {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+    }
+
+    /* Vibrating (Energy in rapid motion) */
+    .vibrate {
+      animation: vibrateAnim 1.11s infinite linear; /* Quick, constant vibration */
+    }
+    @keyframes vibrateAnim {
+      0% { transform: translate(0); }
+      25% { transform: translate(-1px, 1px); }
+      50% { transform: translate(1px, -1px); }
+      75% { transform: translate(-1px, 1px); }
+      100% { transform: translate(0); }
+    }
+
+    /* Morph Fade In (Slow morph, like a liquid transforming) */
+    .morph-fade-in {
+      animation: morphFadeAnim 4.44s ease-in-out forwards; /* Organic transformation */
+    }
+    @keyframes morphFadeAnim {
+      0% {
+        opacity: 0;
+        border-radius: 50% 30% 70% 50% / 50% 70% 30% 50%;
+        transform: scale(0.8);
+      }
+      50% {
+        border-radius: 30% 50% 50% 70% / 70% 50% 50% 30%;
+      }
+      100% {
+        opacity: 1;
+        border-radius: 1rem;
+        transform: scale(1);
+      }
+    }
+
+    /* Waving (Subtle, like a gentle breeze) */
+    .wave {
+      animation: waveAnim 4.44s infinite ease-in-out; /* Soft, rhythmic undulation */
+    }
+    @keyframes waveAnim {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(5deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* Breathing (Slow and steady, like the earth's breath) */
+    .breathe {
+      animation: breatheAnim 7.77s ease-in-out infinite; /* Slow, natural breath */
+    }
+    @keyframes breatheAnim {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    /* Falling (Descending, like a rain drop) */
+    .fall {
+      animation: fallAnim 4.44s ease-in-out infinite; /* Flowing, slow rise and fall */
+    }
+    @keyframes fallAnim {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(10px); }
+      100% { transform: translateY(0); }
+    }
+
+    /* Floating (Gentle, like a cloud drifting) */
+    .float {
+      animation: floatAnim 4.44s ease-in-out infinite; /* Flowing, slow rise and fall */
+    }
+    @keyframes floatAnim {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    .floatWave {
+      animation: floatWaveAnim 4.44s ease-in-out infinite; /* Flowing, slow rise and fall */
+    }
+
+@keyframes floatWaveAnim {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-22px); }
+  100%  { transform: translateY(0); }
+}
+
+    /* Blooming (Slow, like the opening of a flower) */
+    .bloom {
+      animation: bloomAnim 7.77s ease-in-out forwards; /* Gradual unfolding */
+    }
+    @keyframes bloomAnim {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Pulsing Color Shift (Smooth, like the ocean's waves) */
+    .pulse-color-shift {
+      animation: pulseColorShiftAnim 4.44s infinite ease-in-out; /* Slow ebb and flow of color */
+    }
+    @keyframes pulseColorShiftAnim {
+      0%, 100% { background: #10b981; }
+      50% { background: #ef4444; }
+    }
+
+    /* Swelling (Gradual, like the ocean's tide) */
+    .swelling {
+      animation: swellingAnim 4.44s ease-in-out infinite; /* Slow swelling effect */
+    }
+    @keyframes swellingAnim {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    /* Hover Effects with Nature-Based Timing */
+    .hover-spin:hover {
+      animation: hoverSpinAnim 1.11s ease-out;
+    }
+    @keyframes hoverSpinAnim {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .hover-lift:hover {
+      animation: hoverLiftAnim 0.55s ease-out forwards;
+    }
+    @keyframes hoverLiftAnim {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+
+    .hover-fade:hover {
+      animation: hoverFadeAnim 1.11s ease-in-out forwards;
+    }
+    @keyframes hoverFadeAnim {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    .hover-pulse:hover {
+      animation: hoverPulseAnim 0.55s infinite ease-in-out;
+    }
+    @keyframes hoverPulseAnim {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .hover-expand:hover {
+      animation: hoverExpandAnim 0.55s ease-in-out forwards;
+    }
+    @keyframes hoverExpandAnim {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
