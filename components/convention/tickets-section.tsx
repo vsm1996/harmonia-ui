@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check } from "lucide-react"
+import { useScrollAnimation } from "@/lib/use-scroll-animation"
 
 /**
  * Tickets Section - Simplified for scroll performance
@@ -94,6 +95,8 @@ const HEADERS = {
 
 export function TicketsSection() {
   const { context } = useCapacityContext()
+  const sectionRef = useScrollAnimation<HTMLElement>()
+  
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
@@ -103,6 +106,10 @@ export function TicketsSection() {
 
   const cognitiveCapacity = context.userCapacity.cognitive
   const temporalCapacity = context.userCapacity.temporal
+  const valence = context.emotionalState.valence
+
+  // Adaptive color shift based on valence
+  const warmthShift = valence * 15
 
   const headerVariant = temporalCapacity < 0.3 ? "minimal" : temporalCapacity < 0.6 ? "reduced" : "full"
   const header = HEADERS[headerVariant]
@@ -115,8 +122,8 @@ export function TicketsSection() {
     : "grid gap-6 md:grid-cols-3 max-w-5xl mx-auto"
 
   return (
-    <section className="py-24 px-4 md:px-8 bg-muted/30" aria-labelledby="tickets-title">
-      <div className="max-w-6xl mx-auto">
+    <section ref={sectionRef} className="py-24 px-4 md:px-8 bg-muted/30" aria-labelledby="tickets-title">
+      <div className="max-w-6xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Header */}
         <header className="mb-16 text-center animate-fade-in">
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">

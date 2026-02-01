@@ -73,8 +73,11 @@ export function HeroSection() {
   const showSecondaryCTA = mode.choiceLoad === "normal"
   const warmthShift = context.emotionalState.valence * 10
 
-  // CSS animation class based on motion mode
-  const animateClass = motionMode !== "off" ? "animate-fade-in" : ""
+  // Hero is above fold - use immediate animation (no scroll trigger needed)
+  const animateClass = motionMode !== "off" ? "animate-fade-in-immediate" : ""
+  
+  // Fun CON letter collision animation - only at high expressiveness + positive valence
+  const showConCollision = motionMode === "expressive" && context.emotionalState.valence > 0.3
 
   return (
     <section
@@ -119,7 +122,15 @@ export function HeroSection() {
             ABYSS
           </span>
           <span className="block text-foreground/90">
-            CON
+            {showConCollision ? (
+              <>
+                <span className="letter-smash-c">C</span>
+                <span className="letter-smash-o">O</span>
+                <span className="letter-smash-n">N</span>
+              </>
+            ) : (
+              "CON"
+            )}
           </span>
         </h1>
 

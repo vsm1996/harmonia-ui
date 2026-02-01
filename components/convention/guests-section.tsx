@@ -8,9 +8,10 @@
 "use client"
 
 import Image from "next/image"
-import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
+import { useScrollAnimation } from "@/lib/use-scroll-animation"
 
 const GUESTS = [
   {
@@ -41,7 +42,7 @@ const GUESTS = [
     role: "Voice of Mirko",
     image: "/images/guests/anairis-quinones.jpg",
     bio: {
-      full: "Mirko doesn't wait for backup. Neither does Anairis. She fought for that role. Now she's here.",
+      full: "Mirko. You know, rabbit-kick-lady who made everyone on Twitter realize something about themselves. That's Anairis.",
       short: "Mirko.",
     },
     featured: true,
@@ -63,8 +64,8 @@ const GUESTS = [
     role: "Key Animator",
     image: "/images/guests/shingo-yamashita.jpg",
     bio: {
-      full: "Every frame a weapon. He makes motion feel like impact. The scenes that hit different? Probably him.",
-      short: "The frames that hit different.",
+      full: "You know that one scene you've rewatched like 50 times trying to figure out how it works? Probably him.",
+      short: "That scene. You know the one.",
     },
     featured: false,
   },
@@ -85,8 +86,8 @@ const GUESTS = [
     role: "Voice Actor",
     image: "/images/guests/cristina-vee.jpg",
     bio: {
-      full: "Homura. The girl who kept fighting even when the world told her to stop. Cristina brings that energy to everything.",
-      short: "Homura. Marinette. A fighter.",
+      full: "Homura, Marinette, like 200 other roles. Also sings. Also directs. Will also destroy you at Smash Bros if you challenge her at the afterparty. (Don't.)",
+      short: "Homura. Don't challenge her at Smash.",
     },
     featured: false,
   },
@@ -107,8 +108,8 @@ const GUESTS = [
     role: "Voice Actor",
     image: "/images/guests/erica-mendez.jpg",
     bio: {
-      full: "Ryuko. Gon. Characters who got knocked down and got back up angrier. That's her whole range. Unstoppable.",
-      short: "Ryuko. Gon. Unstoppable.",
+      full: "Ryuko. Gon. Megumin. Range from 'small and will explode' to 'will punch through a wall.' Sometimes both.",
+      short: "Ryuko. Gon. Explosive.",
     },
     featured: false,
   },
@@ -129,8 +130,8 @@ const GUESTS = [
     role: "Animator/Director",
     image: "/images/guests/mitsuo-iso.jpg",
     bio: {
-      full: "Invented full limited animation. Created Dennou Coil. Sees movement differently than everyone else on earth.",
-      short: "Dennou Coil. Visionary.",
+      full: "Made Dennou Coil. Literally invented an animation technique. Probably thinking about frame interpolation right now as you read this.",
+      short: "Dennou Coil guy.",
     },
     featured: false,
   },
@@ -149,12 +150,12 @@ const GUESTS = [
 
 const HEADERS = {
   full: {
-    title: "The Tribe Leaders",
-    description: "Legends who climbed out of the pile. Now they're coming back down to meet you.",
+    title: "They Actually Said Yes",
+    description: "We asked. They showed up. Still processing.",
   },
   reduced: {
-    title: "Our Tribe",
-    description: "The ones who made it.",
+    title: "Guests",
+    description: "They're coming.",
   },
   minimal: {
     title: "Guests",
@@ -165,6 +166,7 @@ const HEADERS = {
 export function GuestsSection() {
   const { context } = useCapacityContext()
   const { mode: effectiveMotion } = useEffectiveMotion()
+  const sectionRef = useScrollAnimation<HTMLElement>()
   
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
@@ -174,6 +176,11 @@ export function GuestsSection() {
   })
   
   const motionMode = effectiveMotion
+  const valence = context.emotionalState.valence
+  
+  // Adaptive color shift based on valence
+  const warmthShift = valence * 15
+  
   const visibleGuests = mode.density === "low" ? GUESTS.filter((g) => g.featured) : GUESTS
   const gridClass = mode.density === "low" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2 lg:grid-cols-4"
   const bioLength = context.userCapacity.temporal > 0.5 ? "full" : "short"
@@ -184,10 +191,11 @@ export function GuestsSection() {
 
   return (
     <section
+      ref={sectionRef}
       className="py-24 px-4 md:px-8 bg-card/50 relative overflow-hidden"
       aria-labelledby="guests-title"
     >
-      <div className="max-w-7xl mx-auto relative">
+      <div className="max-w-7xl mx-auto relative" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Section header */}
         <header className="mb-16 text-center">
           <div className={animateClass} style={{ animationDelay: "0ms" }}>

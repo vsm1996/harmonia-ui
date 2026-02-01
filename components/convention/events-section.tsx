@@ -5,6 +5,7 @@ import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capaci
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
+import { useScrollAnimation } from "@/lib/use-scroll-animation"
 
 /**
  * Events Section - Simplified for scroll performance
@@ -103,6 +104,8 @@ const CATEGORY_STYLES: Record<string, string> = {
 
 export function EventsSection() {
   const { context } = useCapacityContext()
+  const sectionRef = useScrollAnimation<HTMLElement>()
+  
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
@@ -112,19 +115,25 @@ export function EventsSection() {
 
   const cognitiveCapacity = context.userCapacity.cognitive
   const temporalCapacity = context.userCapacity.temporal
+  const valence = context.emotionalState.valence
 
   const gridClass = mode.density === "low"
     ? "grid-cols-1 md:grid-cols-2"
     : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
 
-  const infectedColor = "oklch(0.65 0.18 55)"
+  // Adaptive color based on valence: warmer (orange) for positive, cooler (rust) for negative
+  const baseHue = 45 // rust/copper
+  const hueShift = valence * 15 // shifts toward orange (+) or deeper rust (-)
+  const infectedColor = `oklch(0.65 0.18 ${baseHue + hueShift})`
+  const warmthShift = valence * 15
 
   return (
     <section
+      ref={sectionRef}
       className="py-24 px-4 md:px-8 border-y border-border/30 bg-muted/20"
       aria-labelledby="events-title"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Header */}
         <header className="mb-16 text-center animate-fade-in">
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">

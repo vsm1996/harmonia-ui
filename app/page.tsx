@@ -38,7 +38,7 @@ export default function Page() {
 
           {/* Core concept callout */}
           <div className="pt-4 border-t border-border/20">
-            <p className="text-sm text-muted-foreground max-w-3xl text-balance leading-relaxed">
+            <p className="text-sm text-muted-foreground max-w-3xl text-pretty leading-relaxed">
               <strong className="text-foreground">How it works:</strong> Four capacity inputs (cognitive, temporal, 
               emotional, valence) derive a coherent interface mode. Components adapt density, content length, 
               motion, and tone based on that mode - not individual slider values.
@@ -55,10 +55,10 @@ export default function Page() {
                 Example
               </Badge>
               <div>
-                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors text-pretty">
                   Abyss Con - Gachiakuta Convention
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground text-pretty">
                   See the framework in action with adaptive content density, motion, and tone
                 </p>
               </div>

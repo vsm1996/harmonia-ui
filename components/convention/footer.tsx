@@ -13,11 +13,16 @@ import React from "react"
 import Link from "next/link"
 import { motion } from "motion/react"
 import { Button } from "@/components/ui/button"
+import { useCapacityContext } from "@/lib/capacity"
 
 export function Footer() {
+  const { context } = useCapacityContext()
+  const valence = context.emotionalState.valence
+  const warmthShift = valence * 15
+
   return (
     <footer className="bg-card/50 border-t border-border py-16 px-4 md:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         <motion.div
           className="grid md:grid-cols-4 gap-8 md:gap-12"
           initial={{ opacity: 0, y: 20 }}
