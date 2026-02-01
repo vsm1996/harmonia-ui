@@ -1,6 +1,6 @@
 {
   "name": "harmonia-ui",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": false,
   "description": "This project introduces a capacity-adaptive interface framework based on explicit human-state inputs and distributed UI adaptation.",
   "license": "MIT",
