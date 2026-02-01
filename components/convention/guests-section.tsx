@@ -7,7 +7,6 @@
 
 "use client"
 
-import { useRef, useState, useEffect } from "react"
 import Image from "next/image"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardContent } from "@/components/ui/card"
@@ -166,27 +165,6 @@ const HEADERS = {
 export function GuestsSection() {
   const { context } = useCapacityContext()
   const { mode: effectiveMotion } = useEffectiveMotion()
-  const sectionRef = useRef<HTMLElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-  
-  // Use native IntersectionObserver for better performance
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.1 }
-    )
-    
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-    
-    return () => observer.disconnect()
-  }, [])
   
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
@@ -202,11 +180,10 @@ export function GuestsSection() {
   const headerContent = context.userCapacity.temporal > 0.5 ? HEADERS.full 
     : context.userCapacity.temporal > 0.3 ? HEADERS.reduced : HEADERS.minimal
   const showViewAll = context.userCapacity.temporal > 0.4
-  const animateClass = motionMode !== "off" && isVisible ? "animate-fade-in" : motionMode === "off" ? "" : "opacity-0"
+  const animateClass = motionMode !== "off" ? "animate-fade-in" : ""
 
   return (
     <section
-      ref={sectionRef}
       className="py-24 px-4 md:px-8 bg-card/50 relative overflow-hidden"
       aria-labelledby="guests-title"
     >
@@ -248,6 +225,7 @@ export function GuestsSection() {
                 guest={guest}
                 motionMode={motionMode}
                 bioLength={bioLength}
+                index={index}
               />
             </div>
           ))}
@@ -284,12 +262,15 @@ function GuestCard({
   guest,
   motionMode,
   bioLength,
+  index,
 }: {
   guest: (typeof GUESTS)[number]
   motionMode: "off" | "subtle" | "expressive"
   bioLength: "full" | "short"
+  index: number
 }) {
-  const gradientClass = GUEST_GRADIENTS[Math.floor(Math.random() * GUEST_GRADIENTS.length)]
+  // Use index for consistent gradient assignment (no random)
+  const gradientClass = GUEST_GRADIENTS[index % GUEST_GRADIENTS.length]
   const bio = guest.bio[bioLength]
   const hoverClass = motionMode !== "off" ? "hover:-translate-y-2 hover:shadow-lg" : ""
 
