@@ -72,12 +72,25 @@ function useInfectionProgress(isInView: boolean) {
  */
 const EVENTS = [
   {
+    id: "jinki-forge",
+    title: "Jinki Forge: Build Your Weapon",
+    shortTitle: "Jinki Forge",
+    description: {
+      full: "Your trash. Your emotions. Your weapon. Craft a Jinki from salvaged materials with pro prop makers. What you feel becomes what you wield.",
+      short: "Build a Jinki from trash. Keep it.",
+    },
+    category: "Workshop",
+    time: "All Days",
+    shortTime: "All Days",
+    location: "Workshop Zone",
+  },
+  {
     id: "cosplay-championship",
-    title: "Trash to Treasure Cosplay Championship",
+    title: "Scavenger's Championship",
     shortTitle: "Cosplay Champ",
     description: {
-      full: "Build your costume using at least 50% salvaged materials. Last year someone made working LED wings from broken TVs. The bar is HIGH.",
-      short: "Salvage cosplay competition. It gets wild.",
+      full: "50% of your costume must be salvaged. Broken electronics. Discarded fabric. The stuff nobody wanted. Turn it into something they can't look away from.",
+      short: "Salvage cosplay. Show them what trash can become.",
     },
     category: "Competition",
     time: "Saturday, 2:00 PM",
@@ -86,11 +99,11 @@ const EVENTS = [
   },
   {
     id: "artist-alley",
-    title: "Artist Alley",
+    title: "The Pile",
     shortTitle: "Artist Alley",
     description: {
-      full: "217 artists this year. We counted. Someone's selling hand-carved Pochita keychains and honestly that alone is worth the trip.",
-      short: "217 artists. Bring cash.",
+      full: "217 artists. Outcasts. Weirdos. People who make beautiful things the mainstream won't touch. This is where the real treasure is.",
+      short: "217 artists. The real ones.",
     },
     category: "Exhibition",
     time: "All Days",
@@ -99,11 +112,11 @@ const EVENTS = [
   },
   {
     id: "gachiakuta-panel",
-    title: "Kei Urana Q&A",
-    shortTitle: "Creator Panel",
+    title: "Words From The Creator",
+    shortTitle: "Urana Q&A",
     description: {
-      full: "THE Gachiakuta creator. In person. Taking questions. We cannot stress enough how rare this is. He doesn't do conventions. He's doing this one.",
-      short: "Gachiakuta creator. First ever US Q&A.",
+      full: "Kei Urana. The one who built this world. The Abyss. Rudo. The Cleaners. All of it came from his head. He's here. He's talking. Don't miss this.",
+      short: "Kei Urana. In person. Talking.",
     },
     category: "Panel",
     time: "Sunday, 11:00 AM",
@@ -112,11 +125,11 @@ const EVENTS = [
   },
   {
     id: "abyss-escape",
-    title: "The Abyss (Escape Room)",
-    shortTitle: "Abyss Escape",
+    title: "Escape The Cleaners",
+    shortTitle: "Escape Room",
     description: {
-      full: "45-minute escape room designed by actual puzzle competition winners. Average clear rate at other cons: 23%. Good luck.",
-      short: "Hard escape room. 23% clear rate.",
+      full: "They're coming. You have 45 minutes. Solve the puzzles. Find the exit. Or get 'cleaned.' 23% success rate. Most don't make it.",
+      short: "45 minutes. 23% survive.",
     },
     category: "Interactive",
     time: "All Days",
@@ -125,29 +138,16 @@ const EVENTS = [
   },
   {
     id: "midnight-screening",
-    title: "2AM Anime Block",
+    title: "Depths of Night",
     shortTitle: "Late Screening",
     description: {
-      full: "We legally can't tell you what we're showing but trust us. Bring a blanket. Bring snacks. Don't bring your parents.",
-      short: "Late night screenings. Trust us.",
+      full: "2AM. The stuff too raw for daylight. Stories about people who fell through the cracks. Bring something to hold onto.",
+      short: "2AM. The dark stuff.",
     },
     category: "Screening",
     time: "Fri & Sat, 2:00 AM",
     shortTime: "Fri-Sat 2AM",
     location: "Theater 1",
-  },
-  {
-    id: "trash-art-workshop",
-    title: "Make Something From Nothing",
-    shortTitle: "Art Workshop",
-    description: {
-      full: "Actual artists teaching you to make actual art from actual garbage. Materials provided. Dignity optional. You keep what you make.",
-      short: "Art from garbage. Keep what you make.",
-    },
-    category: "Workshop",
-    time: "Saturday, 10:00 AM",
-    shortTime: "Sat 10AM",
-    location: "Workshop Room",
   },
 ] as const
 
@@ -272,11 +272,11 @@ export function EventsSection() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1, ...springConfig }}
           >
-            <InfectedText text="What's" infectColor={infectedColor} />
+            <InfectedText text="What We" infectColor={infectedColor} />
             <motion.span 
               style={{ color: infectedColor }}
               whileHover={motionMode === "expressive" ? { scale: 1.05 } : {}}
-            > Happening</motion.span>
+            > Salvaged</motion.span>
           </motion.h2>
           <motion.p
             className="text-lg max-w-2xl mx-auto text-balance transition-colors duration-300"
@@ -285,7 +285,7 @@ export function EventsSection() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Not a complete list. Just the stuff we're allowed to announce.
+            The world above threw this stuff away. We made it into something.
           </motion.p>
         </motion.header>
 

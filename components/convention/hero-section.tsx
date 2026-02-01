@@ -43,11 +43,11 @@ function useAdaptiveMotionConfig(motionMode: "off" | "subtle" | "expressive") {
  */
 const TAGLINES = {
   full: {
-    main: "Three days. One dumpster fire. You in?",
-    sub: "LA Convention Center, August 15-17. Bring deodorant.",
+    main: "They threw us away. We built a kingdom.",
+    sub: "The world above forgot us. Good. We don't need them.",
   },
   abbreviated: {
-    main: "Three days. One dumpster fire.",
+    main: "Discarded. Not defeated.",
     sub: null, // Skip secondary text when temporal is low
   },
 }
@@ -66,15 +66,15 @@ const TAGLINES = {
  */
 const TONES = {
   positive: {
-    cta: "LET'S GO!",
-    secondary: "EXPLORE MORE",
+    cta: "DESCEND",
+    secondary: "SEE WHAT WE SALVAGED",
   },
   neutral: {
-    cta: "GET TICKETS",
+    cta: "ENTER THE ABYSS",
     secondary: "VIEW SCHEDULE",
   },
   negative: {
-    cta: "JOIN US",
+    cta: "FIND YOUR PEOPLE",
     secondary: "LEARN MORE",
   },
 }

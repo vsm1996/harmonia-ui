@@ -32,8 +32,8 @@ export function Footer() {
               <span className="text-foreground/80"> CON</span>
             </h3>
             <p className="text-muted-foreground max-w-sm mb-6">
-              The convention convention outcasts, underdogs, and everyone who finds
-              beauty in what others discard. August 15-17, 2026.
+              They threw us away. We built something better down here. 
+              See you in the Abyss. August 15-17, 2026.
             </p>
             <div className="flex gap-4">
               <SocialLink href="#" label="Twitter">
@@ -100,7 +100,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>© 2026 Abyss Con. All rights reserved.</p>
+          <p>© 2026 Abyss Con. Nothing is truly discarded.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-foreground transition-colors">
               Privacy Policy
