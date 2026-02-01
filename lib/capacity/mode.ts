@@ -92,40 +92,45 @@ export function deriveMode(field: CapacityField): InterfaceMode {
 /**
  * Derives a human-readable mode label from InterfaceMode
  *
+ * Preset → Mode mapping (for reference):
+ * - Exhausted:   density=low,  choiceLoad=minimal, motion=subtle   → Minimal
+ * - Overwhelmed: density=low,  choiceLoad=minimal, motion=subtle   → Minimal  
+ * - Distracted:  density=med,  choiceLoad=minimal, motion=subtle   → Calm (time pressure but ok cognitive)
+ * - Neutral:     density=med,  choiceLoad=normal,  motion=subtle   → Calm (balanced state)
+ * - Focused:     density=med,  choiceLoad=normal,  motion=subtle   → Focused (good capacity, no time pressure)
+ * - Energized:   density=high, choiceLoad=normal,  motion=express  → Exploratory
+ * - Exploring:   density=high, choiceLoad=normal,  motion=express  → Exploratory
+ *
  * Labels:
- * - Calm: Low density, subtle motion, high guidance (low cognitive/emotional)
- * - Focused: Medium density, minimal choices (medium cognitive, low temporal)
- * - Exploratory: High density, expressive motion, normal choices
- * - Minimal: Low density, minimal choices, subtle motion
+ * - Minimal: Low density + minimal choices (exhausted/overwhelmed)
+ * - Calm: Medium density + minimal choices OR medium density + normal choices + subtle motion + not high guidance
+ * - Focused: Medium density + normal choices + low guidance (engaged, ready to work)
+ * - Exploratory: High density OR expressive motion
  */
 export function deriveModeLabel(mode: InterfaceMode): InterfaceModeLabel {
-  // Minimal: Everything scaled back (lowest capacity across the board)
-  if (mode.density === "low" && mode.choiceLoad === "minimal" && mode.motion === "subtle") {
-    return "Minimal"
-  }
-
   // Exploratory: Open, engaged state (high density or expressive motion)
+  // Check FIRST - if you have high energy/cognitive, you're exploring
   if (mode.density === "high" || mode.motion === "expressive") {
     return "Exploratory"
   }
 
-  // Focused: Efficient, task-oriented (medium density with time pressure)
-  // Check BEFORE Calm since Focused can also have high guidance due to low temporal
-  if (mode.density === "medium" && mode.choiceLoad === "minimal") {
+  // Minimal: Everything scaled back (low density + time pressure)
+  if (mode.density === "low" && mode.choiceLoad === "minimal") {
+    return "Minimal"
+  }
+
+  // Now we're in medium density territory...
+  
+  // Focused: Good cognitive capacity + no time pressure + low guidance needed
+  // This is the "ready to work" state - engaged but not overwhelmed
+  if (mode.density === "medium" && mode.choiceLoad === "normal" && mode.guidance === "low") {
     return "Focused"
   }
 
-  // Calm: Gentle, supportive state (low cognitive needs guidance)
-  if (mode.density === "low" && mode.guidance === "high") {
-    return "Calm"
-  }
-
-  // Default based on density
-  if (mode.density === "low") {
-    return "Calm"
-  }
-  
-  return "Focused"
+  // Calm: Everything else - balanced/neutral states, or time pressure with ok cognitive
+  // Includes: distracted (med density + minimal choices), neutral (med + normal + medium guidance)
+  // Also includes low density states without time pressure
+  return "Calm"
 }
 
 // ============================================================================
