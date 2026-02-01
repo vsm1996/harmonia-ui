@@ -44,7 +44,7 @@ function useAdaptiveMotionConfig(motionMode: "off" | "subtle" | "expressive") {
 const TAGLINES = {
   full: {
     main: "They threw us away. We built a kingdom.",
-    sub: "The world above forgot us. Good. We don't need them.",
+    sub: "The world above forgot us. Good. We don't need 'em.",
   },
   abbreviated: {
     main: "Discarded. Not defeated.",
