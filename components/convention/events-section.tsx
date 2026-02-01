@@ -13,7 +13,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { motion, useInView, useSpring, useTransform, useScroll, AnimatePresence } from "motion/react"
+import { motion, useInView, AnimatePresence } from "motion/react"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -177,23 +177,11 @@ export function EventsSection() {
   const motionMode = effectiveMotion
   
   const sectionRef = useRef<HTMLElement>(null)
-  const isInView = useInView(sectionRef, { once: true, margin: "-20%" })
+  const isInView = useInView(sectionRef, { once: true, margin: "-10%" })
   const infectionProgress = useInfectionProgress(isInView)
   
-  // Scroll-based animations
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  })
-  
-  // Spring config adapts to motion mode
-  const springConfig = motionMode === "expressive" 
-    ? { stiffness: 100, damping: 15 } 
-    : { stiffness: 200, damping: 30 }
-  
-  // Header parallax (subtle movement)
-  const headerY = useTransform(scrollYProgress, [0, 0.5], [50, 0])
-  const headerYSpring = useSpring(headerY, springConfig)
+  // Simplified spring config - no scroll-linked springs for better perf
+  const springConfig = { stiffness: 200, damping: 25 }
   /**
    * Grid columns adapt to density mode
    */
@@ -242,11 +230,8 @@ export function EventsSection() {
       </div>
       
       <div className="max-w-7xl mx-auto relative">
-        {/* Section header with scroll-linked motion */}
-        <motion.header 
-          className="mb-16 text-center"
-          style={{ y: motionMode !== "off" ? headerYSpring : 0 }}
-        >
+        {/* Section header */}
+        <header className="mb-16 text-center">
           <motion.div
             initial={motionMode !== "off" ? { opacity: 0, scale: 0.8 } : false}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
@@ -287,47 +272,21 @@ export function EventsSection() {
           >
             The world above threw this stuff away. We made it into something.
           </motion.p>
-        </motion.header>
+        </header>
 
-        {/* Events grid with staggered motion entrance */}
-        <motion.div 
-          className={`grid ${gridClass} gap-6`}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: motionMode === "expressive" ? 0.15 : 0.08,
-              },
-            },
-          }}
-        >
+        {/* Events grid - simplified entrance */}
+        <div className={`grid ${gridClass} gap-6`}>
           {EVENTS.map((event, index) => (
             <motion.div
               key={event.id}
-              variants={motionMode !== "off" ? {
-                hidden: { 
-                  opacity: 0, 
-                  y: 60,
-                  rotateX: motionMode === "expressive" ? 15 : 0,
-                  scale: 0.9,
-                },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  rotateX: 0,
-                  scale: 1,
-                  transition: {
-                    type: "spring",
-                    ...springConfig,
-                  },
-                },
-              } : {}}
-              whileHover={motionMode !== "off" ? { 
-                y: -8,
-                transition: { type: "spring", stiffness: 300, damping: 20 },
-              } : {}}
+              initial={motionMode !== "off" ? { opacity: 0, y: 30 } : false}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ 
+                duration: 0.4, 
+                delay: index * 0.06,
+                ease: "easeOut" 
+              }}
+              whileHover={motionMode !== "off" ? { y: -4 } : {}}
             >
               <EventCard
                 event={event}
@@ -342,7 +301,7 @@ export function EventsSection() {
               />
             </motion.div>
           ))}
-        </motion.div>
+        </div>
 
         {/* View all link */}
         <div className={`mt-12 text-center ${motionMode === "expressive" ? "float" : motionMode === "subtle" ? "gentle-fade" : ""}`}>

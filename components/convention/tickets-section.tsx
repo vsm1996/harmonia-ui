@@ -11,7 +11,7 @@
 "use client"
 
 import { useRef } from "react"
-import { motion, useInView, useScroll, useTransform, useSpring } from "motion/react"
+import { motion, useInView } from "motion/react"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -120,18 +120,8 @@ export function TicketsSection() {
   // Use effective motion (respects prefers-reduced-motion)
   const motionMode = effectiveMotion
   
-  // Spring config based on motion mode
-  const springConfig = motionMode === "expressive" 
-    ? { stiffness: 100, damping: 15 } 
-    : { stiffness: 200, damping: 25 }
-  
-  // Scroll effects
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  })
-  const scale = useTransform(scrollYProgress, [0, 0.3], [0.95, 1])
-  const scaleSpring = useSpring(scale, springConfig)
+  // Simplified config - no scroll-linked springs
+  const springConfig = { stiffness: 200, damping: 25 }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // COGNITIVE → Density (tier count, decision complexity)
@@ -177,10 +167,7 @@ export function TicketsSection() {
         <FloatingDebris size={20} className="absolute bottom-16 right-1/4 text-accent/20" />
       </div>
       
-      <motion.div 
-        className="max-w-6xl mx-auto relative"
-        style={{ scale: motionMode !== "off" ? scaleSpring : 1 }}
-      >
+      <div className="max-w-6xl mx-auto relative">
         {/* Section header with entrance animation */}
         <motion.header 
           className="mb-16 text-center"
@@ -230,40 +217,18 @@ export function TicketsSection() {
           )}
         </motion.header>
 
-        {/* Pricing grid with staggered entrance */}
-        <motion.div 
-          className={gridClass}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: motionMode === "expressive" ? 0.2 : 0.1,
-                delayChildren: 0.3,
-              },
-            },
-          }}
-        >
+        {/* Pricing grid - simplified entrance */}
+        <div className={gridClass}>
           {visibleTiers.map((tier, index) => (
             <motion.div
               key={tier.id}
-              variants={motionMode !== "off" ? {
-                hidden: { 
-                  opacity: 0, 
-                  y: 80,
-                  scale: 0.8,
-                },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  scale: 1,
-                  transition: {
-                    type: "spring",
-                    ...springConfig,
-                  },
-                },
-              } : {}}
+              initial={motionMode !== "off" ? { opacity: 0, y: 30 } : false}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ 
+                duration: 0.4, 
+                delay: 0.2 + index * 0.1,
+                ease: "easeOut" 
+              }}
             >
               <TierCard
                 tier={tier}
@@ -275,7 +240,7 @@ export function TicketsSection() {
               />
             </motion.div>
           ))}
-        </motion.div>
+        </div>
 
         {/* TEMPORAL: Additional info with fade in */}
         {headerContent.footer && context.userCapacity.temporal > 0.5 && (
@@ -288,7 +253,7 @@ export function TicketsSection() {
             <p>{headerContent.footer}</p>
           </motion.div>
         )}
-      </motion.div>
+      </div>
     </section>
   )
 }

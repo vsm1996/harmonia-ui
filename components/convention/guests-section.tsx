@@ -12,7 +12,7 @@
 
 import { useRef } from "react"
 import Image from "next/image"
-import { motion, useInView, useScroll, useTransform, useSpring } from "motion/react"
+import { motion, useInView } from "motion/react"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -195,12 +195,7 @@ export function GuestsSection() {
     : { stiffness: 200, damping: 25 }
   
   // Scroll parallax for section
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  })
-  const bgY = useTransform(scrollYProgress, [0, 1], [0, -50])
-  const bgYSpring = useSpring(bgY, springConfig)
+  // Removed scroll-linked parallax for performance
 
   // ═══════════════════════════════════════════════════════════════════════════
   // COGNITIVE → Density (guest count, grid columns)
@@ -241,16 +236,15 @@ export function GuestsSection() {
       className="py-24 px-4 md:px-8 bg-card/50 relative overflow-hidden"
       aria-labelledby="guests-title"
     >
-      {/* Decorative SVGs with parallax */}
-      <motion.div 
+      {/* Decorative SVGs */}
+      <div 
         className="absolute inset-0 pointer-events-none overflow-hidden" 
         aria-hidden="true"
-        style={{ y: motionMode !== "off" ? bgYSpring : 0 }}
       >
         <BuzzingFlies size={48} className="absolute top-16 right-8 text-muted-foreground/25" />
         <SalvagedWeapon size={56} className="absolute bottom-12 left-8 text-primary/15 -rotate-12" />
         <CrackPattern width={100} height={50} className="absolute top-1/2 right-4 text-muted-foreground/10" />
-      </motion.div>
+      </div>
       
       <div className="max-w-7xl mx-auto relative">
         {/* Section header with entrance animation */}
@@ -294,40 +288,18 @@ export function GuestsSection() {
           )}
         </motion.header>
 
-        {/* Guests grid with staggered entrance */}
-        <motion.div 
-          className={`grid ${gridClass} gap-4 md:gap-6`}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: motionMode === "expressive" ? 0.12 : 0.06,
-                delayChildren: 0.2,
-              },
-            },
-          }}
-        >
+        {/* Guests grid - simplified entrance for better scroll perf */}
+        <div className={`grid ${gridClass} gap-4 md:gap-6`}>
           {visibleGuests.map((guest, index) => (
             <motion.div
               key={guest.id}
-              variants={motionMode !== "off" ? {
-                hidden: { 
-                  opacity: 0, 
-                  y: 50,
-                  scale: 0.85,
-                },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  scale: 1,
-                  transition: {
-                    type: "spring",
-                    ...springConfig,
-                  },
-                },
-              } : {}}
+              initial={motionMode !== "off" ? { opacity: 0, y: 30 } : false}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ 
+                duration: 0.4, 
+                delay: index * 0.05,
+                ease: "easeOut"
+              }}
             >
               <GuestCard
                 guest={guest}
@@ -338,7 +310,7 @@ export function GuestsSection() {
               />
             </motion.div>
           ))}
-        </motion.div>
+        </div>
 
         {/* More guests link with hover animation */}
         {showViewAll && (

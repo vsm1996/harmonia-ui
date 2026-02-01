@@ -10,7 +10,7 @@
 
 "use client"
 
-import { motion, useScroll, useTransform, useSpring, useInView } from "motion/react"
+import { motion, useScroll, useTransform, useInView } from "motion/react"
 import { useRef } from "react"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Button } from "@/components/ui/button"
@@ -98,20 +98,18 @@ export function HeroSection() {
   const { springConfig, duration } = useAdaptiveMotionConfig(motionMode)
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // SCROLL-BASED PARALLAX (disabled for off mode)
+  // SCROLL-BASED PARALLAX (simplified - no springs for better perf)
   // ═══════════════════════════════════════════════════════════════════════════
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   })
   
-  // Parallax intensity adapts to motion mode
-  const parallaxIntensity = motionMode === "expressive" ? 200 : motionMode === "subtle" ? 100 : 0
+  // Simplified parallax - direct transforms without springs to reduce jank
+  const parallaxIntensity = motionMode === "expressive" ? 100 : motionMode === "subtle" ? 50 : 0
   const titleY = useTransform(scrollYProgress, [0, 1], [0, parallaxIntensity])
-  const titleYSpring = useSpring(titleY, springConfig)
-  const bgY = useTransform(scrollYProgress, [0, 1], [0, parallaxIntensity * 0.5])
-  const bgYSpring = useSpring(bgY, springConfig)
-  const opacityScroll = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+  const bgY = useTransform(scrollYProgress, [0, 1], [0, parallaxIntensity * 0.3])
+  const opacityScroll = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TEMPORAL → Content Length (tagline verbosity)
@@ -147,31 +145,25 @@ export function HeroSection() {
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4"
       aria-labelledby="hero-title"
     >
-      {/* Background texture layer - grungy concrete aesthetic with parallax */}
-      <motion.div
+      {/* Background texture layer - grungy concrete aesthetic */}
+      <div
         className="absolute inset-0 opacity-20"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          y: motionMode !== "off" ? bgYSpring : 0,
         }}
         aria-hidden="true"
       />
 
-      {/* Animated gradient overlay */}
-      <motion.div
+      {/* Gradient overlay */}
+      <div
         className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background"
-        animate={{
-          opacity: 0.8 + context.emotionalState.valence * 0.1,
-        }}
-        transition={{ duration: duration }}
-        style={{ opacity: motionMode !== "off" ? opacityScroll : 1 }}
         aria-hidden="true"
       />
 
-      {/* Main content container with parallax */}
+      {/* Main content container */}
       <motion.div 
         className="relative z-10 max-w-5xl mx-auto text-center"
-        style={{ y: motionMode !== "off" ? titleYSpring : 0 }}
+        style={{ y: motionMode !== "off" ? titleY : 0 }}
       >
         {/* TEMPORAL: Date badge - skip when user has limited time */}
         {context.userCapacity.temporal > 0.3 && (
