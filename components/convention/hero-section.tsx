@@ -1,5 +1,8 @@
 /**
  * Hero Section - Convention Landing Hero
+ * 
+ * PERFORMANCE OPTIMIZED: Uses CSS animations instead of JS-driven motion
+ * to prevent scroll jank and ensure smooth 60fps rendering.
  *
  * STRICT SEPARATION OF CONCERNS:
  * - Cognitive → density (concurrent info: location, secondary details)
@@ -10,7 +13,6 @@
 
 "use client"
 
-import { motion, useScroll, useTransform, useInView } from "motion/react"
 import { useRef } from "react"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
 import { Button } from "@/components/ui/button"
@@ -18,51 +20,21 @@ import { Badge } from "@/components/ui/badge"
 import { AnimatedDumpster } from "./animated-dumpster"
 
 /**
- * Motion configuration based on capacity
- * Returns spring configs and animation parameters adapted to user state
- */
-function useAdaptiveMotionConfig(motionMode: "off" | "subtle" | "expressive") {
-  const springConfig = {
-    off: { stiffness: 300, damping: 30, mass: 1 },
-    subtle: { stiffness: 200, damping: 25, mass: 0.8 },
-    expressive: { stiffness: 120, damping: 14, mass: 0.5 },
-  }[motionMode]
-
-  const duration = {
-    off: 0,
-    subtle: 0.4,
-    expressive: 0.8,
-  }[motionMode]
-
-  return { springConfig, duration }
-}
-
-/**
  * TEMPORAL → Content Length (how much time the UI asks)
- * Controls: tagline verbosity, secondary text presence
  */
 const TAGLINES = {
   full: {
     main: "They threw us away. We built a kingdom.",
-    sub: "The world above forgot us. Good. We don't need 'em.",
+    sub: "The world above forgot us. Good. We don't need them.",
   },
   abbreviated: {
     main: "Discarded. Not defeated.",
-    sub: null, // Skip secondary text when temporal is low
+    sub: null,
   },
 }
 
 /**
  * VALENCE → Tone Only (emotional color, NOT information volume)
- * Controls: CTA language warmth/playfulness
- * 
- * IMPORTANT: This is intentional adaptive behavior:
- * - Positive valence (> +0.2): Enthusiastic, energetic language
- * - Neutral valence (-0.2 to +0.2): Professional, clear language  
- * - Negative valence (< -0.2): Gentle, inviting language
- * 
- * The CTA text changes reflect emotional resonance, not information.
- * A stressed user gets softer "Join Us", an excited user gets "LET'S GO!"
  */
 const TONES = {
   positive: {
@@ -83,8 +55,6 @@ export function HeroSection() {
   const { context } = useCapacityContext()
   const { mode: effectiveMotion } = useEffectiveMotion()
   const sectionRef = useRef<HTMLElement>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
-  const isInView = useInView(sectionRef, { once: true, margin: "-10%" })
   
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
@@ -93,51 +63,18 @@ export function HeroSection() {
     valence: context.emotionalState.valence,
   })
   
-  // Use effective motion (respects prefers-reduced-motion) instead of derived mode.motion
   const motionMode = effectiveMotion
-  const { springConfig, duration } = useAdaptiveMotionConfig(motionMode)
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SCROLL-BASED PARALLAX (simplified - no springs for better perf)
-  // ═══════════════════════════════════════════════════════════════════════════
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  })
-  
-  // Simplified parallax - direct transforms without springs to reduce jank
-  const parallaxIntensity = motionMode === "expressive" ? 100 : motionMode === "subtle" ? 50 : 0
-  const titleY = useTransform(scrollYProgress, [0, 1], [0, parallaxIntensity])
-  const bgY = useTransform(scrollYProgress, [0, 1], [0, parallaxIntensity * 0.3])
-  const opacityScroll = useTransform(scrollYProgress, [0, 0.6], [1, 0])
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // TEMPORAL → Content Length (tagline verbosity)
-  // ═══════════════════════════════════════════════════════════════════════════
-  const tagline =
-    context.userCapacity.temporal > 0.4 ? TAGLINES.full : TAGLINES.abbreviated
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // VALENCE → Tone Only (CTA warmth, NOT information volume)
-  // ═══════════════════════════════════════════════════════════════════════════
-  const toneKey =
-    context.emotionalState.valence > 0.2
-      ? "positive"
-      : context.emotionalState.valence < -0.2
-        ? "negative"
-        : "neutral"
+  // Content adaptations
+  const tagline = context.userCapacity.temporal > 0.4 ? TAGLINES.full : TAGLINES.abbreviated
+  const toneKey = context.emotionalState.valence > 0.2 ? "positive" 
+    : context.emotionalState.valence < -0.2 ? "negative" : "neutral"
   const ctaText = TONES[toneKey]
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // COGNITIVE → Concurrent Choices (via mode.choiceLoad from temporal)
-  // Show secondary CTA only when temporal allows (user has time to decide)
-  // ═══════════════════════════════════════════════════════════════════════════
   const showSecondaryCTA = mode.choiceLoad === "normal"
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // VALENCE → Expressiveness (color warmth shift)
-  // ═══════════════════════════════════════════════════════════════════════════
   const warmthShift = context.emotionalState.valence * 10
+
+  // CSS animation class based on motion mode
+  const animateClass = motionMode !== "off" ? "animate-fade-in" : ""
 
   return (
     <section
@@ -145,33 +82,18 @@ export function HeroSection() {
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4"
       aria-labelledby="hero-title"
     >
-      {/* Background texture layer - grungy concrete aesthetic */}
+      {/* Background gradient only - removed heavy SVG filter */}
       <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
+        className="absolute inset-0 bg-gradient-to-b from-background via-background to-card"
         aria-hidden="true"
       />
 
-      {/* Gradient overlay */}
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background"
-        aria-hidden="true"
-      />
-
-      {/* Main content container */}
-      <motion.div 
-        className="relative z-10 max-w-5xl mx-auto text-center"
-        style={{ y: motionMode !== "off" ? titleY : 0 }}
-      >
-        {/* TEMPORAL: Date badge - skip when user has limited time */}
+      {/* Main content - CSS animations only */}
+      <div className="relative z-10 max-w-5xl mx-auto text-center">
+        
+        {/* Date badge */}
         {context.userCapacity.temporal > 0.3 && (
-          <motion.div 
-            initial={motionMode !== "off" ? { opacity: 0, y: -20 } : false}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration, delay: 0.1, ...springConfig }}
-          >
+          <div className={animateClass} style={{ animationDelay: "0ms" }}>
             <Badge
               variant="outline"
               className={`mb-6 text-sm tracking-widest uppercase border-primary/50 ${
@@ -180,113 +102,76 @@ export function HeroSection() {
             >
               August 15-17, 2026
             </Badge>
-          </motion.div>
+          </div>
         )}
 
-        {/* Main title with staggered letter animation for expressive mode */}
-        <motion.h1
-          ref={titleRef}
+        {/* Main title */}
+        <h1
           id="hero-title"
-          className="font-sans font-black tracking-tighter leading-none mb-6"
+          className={`font-sans font-black tracking-tighter leading-none mb-6 ${animateClass}`}
           style={{
             fontSize: "clamp(3rem, 15vw, 12rem)",
             filter: `hue-rotate(${warmthShift}deg)`,
+            animationDelay: "100ms",
           }}
-          initial={motionMode !== "off" ? { opacity: 0, scale: 0.8, rotateX: 45 } : false}
-          animate={isInView ? { opacity: 1, scale: 1, rotateX: 0 } : {}}
-          transition={{ duration: duration * 1.5, ...springConfig }}
         >
-          <motion.span 
-            className={`block text-primary ${motionMode === "expressive" ? "breathe" : ""}`}
-            whileHover={motionMode === "expressive" ? { scale: 1.05, textShadow: "0 0 40px hsl(var(--primary))" } : {}}
-            transition={springConfig}
-          >
+          <span className={`block text-primary ${motionMode === "expressive" ? "breathe" : ""}`}>
             ABYSS
-          </motion.span>
-          <motion.span 
-            className="block text-foreground/90"
-            whileHover={motionMode === "expressive" ? { scale: 1.02, letterSpacing: "0.1em" } : {}}
-            transition={springConfig}
-          >
+          </span>
+          <span className="block text-foreground/90">
             CON
-          </motion.span>
-        </motion.h1>
+          </span>
+        </h1>
 
-        {/* Tagline with staggered reveal */}
-        <motion.p
-          className="text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance"
-          initial={motionMode !== "off" ? { opacity: 0, y: 30 } : false}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration, delay: duration * 0.5, ...springConfig }}
+        {/* Tagline */}
+        <p
+          className={`text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance ${animateClass}`}
+          style={{ animationDelay: "200ms" }}
         >
           {tagline.main}
           {tagline.sub && (
-            <motion.span
-              className="block text-foreground/60 mt-2"
-              initial={motionMode !== "off" ? { opacity: 0 } : false}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration, delay: duration * 0.8 }}
-            >
+            <span className="block text-foreground/60 mt-2">
               {tagline.sub}
-            </motion.span>
+            </span>
           )}
-        </motion.p>
+        </p>
 
-        {/* CTA buttons with staggered entrance and interactive hover */}
-        <motion.div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          initial={motionMode !== "off" ? { opacity: 0, y: 40 } : false}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration, delay: duration * 0.7, ...springConfig }}
+        {/* CTA buttons */}
+        <div
+          className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${animateClass}`}
+          style={{ animationDelay: "300ms" }}
         >
-          <motion.div
-            whileHover={motionMode !== "off" ? { scale: 1.05 } : {}}
-            whileTap={motionMode !== "off" ? { scale: 0.98 } : {}}
-            transition={springConfig}
+          <Button 
+            size="lg" 
+            className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 ${
+              motionMode === "expressive" ? "hover-pulse" : ""
+            }`}
           >
-            <Button 
-              size="lg" 
-              className={`text-lg px-8 py-6 font-bold tracking-wide ${
-                motionMode === "expressive" ? "hover-pulse" : ""
-              }`}
-            >
-              {ctaText.cta}
-            </Button>
-          </motion.div>
+            {ctaText.cta}
+          </Button>
           {showSecondaryCTA && (
-            <motion.div
-              whileHover={motionMode !== "off" ? { scale: 1.05 } : {}}
-              whileTap={motionMode !== "off" ? { scale: 0.98 } : {}}
-              transition={springConfig}
-              initial={motionMode !== "off" ? { opacity: 0, x: -20 } : false}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent transition-transform hover:scale-105 active:scale-95"
             >
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent"
-              >
-                {ctaText.secondary}
-              </Button>
-            </motion.div>
+              {ctaText.secondary}
+            </Button>
           )}
-        </motion.div>
+        </div>
 
-        {/* COGNITIVE: Location info - reduce concurrent info when cognitive is low */}
+        {/* Location info */}
         {context.userCapacity.cognitive > 0.4 && (
-          <motion.p
-            className="mt-12 text-sm text-muted-foreground tracking-widest uppercase"
-            initial={motionMode !== "off" ? { opacity: 0, y: 20 } : false}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration, delay: duration * 1.2 }}
-            whileHover={motionMode === "expressive" ? { scale: 1.05, color: "hsl(var(--primary))" } : {}}
+          <p
+            className={`mt-12 text-sm text-muted-foreground tracking-widest uppercase ${animateClass}`}
+            style={{ animationDelay: "400ms" }}
           >
             Los Angeles Convention Center
-          </motion.p>
+          </p>
         )}
-      </motion.div>
+      </div>
 
-      {/* EMOTIONAL: Animated dumpster scroll indicator - hide when motion is off */}
+      {/* Scroll indicator */}
       {motionMode !== "off" && (
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground/50 fall hover:text-primary/70 transition-colors cursor-pointer"

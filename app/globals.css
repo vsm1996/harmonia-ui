@@ -194,7 +194,24 @@
 
 /* ANIMATIONS */
 
-    /* Scan Line - industrial tech effect for cards */
+/* Simple fade-in for initial load - GPU accelerated */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+  animation-fill-mode: both;
+}
+
+/* Scan Line - industrial tech effect for cards */
     @keyframes scanLine {
       0%, 100% { 
         opacity: 0;
