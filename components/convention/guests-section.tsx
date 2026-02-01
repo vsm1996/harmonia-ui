@@ -28,8 +28,8 @@ const GUESTS = [
     role: "Gachiakuta Creator",
     image: "/images/guests/kei-urana.jpg",
     bio: {
-      full: "The mastermind behind the world of the Abyss. First US appearance.",
-      short: "Creator of Gachiakuta. First US visit.",
+      full: "First time leaving Japan for a convention. We had to beg. Like, actually beg. His editor said no three times.",
+      short: "First US appearance ever.",
     },
     featured: true,
   },
@@ -39,8 +39,8 @@ const GUESTS = [
     role: "Voice Actor",
     image: "/images/guests/zeno-robinson.jpg",
     bio: {
-      full: "The voice of Hawks in My Hero Academia, bringing charm and depth to fan-favorite characters.",
-      short: "Voice of Hawks (My Hero Academia).",
+      full: "Hawks. That's it. That's the bio. (Also Goh in Pokemon but we know why you're here.)",
+      short: "Voice of Hawks.",
     },
     featured: true,
   },
@@ -50,8 +50,8 @@ const GUESTS = [
     role: "Voice Actor",
     image: "/images/guests/anairis-quinones.jpg",
     bio: {
-      full: "Powerhouse voice behind Mirko in My Hero Academia. Breaking barriers in anime dubbing.",
-      short: "Voice of Mirko (My Hero Academia).",
+      full: "Mirko. She's done other stuff too but let's be honest you're here because rabbit-kick-lady made you feel things.",
+      short: "Voice of Mirko.",
     },
     featured: true,
   },
@@ -61,8 +61,8 @@ const GUESTS = [
     role: "Voice Actor",
     image: "/images/guests/yuki-kaji.jpg",
     bio: {
-      full: "Known for Eren Yeager, bringing intensity to every role.",
-      short: "Voice of Eren Yeager.",
+      full: "TATAKAE. TATAKAE. TATAKAE.",
+      short: "Eren.",
     },
     featured: true,
   },
@@ -72,8 +72,8 @@ const GUESTS = [
     role: "Key Animator",
     image: "/images/guests/shingo-yamashita.jpg",
     bio: {
-      full: "Action sequences that define modern anime aesthetics.",
-      short: "Legendary action animator.",
+      full: "If you've rewatched a fight scene 47 times trying to understand how it works, it was probably him.",
+      short: "That fight scene? Probably him.",
     },
     featured: false,
   },
@@ -83,8 +83,8 @@ const GUESTS = [
     role: "Voice Actor",
     image: "/images/guests/steve-blum.jpg",
     bio: {
-      full: "Legendary voice of Spike Spiegel in Cowboy Bebop. Over 400+ anime and game roles.",
-      short: "Voice of Spike Spiegel (Cowboy Bebop).",
+      full: "Spike Spiegel. Wolverine. Grunt. Amon. Orochimaru. 400+ roles. Will be doing his famous hot dog eating contest bit at the Saturday mixer. Don't ask, just show up.",
+      short: "You know who this is.",
     },
     featured: false,
   },
@@ -94,8 +94,8 @@ const GUESTS = [
     role: "Voice Actor",
     image: "/images/guests/cristina-vee.jpg",
     bio: {
-      full: "Voice of Homura in Madoka Magica and Marinette in Miraculous Ladybug. Singer and director.",
-      short: "Voice of Homura (Madoka Magica).",
+      full: "Homura. Marinette. Verosika. Also sings, directs, and will absolutely destroy you in Smash if you challenge her. Don't.",
+      short: "Homura, Marinette, + 200 others.",
     },
     featured: false,
   },
@@ -105,8 +105,8 @@ const GUESTS = [
     role: "Voice Actor",
     image: "/images/guests/bryce-papenbrook.jpg",
     bio: {
-      full: "The voice behind Eren Yeager (English), Kirito, and Inosuke. A titan of anime dubbing.",
-      short: "Voice of Eren (English), Kirito, Inosuke.",
+      full: "English Eren, Kirito, Inosuke, Shirou, Adrien, Meliodas... at this point if a protagonist screams a lot, it's probably him. Very nice in person though. Weirdly calm.",
+      short: "Eren (English). Kirito. Inosuke. Many more.",
     },
     featured: false,
   },
@@ -116,8 +116,8 @@ const GUESTS = [
     role: "Voice Actor",
     image: "/images/guests/erica-mendez.jpg",
     bio: {
-      full: "Voice of Ryuko in Kill la Kill and Gon in Hunter x Hunter. Versatile and iconic.",
-      short: "Voice of Ryuko (Kill la Kill).",
+      full: "Ryuko. Gon. Diane. Megumin. Basically if a character has range from 'tiny and explosive' to 'will punch through walls', Erica's got it.",
+      short: "Ryuko, Gon, Megumin.",
     },
     featured: false,
   },
@@ -127,8 +127,8 @@ const GUESTS = [
     role: "Key Animator",
     image: "/images/guests/yutaka-nakamura.jpg",
     bio: {
-      full: "The animation genius behind iconic fight scenes in My Hero Academia and Mob Psycho 100.",
-      short: "Legendary fight scene animator.",
+      full: "The guy. THE guy. Bones studio legend. Your favorite sakuga compilation? 60% him. Will be doing a live drawing demo and honestly just watching him hold a pencil is worth the badge price.",
+      short: "THE sakuga guy.",
     },
     featured: false,
   },
@@ -138,8 +138,8 @@ const GUESTS = [
     role: "Animator/Director",
     image: "/images/guests/mitsuo-iso.jpg",
     bio: {
-      full: "Creator of Dennou Coil. Pioneer of full limited animation technique.",
-      short: "Creator of Dennou Coil.",
+      full: "Created Dennou Coil. Invented a whole animation technique. Probably thinking about frame interpolation right now.",
+      short: "Dennou Coil creator.",
     },
     featured: false,
   },
@@ -149,8 +149,8 @@ const GUESTS = [
     role: "Cosplay Judge",
     image: "/images/guests/vampy-bit-me.jpg",
     bio: {
-      full: "Professional cosplayer and craftsmanship expert.",
-      short: "Pro cosplayer & judge.",
+      full: "Will judge your craftsmanship. Fairly. But thoroughly. Bring your A-game or don't bring your foam.",
+      short: "She will judge you.",
     },
     featured: false,
   },
@@ -161,15 +161,15 @@ const GUESTS = [
  */
 const HEADERS = {
   full: {
-    title: "Meet The Legends",
-    description: "Industry icons, creators, and personalities who understand what it means to rise from nothing.",
+    title: "These People Said Yes",
+    description: "We still can't believe it either.",
   },
   reduced: {
-    title: "Meet The Legends",
-    description: "Industry icons and creators joining us this year.",
+    title: "Guest List",
+    description: "They're actually coming.",
   },
   minimal: {
-    title: "Our Guests",
+    title: "Guests",
     description: null,
   },
 }

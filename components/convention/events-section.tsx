@@ -73,11 +73,11 @@ function useInfectionProgress(isInView: boolean) {
 const EVENTS = [
   {
     id: "cosplay-championship",
-    title: "Cosplay Championship",
+    title: "Trash to Treasure Cosplay Championship",
     shortTitle: "Cosplay Champ",
     description: {
-      full: "Transform trash into treasure. Build your weapons from discarded materials and compete for glory.",
-      short: "Build weapons from trash. Compete for glory.",
+      full: "Build your costume using at least 50% salvaged materials. Last year someone made working LED wings from broken TVs. The bar is HIGH.",
+      short: "Salvage cosplay competition. It gets wild.",
     },
     category: "Competition",
     time: "Saturday, 2:00 PM",
@@ -89,8 +89,8 @@ const EVENTS = [
     title: "Artist Alley",
     shortTitle: "Artist Alley",
     description: {
-      full: "200+ independent artists showcasing manga, prints, and original works from around the world.",
-      short: "200+ artists. Manga, prints, originals.",
+      full: "217 artists this year. We counted. Someone's selling hand-carved Pochita keychains and honestly that alone is worth the trip.",
+      short: "217 artists. Bring cash.",
     },
     category: "Exhibition",
     time: "All Days",
@@ -99,11 +99,11 @@ const EVENTS = [
   },
   {
     id: "gachiakuta-panel",
-    title: "Gachiakuta Creator Panel",
+    title: "Kei Urana Q&A",
     shortTitle: "Creator Panel",
     description: {
-      full: "Exclusive Q&A with Kei Urana. First time at a US convention. Don't miss this historic moment.",
-      short: "Q&A with Kei Urana. First US appearance.",
+      full: "THE Gachiakuta creator. In person. Taking questions. We cannot stress enough how rare this is. He doesn't do conventions. He's doing this one.",
+      short: "Gachiakuta creator. First ever US Q&A.",
     },
     category: "Panel",
     time: "Sunday, 11:00 AM",
@@ -112,11 +112,11 @@ const EVENTS = [
   },
   {
     id: "abyss-escape",
-    title: "The Abyss Escape Room",
+    title: "The Abyss (Escape Room)",
     shortTitle: "Abyss Escape",
     description: {
-      full: "Survive the depths. Solve puzzles using discarded objects to escape before time runs out.",
-      short: "Puzzle escape room. Survive the depths.",
+      full: "45-minute escape room designed by actual puzzle competition winners. Average clear rate at other cons: 23%. Good luck.",
+      short: "Hard escape room. 23% clear rate.",
     },
     category: "Interactive",
     time: "All Days",
@@ -125,24 +125,24 @@ const EVENTS = [
   },
   {
     id: "midnight-screening",
-    title: "Midnight Anime Screening",
+    title: "2AM Anime Block",
     shortTitle: "Late Screening",
     description: {
-      full: "Dark, gritty anime marathon featuring underground classics. Not for the faint of heart.",
-      short: "Dark anime marathon. Underground classics.",
+      full: "We legally can't tell you what we're showing but trust us. Bring a blanket. Bring snacks. Don't bring your parents.",
+      short: "Late night screenings. Trust us.",
     },
     category: "Screening",
-    time: "Fri & Sat, 12:00 AM",
-    shortTime: "Fri-Sat 12AM",
+    time: "Fri & Sat, 2:00 AM",
+    shortTime: "Fri-Sat 2AM",
     location: "Theater 1",
   },
   {
     id: "trash-art-workshop",
-    title: "Trash Art Workshop",
+    title: "Make Something From Nothing",
     shortTitle: "Art Workshop",
     description: {
-      full: "Learn to create stunning art from discarded materials with professional artists and take home your creation.",
-      short: "Create art from trash. Take it home.",
+      full: "Actual artists teaching you to make actual art from actual garbage. Materials provided. Dignity optional. You keep what you make.",
+      short: "Art from garbage. Keep what you make.",
     },
     category: "Workshop",
     time: "Saturday, 10:00 AM",
@@ -272,11 +272,11 @@ export function EventsSection() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1, ...springConfig }}
           >
-            <InfectedText text="Descend Into" infectColor={infectedColor} />
+            <InfectedText text="What's" infectColor={infectedColor} />
             <motion.span 
               style={{ color: infectedColor }}
               whileHover={motionMode === "expressive" ? { scale: 1.05 } : {}}
-            > The Events</motion.span>
+            > Happening</motion.span>
           </motion.h2>
           <motion.p
             className="text-lg max-w-2xl mx-auto text-balance transition-colors duration-300"
@@ -285,8 +285,7 @@ export function EventsSection() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Three days of panels, competitions, screenings, and experiences
-            designed for true outcasts.
+            Not a complete list. Just the stuff we're allowed to announce.
           </motion.p>
         </motion.header>
 

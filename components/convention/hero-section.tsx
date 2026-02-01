@@ -43,11 +43,11 @@ function useAdaptiveMotionConfig(motionMode: "off" | "subtle" | "expressive") {
  */
 const TAGLINES = {
   full: {
-    main: "Where the discarded become legendary.",
-    sub: "The ultimate celebration of outcasts, underdogs, and anime.",
+    main: "Three days. One dumpster fire. You in?",
+    sub: "LA Convention Center, August 15-17. Bring deodorant.",
   },
   abbreviated: {
-    main: "Where the discarded become legendary.",
+    main: "Three days. One dumpster fire.",
     sub: null, // Skip secondary text when temporal is low
   },
 }
