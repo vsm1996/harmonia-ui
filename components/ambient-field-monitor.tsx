@@ -43,7 +43,7 @@ function InputsToModeFlow() {
   }
 
   const mode = deriveMode(field)
-  const label = deriveModeLabel(mode)
+  const label = deriveModeLabel(field)
   const badgeColor = getModeBadgeColor(label)
 
   return (

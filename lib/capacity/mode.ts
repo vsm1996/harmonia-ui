@@ -90,46 +90,45 @@ export function deriveMode(field: CapacityField): InterfaceMode {
 // ============================================================================
 
 /**
- * Derives a human-readable mode label from InterfaceMode
+ * Derives a human-readable mode label from raw capacity inputs
  *
- * Preset → Mode mapping (for reference):
- * - Exhausted:   density=low,  choiceLoad=minimal, motion=subtle   → Minimal
- * - Overwhelmed: density=low,  choiceLoad=minimal, motion=subtle   → Minimal  
- * - Distracted:  density=med,  choiceLoad=minimal, motion=subtle   → Calm (time pressure but ok cognitive)
- * - Neutral:     density=med,  choiceLoad=normal,  motion=subtle   → Calm (balanced state)
- * - Focused:     density=med,  choiceLoad=normal,  motion=subtle   → Focused (good capacity, no time pressure)
- * - Energized:   density=high, choiceLoad=normal,  motion=express  → Exploratory
- * - Exploring:   density=high, choiceLoad=normal,  motion=express  → Exploratory
+ * We use RAW VALUES, not derived mode, because:
+ * - Neutral (0.5, 0.5, 0.5) and Focused (0.7, 0.7, 0.6) produce the same InterfaceMode
+ * - But they should have different labels (Calm vs Focused)
+ * - The distinction is the RAW capacity level, not the derived mode
  *
- * Labels:
- * - Minimal: Low density + minimal choices (exhausted/overwhelmed)
- * - Calm: Medium density + minimal choices OR medium density + normal choices + subtle motion + not high guidance
- * - Focused: Medium density + normal choices + low guidance (engaged, ready to work)
- * - Exploratory: High density OR expressive motion
+ * Preset → Label mapping:
+ * - Exhausted   (0.2, 0.2, 0.1)  → Minimal   (very low everything)
+ * - Overwhelmed (0.3, 0.25, 0.2) → Minimal   (low cognitive + temporal)
+ * - Distracted  (0.4, 0.3, 0.6)  → Calm      (ok cognitive, low temporal)
+ * - Neutral     (0.5, 0.5, 0.5)  → Calm      (balanced, middle-ground)
+ * - Focused     (0.7, 0.7, 0.6)  → Focused   (good capacity, ready to work)
+ * - Energized   (0.9, 0.8, 0.9)  → Exploratory (high everything)
+ * - Exploring   (0.85, 0.7, 0.8) → Exploratory (high cognitive + emotional)
  */
-export function deriveModeLabel(mode: InterfaceMode): InterfaceModeLabel {
-  // Exploratory: Open, engaged state (high density or expressive motion)
-  // Check FIRST - if you have high energy/cognitive, you're exploring
-  if (mode.density === "high" || mode.motion === "expressive") {
+export function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
+  const { cognitive, temporal, emotional } = inputs
+  
+  // Exploratory: High cognitive AND high emotional capacity (energetic, engaged)
+  // Threshold: both > 0.65
+  if (cognitive > 0.65 && emotional > 0.65) {
     return "Exploratory"
   }
-
-  // Minimal: Everything scaled back (low density + time pressure)
-  if (mode.density === "low" && mode.choiceLoad === "minimal") {
+  
+  // Minimal: Very low capacity (cognitive AND temporal both low)
+  // Threshold: both < 0.35
+  if (cognitive < 0.35 && temporal < 0.35) {
     return "Minimal"
   }
-
-  // Now we're in medium density territory...
   
-  // Focused: Good cognitive capacity + no time pressure + low guidance needed
-  // This is the "ready to work" state - engaged but not overwhelmed
-  if (mode.density === "medium" && mode.choiceLoad === "normal" && mode.guidance === "low") {
+  // Focused: Good cognitive AND good temporal capacity (ready to work)
+  // Threshold: both >= 0.6
+  if (cognitive >= 0.6 && temporal >= 0.6) {
     return "Focused"
   }
-
-  // Calm: Everything else - balanced/neutral states, or time pressure with ok cognitive
-  // Includes: distracted (med density + minimal choices), neutral (med + normal + medium guidance)
-  // Also includes low density states without time pressure
+  
+  // Calm: Everything else
+  // Includes: Neutral (0.5s), Distracted (ok cognitive but low temporal), moderate states
   return "Calm"
 }
 

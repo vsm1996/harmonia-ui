@@ -85,13 +85,14 @@ const TONE = {
 
 export function CapacityDemoCard() {
   const { context } = useCapacityContext()
-  const mode = deriveMode({
+  const field = {
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
     emotional: context.userCapacity.emotional,
     valence: context.emotionalState.valence,
-  })
-  const modeLabel = deriveModeLabel(mode)
+  }
+  const mode = deriveMode(field)
+  const modeLabel = deriveModeLabel(field)
   const modeBadgeColor = getModeBadgeColor(modeLabel)
 
   // ═══════════════════════════════════════════════════════════════════════════
