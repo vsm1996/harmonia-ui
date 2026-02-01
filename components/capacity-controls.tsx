@@ -157,6 +157,20 @@ export function CapacityControls() {
         )}
       </AnimatePresence>
 
+      {/* Backdrop for mobile - tap to close */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm md:hidden"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Control panel */}
       <AnimatePresence>
         {isOpen && (
@@ -165,8 +179,9 @@ export function CapacityControls() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            className="relative"
           >
-            <Card className="w-80 shadow-xl">
+            <Card className="w-80 shadow-xl max-h-[85vh] overflow-y-auto">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -182,12 +197,15 @@ export function CapacityControls() {
                   </div>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => setIsOpen(false)}
+                    size="icon"
+                    className="h-8 w-8 shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsOpen(false)
+                    }}
+                    aria-label="Close capacity controls"
                   >
                     <CloseIcon className="w-4 h-4" />
-                    <span className="sr-only">Close</span>
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
