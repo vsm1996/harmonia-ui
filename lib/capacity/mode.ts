@@ -93,34 +93,39 @@ export function deriveMode(field: CapacityField): InterfaceMode {
  * Derives a human-readable mode label from InterfaceMode
  *
  * Labels:
- * - Calm: Low density, subtle motion, high guidance
- * - Focused: Medium density, minimal choices, low guidance
+ * - Calm: Low density, subtle motion, high guidance (low cognitive/emotional)
+ * - Focused: Medium density, minimal choices (medium cognitive, low temporal)
  * - Exploratory: High density, expressive motion, normal choices
  * - Minimal: Low density, minimal choices, subtle motion
  */
 export function deriveModeLabel(mode: InterfaceMode): InterfaceModeLabel {
-  // Minimal: Everything scaled back
+  // Minimal: Everything scaled back (lowest capacity across the board)
   if (mode.density === "low" && mode.choiceLoad === "minimal" && mode.motion === "subtle") {
     return "Minimal"
   }
 
-  // Calm: Gentle, supportive state
-  if (mode.guidance === "high" && mode.motion === "subtle") {
-    return "Calm"
-  }
-
-  // Focused: Efficient, task-oriented
-  if (mode.density === "medium" && mode.choiceLoad === "minimal") {
-    return "Focused"
-  }
-
-  // Exploratory: Open, engaged state
+  // Exploratory: Open, engaged state (high density or expressive motion)
   if (mode.density === "high" || mode.motion === "expressive") {
     return "Exploratory"
   }
 
-  // Default to Calm if nothing else matches
-  return "Calm"
+  // Focused: Efficient, task-oriented (medium density with time pressure)
+  // Check BEFORE Calm since Focused can also have high guidance due to low temporal
+  if (mode.density === "medium" && mode.choiceLoad === "minimal") {
+    return "Focused"
+  }
+
+  // Calm: Gentle, supportive state (low cognitive needs guidance)
+  if (mode.density === "low" && mode.guidance === "high") {
+    return "Calm"
+  }
+
+  // Default based on density
+  if (mode.density === "low") {
+    return "Calm"
+  }
+  
+  return "Focused"
 }
 
 // ============================================================================
