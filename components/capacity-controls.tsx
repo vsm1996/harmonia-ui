@@ -35,6 +35,78 @@ import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+/**
+ * Capacity Presets - Quick state configurations for demos
+ * Each preset represents a realistic user state
+ */
+const CAPACITY_PRESETS = {
+  exhausted: {
+    label: "Exhausted",
+    description: "Low energy, minimal bandwidth",
+    cognitive: 0.2,
+    temporal: 0.15,
+    emotional: 0.25,
+    valence: -0.3,
+  },
+  overwhelmed: {
+    label: "Overwhelmed",
+    description: "High stress, need simplicity",
+    cognitive: 0.3,
+    temporal: 0.25,
+    emotional: 0.2,
+    valence: -0.5,
+  },
+  distracted: {
+    label: "Distracted",
+    description: "Limited focus, short attention",
+    cognitive: 0.4,
+    temporal: 0.3,
+    emotional: 0.6,
+    valence: 0.0,
+  },
+  neutral: {
+    label: "Neutral",
+    description: "Balanced, typical state",
+    cognitive: 0.5,
+    temporal: 0.5,
+    emotional: 0.5,
+    valence: 0.0,
+  },
+  focused: {
+    label: "Focused",
+    description: "Good concentration, ready to engage",
+    cognitive: 0.7,
+    temporal: 0.7,
+    emotional: 0.6,
+    valence: 0.2,
+  },
+  energized: {
+    label: "Energized",
+    description: "High energy, eager to explore",
+    cognitive: 0.85,
+    temporal: 0.8,
+    emotional: 0.9,
+    valence: 0.5,
+  },
+  exploring: {
+    label: "Exploring",
+    description: "Maximum engagement, show me everything",
+    cognitive: 1.0,
+    temporal: 1.0,
+    emotional: 1.0,
+    valence: 0.7,
+  },
+} as const
+
+type PresetKey = keyof typeof CAPACITY_PRESETS
 
 export function CapacityControls() {
   const [isOpen, setIsOpen] = useState(false)
@@ -124,6 +196,42 @@ export function CapacityControls() {
               </CardHeader>
 
               <CardContent className="space-y-6">
+                {/* Capacity Presets - Quick state selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Quick Presets</label>
+                  <Select
+                    onValueChange={(value: PresetKey) => {
+                      const preset = CAPACITY_PRESETS[value]
+                      updateCapacity({
+                        cognitive: preset.cognitive,
+                        temporal: preset.temporal,
+                        emotional: preset.emotional,
+                      })
+                      updateEmotionalState({ valence: preset.valence })
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a preset..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(CAPACITY_PRESETS).map(([key, preset]) => (
+                        <SelectItem key={key} value={key}>
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">{preset.label}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {preset.description}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="border-t border-border pt-4">
+                  <p className="text-xs text-muted-foreground mb-4">Or adjust individually:</p>
+                </div>
+
                 {/* Cognitive → density, hierarchy, concurrency */}
                 <SliderControl
                   label="Cognitive Capacity"

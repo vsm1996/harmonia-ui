@@ -55,6 +55,14 @@ const TAGLINES = {
 /**
  * VALENCE → Tone Only (emotional color, NOT information volume)
  * Controls: CTA language warmth/playfulness
+ * 
+ * IMPORTANT: This is intentional adaptive behavior:
+ * - Positive valence (> +0.2): Enthusiastic, energetic language
+ * - Neutral valence (-0.2 to +0.2): Professional, clear language  
+ * - Negative valence (< -0.2): Gentle, inviting language
+ * 
+ * The CTA text changes reflect emotional resonance, not information.
+ * A stressed user gets softer "Join Us", an excited user gets "LET'S GO!"
  */
 const TONES = {
   positive: {

@@ -383,7 +383,11 @@ const GUEST_GRADIENTS = [
 
 /**
  * Individual guest card with Framer Motion interactions
- * Adapts bio length and hover behavior based on capacity state
+ * 
+ * Bio display logic:
+ * - At high temporal: Show full bio (no truncation)
+ * - At low temporal: Show short bio (already sentence-complete)
+ * - This avoids mid-sentence truncation issues
  */
 function GuestCard({
   guest,
@@ -399,6 +403,7 @@ function GuestCard({
   springConfig: { stiffness: number; damping: number }
 }) {
   const gradientClass = GUEST_GRADIENTS[index % GUEST_GRADIENTS.length]
+  // Use the appropriate bio variant - both are complete sentences
   const bio = guest.bio[bioLength]
 
   return (
@@ -459,7 +464,8 @@ function GuestCard({
           <p className="text-accent text-sm font-medium mb-2">
             {guest.role}
           </p>
-          <p className="text-muted-foreground text-sm line-clamp-2">
+          {/* Bio shown without line-clamp - variants are already sentence-complete */}
+          <p className="text-muted-foreground text-sm">
             {bio}
           </p>
         </CardContent>
