@@ -43,6 +43,69 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+function SettingsIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+      />
+      <path
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+      />
+    </svg>
+  )
+}
+
+function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 18L18 6M6 6l12 12"
+      />
+    </svg>
+  )
+}
+
+function ResetIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+      />
+    </svg>
+  )
+}
+
 /**
  * Capacity Presets - Quick state configurations for demos
  * Each preset represents a realistic user state
@@ -108,6 +171,17 @@ const CAPACITY_PRESETS = {
 
 type PresetKey = keyof typeof CAPACITY_PRESETS
 
+/**
+ * Default "Calm" state values for reset functionality
+ * Maps to Calm mode: balanced, gentle, supportive UI
+ */
+const DEFAULT_CALM_STATE = {
+  cognitive: 0.5,
+  temporal: 0.5,
+  emotional: 0.5,
+  valence: 0.0,
+} as const
+
 export function CapacityControls() {
   const [isOpen, setIsOpen] = useState(false)
   const { context, updateCapacity, updateEmotionalState } = useCapacityContext()
@@ -127,6 +201,18 @@ export function CapacityControls() {
   const mode = deriveMode(field)
   const modeLabel = deriveModeLabel(field)
   const modeBadgeColor = getModeBadgeColor(modeLabel)
+
+  /**
+   * Reset all sliders to default Calm state
+   */
+  const handleReset = () => {
+    updateCapacity({
+      cognitive: DEFAULT_CALM_STATE.cognitive,
+      temporal: DEFAULT_CALM_STATE.temporal,
+      emotional: DEFAULT_CALM_STATE.emotional,
+    })
+    updateEmotionalState({ valence: DEFAULT_CALM_STATE.valence })
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -247,8 +333,17 @@ export function CapacityControls() {
                   </Select>
                 </div>
 
-                <div className="border-t border-border pt-4">
-                  <p className="text-xs text-muted-foreground mb-4">Or adjust individually:</p>
+                <div className="flex items-center justify-between border-t border-border pt-4">
+                  <p className="text-xs text-muted-foreground">Or adjust individually:</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleReset}
+                    className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <ResetIcon className="w-3 h-3 mr-1" />
+                    Reset
+                  </Button>
                 </div>
 
                 {/* Cognitive → density, hierarchy, concurrency */}
@@ -453,49 +548,5 @@ function FieldDisplay({
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className={`text-sm font-mono font-bold ${color}`}>{displayValue}</p>
     </div>
-  )
-}
-
-function SettingsIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-      />
-      <path
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-      />
-    </svg>
-  )
-}
-
-function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 18L18 6M6 6l12 12"
-      />
-    </svg>
   )
 }
