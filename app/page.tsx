@@ -11,6 +11,7 @@ import Link from "next/link"
 import { AmbientFieldMonitor } from "@/components/ambient-field-monitor"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
+import { BrainIcon } from "lucide-react"
 import { CapacityControls } from "@/components/capacity-controls"
 import { CapacityDemoCard } from "@/components/capacity-demo-card"
 
@@ -18,13 +19,13 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-background">
       {/* Header section with framework introduction */}
-      <header className="border-b border-border/40 bg-gradient-to-b from-background to-muted/20">
+      <header className="border-b border-border/40 bg-linear-to-b from-background to-muted/20">
         <div className="mx-auto max-w-6xl px-6 py-12 space-y-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-5xl" role="img" aria-label="Framework">
-                🧠
-              </span>
+              <div className="w-fit" role="img" aria-label="Framework">
+                <BrainIcon size={66} />
+              </div>
               <div>
                 <h1 className="text-4xl font-bold tracking-tight text-foreground">Capacity-Adaptive UI</h1>
                 <p className="text-lg text-muted-foreground mt-2 text-pretty">
@@ -39,8 +40,8 @@ export default function Page() {
           {/* Core concept callout */}
           <div className="pt-4 border-t border-border/20">
             <p className="text-sm text-muted-foreground max-w-3xl text-pretty leading-relaxed">
-              <strong className="text-foreground">How it works:</strong> Four capacity inputs (cognitive, temporal, 
-              emotional, valence) derive a coherent interface mode. Components adapt density, content length, 
+              <strong className="text-foreground">How it works:</strong> Four capacity inputs (cognitive, temporal,
+              emotional, valence) derive a coherent interface mode. Components adapt density, content length,
               motion, and tone based on that mode - not individual slider values.
             </p>
           </div>
