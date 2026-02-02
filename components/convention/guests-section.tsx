@@ -223,13 +223,19 @@ export function GuestsSection() {
           )}
         </header>
 
-        {/* Guests grid */}
-        <div className={`grid ${gridClass} gap-4 md:gap-6`}>
+        {/* Guests grid - key forces re-render when density changes to trigger animations */}
+        <div 
+          key={`guests-grid-${mode.density}`}
+          className={`grid ${gridClass} gap-4 md:gap-6`}
+        >
           {visibleGuests.map((guest, index) => (
             <div
               key={guest.id}
               className={animateClass}
-              style={{ animationDelay: `${150 + index * 30}ms` }}
+              style={{ 
+                animationDelay: `${150 + index * 30}ms`,
+                animationFillMode: "forwards"
+              }}
             >
               <GuestCard
                 guest={guest}
