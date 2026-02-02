@@ -251,7 +251,7 @@ export function GuestsSection() {
               href="#guests"
               className="text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors hover:translate-x-1"
             >
-              View All 50+ Guests
+              Full guest list coming soon.
               <span aria-hidden="true">-&gt;</span>
             </a>
           </div>

@@ -29,7 +29,7 @@ export default function Page() {
               <div>
                 <h1 className="text-4xl font-bold tracking-tight text-foreground">Capacity-Adaptive UI</h1>
                 <p className="text-lg text-muted-foreground mt-2 text-pretty">
-                  A living system that responds to human capacity through distributed intelligence
+                  A dynamic system that responds to human capacity through distributed intelligence
                 </p>
               </div>
             </div>
