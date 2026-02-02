@@ -21,8 +21,8 @@ const GUESTS = [
     role: "The Creator",
     image: "/images/guests/kei-urana.jpg",
     bio: {
-      full: "He built the Abyss. Rudo. The Cleaners. The whole world where trash becomes power. First time outside Japan. We begged.",
-      short: "He made this world.",
+      full: "They built the Abyss. Rudo. The Cleaners. The whole world where trash becomes power. First time outside Japan. We begged.",
+      short: "They made this world.",
     },
     featured: true,
   },
@@ -39,13 +39,13 @@ const GUESTS = [
     featured: true,
   },
   {
-    id: "christopher-wehkamp",
-    name: "Christopher Wehkamp",
-    role: "Voice of Enjin",
-    image: "/images/guests/christopher-wehkamp.jpg",
+    id: "kenneisha-thompson",
+    name: "Kenneisha Thompson",
+    role: "Voice of Semiu Grier",
+    image: "/images/guests/kenneisha-thompson.jpg",
     bio: {
-      full: "Aizawa from MHA. You know, the guy who looks tired but will absolutely wreck you. Perfect energy for Enjin.",
-      short: "Voice of Enjin. Also Aizawa.",
+      full: "Aurelia Hammerlock from Borderlands 3. Now bringing Semiu Grier to life in the Abyss. The voice carries.",
+      short: "Semiu Grier.",
     },
     featured: true,
   },
@@ -61,10 +61,21 @@ const GUESTS = [
     featured: true,
   },
   {
+    id: "christopher-wehkamp",
+    name: "Christopher Wehkamp",
+    role: "Voice of Enjin",
+    image: "/images/guests/christopher-wehkamp.jpg",
+    bio: {
+      full: "Aizawa from MHA. You know, the guy who looks tired but will absolutely wreck you. Perfect energy for Enjin.",
+      short: "Voice of Enjin. Also Aizawa.",
+    },
+    featured: false,
+  },
+  {
     id: "john-burgmeier",
     name: "John Burgmeier",
     role: "Voice of Regto",
-    image: "/images/guests/john-burgmeier.jpg",
+    image: "/images/guests/john-burgmeier.png",
     bio: {
       full: "Tien from Dragon Ball. Been in the game since before most fans were born. Now voicing Regto. Legend status.",
       short: "Tien. Regto. Legend.",
@@ -79,17 +90,6 @@ const GUESTS = [
     bio: {
       full: "Kaburagi from DECA-DENCE. Orsted from Mushoku Tensei. Rock Lock from MHA. Arkha Corvus energy? He's got it.",
       short: "Arkha Corvus.",
-    },
-    featured: false,
-  },
-  {
-    id: "kenneisha-thompson",
-    name: "Kenneisha Thompson",
-    role: "Voice of Semiu Grier",
-    image: "/images/guests/kenneisha-thompson.jpg",
-    bio: {
-      full: "Aurelia Hammerlock from Borderlands 3. Now bringing Semiu Grier to life in the Abyss. The voice carries.",
-      short: "Semiu Grier.",
     },
     featured: false,
   },
@@ -119,7 +119,7 @@ const GUESTS = [
     id: "corey-wilder",
     name: "Corey Wilder",
     role: "Voice of Zanka",
-    image: "/images/guests/corey-wilder.jpg",
+    image: "/images/guests/corey-wilder.webp",
     bio: {
       full: "Zanka. The English voice that makes the character land. If you've watched the dub, you know.",
       short: "Voice of Zanka.",
@@ -130,7 +130,7 @@ const GUESTS = [
     id: "celeste-perez",
     name: "Celeste Perez",
     role: "Voice of Amo Empool",
-    image: "/images/guests/celeste-perez.jpg",
+    image: "/images/guests/celeste-perez.webp",
     bio: {
       full: "Amo Empool. The character needed someone who could balance intensity with heart. Found it.",
       short: "Amo Empool.",
@@ -141,7 +141,7 @@ const GUESTS = [
     id: "adam-gibbs",
     name: "Adam Gibbs",
     role: "Voice of Tamsy Caines",
-    image: "/images/guests/adam-gibbs.jpg",
+    image: "/images/guests/adam-gibbs.webp",
     bio: {
       full: "Tamsy Caines. Every Cleaner needs a voice that fits. This one fits.",
       short: "Tamsy Caines.",
@@ -169,24 +169,24 @@ export function GuestsSection() {
   const { context } = useCapacityContext()
   const { mode: effectiveMotion } = useEffectiveMotion()
   const sectionRef = useScrollAnimation<HTMLElement>()
-  
+
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
     emotional: context.userCapacity.emotional,
     valence: context.emotionalState.valence,
   })
-  
+
   const motionMode = effectiveMotion
   const valence = context.emotionalState.valence
-  
+
   // Adaptive color shift based on valence
   const warmthShift = valence * 15
-  
+
   const visibleGuests = mode.density === "low" ? GUESTS.filter((g) => g.featured) : GUESTS
   const gridClass = mode.density === "low" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2 lg:grid-cols-4"
   const bioLength = context.userCapacity.temporal > 0.5 ? "full" : "short"
-  const headerContent = context.userCapacity.temporal > 0.5 ? HEADERS.full 
+  const headerContent = context.userCapacity.temporal > 0.5 ? HEADERS.full
     : context.userCapacity.temporal > 0.3 ? HEADERS.reduced : HEADERS.minimal
   const showViewAll = context.userCapacity.temporal > 0.4
   const animateClass = motionMode !== "off" ? "animate-fade-in" : ""
@@ -214,7 +214,7 @@ export function GuestsSection() {
             <span className="text-primary"> {headerContent.title.split(" ").slice(-1)}</span>
           </h2>
           {headerContent.description && (
-            <p 
+            <p
               className={`text-muted-foreground text-lg max-w-2xl mx-auto text-balance ${animateClass}`}
               style={{ animationDelay: "100ms" }}
             >
@@ -243,7 +243,7 @@ export function GuestsSection() {
 
         {/* More guests link */}
         {showViewAll && (
-          <div 
+          <div
             className={`mt-12 text-center ${animateClass}`}
             style={{ animationDelay: "400ms" }}
           >
