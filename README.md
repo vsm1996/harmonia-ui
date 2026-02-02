@@ -11,6 +11,18 @@
 
 ---
 
+## See It In Action
+
+<!-- TODO: Replace with actual screen recording GIF -->
+<!-- Recommended: Use a tool like Kap (macOS), ScreenToGif (Windows), or peek (Linux) -->
+<!-- Show: Adjusting capacity sliders and watching the UI adapt in real-time -->
+
+![Harmonia UI Demo](public/demo.gif)
+
+*The interface adapts as you adjust cognitive, temporal, and emotional capacity. From Minimal mode (stripped to essentials) to Exploratory mode (full features with expressive motion).*
+
+---
+
 ## What is Harmonia UI?
 
 Harmonia UI is a framework for building interfaces that adapt to a user's current cognitive, temporal, and emotional capacity. Instead of inferring or profiling users, Harmonia uses explicit inputs to derive coherent interface modes that affect layout density, content length, motion, and tone.

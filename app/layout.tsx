@@ -13,6 +13,29 @@ export const metadata: Metadata = {
   title: "Harmonia UI",
   description: "UI that adapts to human capacity. Interfaces that meet you where you are.",
   generator: "v0.app",
+  metadataBase: new URL("https://harmonia-ui.vercel.app"),
+  openGraph: {
+    title: "Harmonia UI",
+    description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
+    url: "https://harmonia-ui.vercel.app",
+    siteName: "Harmonia UI",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Harmonia UI - Interfaces that adapt to human capacity",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Harmonia UI",
+    description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
+    images: ["/og-image.jpg"],
+  },
 }
 
 export default function RootLayout({

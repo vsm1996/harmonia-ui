@@ -107,15 +107,15 @@ export function Footer() {
         <div className="mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
           <p>© 2026 Abyss Con. Nothing is truly discarded.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-foreground transition-colors">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
               Terms of Service
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
+            </Link>
+            <Link href="/accessibility" className="hover:text-foreground transition-colors">
               Accessibility
-            </a>
+            </Link>
           </div>
         </div>
       </div>
