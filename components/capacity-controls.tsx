@@ -302,7 +302,7 @@ export function CapacityControls() {
 
               <CardContent className="space-y-6">
                 {/* Capacity Presets - Quick state selection */}
-                <div className="space-y-2">
+                <div className="space-y-2 flex flex-col gap-2">
                   <label className="text-sm font-medium">Quick Presets</label>
                   <Select
                     onValueChange={(value: PresetKey) => {
