@@ -26,6 +26,18 @@ const GUESTS = [
     },
     featured: true,
   },
+  // Graffiti Designer
+  {
+    id: "hideyoshi-andou",
+    name: "Hideyoshi Andou",
+    role: "Graffiti Designer",
+    image: "/images/guests/hideyoshi-andou.jpg",
+    bio: {
+      full: "The visual soul of Gachiakuta. Every tag, every spray, every piece of street art in the manga and anime? That's Hideyoshi. The Abyss wouldn't look the same without them.",
+      short: "The visual soul of the Abyss.",
+    },
+    featured: true,
+  },
   // Main English Dub Cast
   {
     id: "bryson-baugus",
@@ -58,7 +70,7 @@ const GUESTS = [
       full: "Hawks from MHA. Genya from Demon Slayer. Cyborg from Teen Titans Go. Now he's Jabber. Every role hits different.",
       short: "Hawks. Genya. Jabber.",
     },
-    featured: true,
+    featured: false,
   },
   {
     id: "christopher-wehkamp",
