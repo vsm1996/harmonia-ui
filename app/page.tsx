@@ -11,11 +11,11 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Framework Demo",
+  title: "Harmonia UI",
   description:
     "Explore the Harmonia UI capacity-adaptive framework. Adjust cognitive, temporal, and emotional capacity to see how interfaces adapt in real-time.",
   openGraph: {
-    title: "Harmonia UI - Framework Demo",
+    title: "Harmonia UI - Capacity-Adaptive Demo",
     description:
       "A dynamic system that responds to human capacity through distributed intelligence. See how UI adapts to your state.",
   },
