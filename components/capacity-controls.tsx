@@ -315,7 +315,7 @@ export function CapacityControls() {
                       updateEmotionalState({ valence: preset.valence })
                     }}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full py-6">
                       <SelectValue placeholder="Select a preset..." />
                     </SelectTrigger>
                     <SelectContent>
