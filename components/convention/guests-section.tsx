@@ -229,7 +229,7 @@ export function GuestsSection() {
             <div
               key={guest.id}
               className={motionMode !== "off" ? "animate-fade-in in-view" : ""}
-              style={{ 
+              style={{
                 animationDelay: `${150 + index * 30}ms`,
               }}
             >
@@ -254,7 +254,6 @@ export function GuestsSection() {
               className="text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors hover:translate-x-1"
             >
               Full guest list coming soon.
-              <span aria-hidden="true">-&gt;</span>
             </a>
           </div>
         )}
