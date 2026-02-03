@@ -1,9 +1,12 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export const metadata = {
-  title: "Accessibility | Harmonia UI",
-  description: "Accessibility statement for Harmonia UI.",
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Accessibility",
+  description:
+    "Accessibility statement for Harmonia UI. Built with accessibility as a core constraint, ensuring capacity adaptation never breaks access paths.",
 }
 
 export default function AccessibilityPage() {

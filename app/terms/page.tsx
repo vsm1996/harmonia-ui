@@ -1,9 +1,11 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export const metadata = {
-  title: "Terms of Service | Harmonia UI",
-  description: "Terms of service for Harmonia UI and Abyss Con demo.",
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "Terms of service for Harmonia UI and Abyss Con demo. Understand the demo nature of this project.",
 }
 
 export default function TermsPage() {

@@ -10,10 +10,38 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Harmonia UI",
+  title: {
+    default: "Harmonia UI",
+    template: "%s | Harmonia UI",
+  },
   description: "UI that adapts to human capacity. Interfaces that meet you where you are.",
   generator: "v0.app",
   metadataBase: new URL("https://harmonia-ui.vercel.app"),
+  keywords: [
+    "adaptive UI",
+    "capacity-aware design",
+    "accessibility",
+    "human-centered design",
+    "React",
+    "Next.js",
+    "UI framework",
+    "cognitive load",
+    "inclusive design",
+  ],
+  authors: [{ name: "Harmonia UI Team" }],
+  creator: "Harmonia UI",
+  publisher: "Harmonia UI",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
     title: "Harmonia UI",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
@@ -35,6 +63,15 @@ export const metadata: Metadata = {
     title: "Harmonia UI",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
     images: ["/og-image.jpg"],
+    creator: "@harmoniaui",
+  },
+  verification: {
+    // Add your verification codes here when available
+    // google: "your-google-verification-code",
+    // yandex: "your-yandex-verification-code",
+  },
+  alternates: {
+    canonical: "https://harmonia-ui.vercel.app",
   },
 }
 

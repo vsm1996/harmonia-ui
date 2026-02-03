@@ -11,6 +11,9 @@
  * - Manga about people thrown into a garbage dump called "The Abyss"
  * - Characters fight with weapons made from discarded trash
  * - Themes: outcasts, survival, finding worth in the discarded
+ *
+ * Note: This is a client component, so metadata is exported from a separate file.
+ * See app/convention/metadata.ts for SEO configuration.
  */
 
 "use client"

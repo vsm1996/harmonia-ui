@@ -1,9 +1,11 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export const metadata = {
-  title: "Privacy Policy | Harmonia UI",
-  description: "Privacy policy for Harmonia UI and Abyss Con demo.",
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Privacy policy for Harmonia UI and Abyss Con demo. Learn how we handle your information.",
 }
 
 export default function PrivacyPage() {
