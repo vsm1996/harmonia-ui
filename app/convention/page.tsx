@@ -32,7 +32,7 @@ import {
 
 export default function ConventionPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground relative overflow-hidden">
+    <main className="min-h-screen bg-background text-foreground relative overflow-hidden theme-gachiakuta">
       {/* Background decorative elements - positioned absolutely */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         {/* Top left debris cluster */}
