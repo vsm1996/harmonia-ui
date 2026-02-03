@@ -31,9 +31,9 @@ const GUESTS = [
     id: "hideyoshi-andou",
     name: "Hideyoshi Andou",
     role: "Graffiti Designer",
-    image: "/images/guests/hideyoshi-andou.jpg",
+    image: "/images/guests/hideyoshi-andou.png",
     bio: {
-      full: "The visual soul of Gachiakuta. Every tag, every spray, every piece of street art in the manga and anime? That's Hideyoshi. The Abyss wouldn't look the same without them.",
+      full: "The visual soul of Gachiakuta. Every tag, every spray, every piece of street art in the manga and anime? That's Hideyoshi. The Abyss wouldn't look the same without him.",
       short: "The visual soul of the Abyss.",
     },
     featured: true,
