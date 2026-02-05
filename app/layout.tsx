@@ -28,9 +28,9 @@ export const metadata: Metadata = {
     "cognitive load",
     "inclusive design",
   ],
-  authors: [{ name: "Harmonia UI Team" }],
-  creator: "Harmonia UI",
-  publisher: "Harmonia UI",
+  authors: [{ name: "Vanessa Martin" }],
+  creator: "Vanessa Martin",
+  publisher: "Vanessa Martin",
   robots: {
     index: true,
     follow: true,
