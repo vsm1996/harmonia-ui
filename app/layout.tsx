@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     title: "Harmonia UI",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
     images: ["/og-image.jpg"],
-    creator: "@harmoniaui",
+    creator: "",
   },
   verification: {
     // Add your verification codes here when available
