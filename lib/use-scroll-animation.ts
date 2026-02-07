@@ -16,20 +16,16 @@ export function useScrollAnimation<T extends HTMLElement>() {
     const element = ref.current
     if (!element) return
 
-    // Find all animate-fade-in elements within this container
-    const animatedElements = element.querySelectorAll('.animate-fade-in')
-    
-    // Also check if the container itself has the class
-    const allElements = element.classList.contains('animate-fade-in') 
-      ? [element, ...Array.from(animatedElements)]
-      : Array.from(animatedElements)
-
-    if (allElements.length === 0) return
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            // Re-query elements at trigger time to avoid stale references
+            const animatedElements = element.querySelectorAll('.animate-fade-in')
+            const allElements = element.classList.contains('animate-fade-in') 
+              ? [element, ...Array.from(animatedElements)]
+              : Array.from(animatedElements)
+
             // Add in-view class to all animated elements
             allElements.forEach((el) => {
               el.classList.add('in-view')
@@ -40,8 +36,8 @@ export function useScrollAnimation<T extends HTMLElement>() {
         })
       },
       { 
-        threshold: 0.1,
-        rootMargin: '50px 0px' // Start animation slightly before element is fully in view
+        threshold: 0.05,
+        rootMargin: '80px 0px' // Start animation before element is fully in view
       }
     )
 
