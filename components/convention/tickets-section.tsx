@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check } from "lucide-react"
-import { useScrollAnimation } from "@/lib/use-scroll-animation"
+import { useScrollAnimation, fadeClass } from "@/lib/use-scroll-animation"
 
 /**
  * Tickets Section - Simplified for scroll performance
@@ -95,7 +95,7 @@ const HEADERS = {
 
 export function TicketsSection() {
   const { context } = useCapacityContext()
-  const sectionRef = useScrollAnimation<HTMLElement>()
+  const { ref: sectionRef, isInView } = useScrollAnimation<HTMLElement>()
   
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
@@ -125,7 +125,7 @@ export function TicketsSection() {
     <section ref={sectionRef} className="py-24 px-4 md:px-8 bg-muted/30" aria-labelledby="tickets-title">
       <div className="max-w-6xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Header */}
-        <header className="mb-16 text-center animate-fade-in">
+        <header className={`mb-16 text-center ${fadeClass(isInView)}`}>
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
             PASSES
           </Badge>
@@ -144,7 +144,7 @@ export function TicketsSection() {
           {visibleTiers.map((tier, index) => (
             <div
               key={tier.id}
-              className="animate-fade-in"
+              className={fadeClass(isInView)}
               style={{ animationDelay: `${100 + index * 80}ms` }}
             >
               <Card className={`h-full flex flex-col relative overflow-hidden ${
@@ -195,7 +195,7 @@ export function TicketsSection() {
         {/* Footer */}
         {header.footer && (
           <p 
-            className="mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto animate-fade-in"
+            className={`mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${fadeClass(isInView)}`}
             style={{ animationDelay: "350ms" }}
           >
             {header.footer}
