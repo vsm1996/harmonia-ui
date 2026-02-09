@@ -111,7 +111,7 @@ function deriveMode(fields: DerivedFields, capacity: CapacityField): InterfaceMo
 | Mode | Energy | Cognitive | Emotional | Valence | Behavior |
 |------|--------|-----------|-----------|---------|----------|
 | Minimal | < 0.2 | any | any | any | Protective, essential only |
-| Minimal | any | < 0.3 | any | any | Protective (with low temporal) |
+| Calm | any | < 0.3 | any | any | Protective (with low temporal) |
 | Focused | 0.2–0.7 | any | any | any | Balanced, task-oriented |
 | Exploratory | ≥ 0.7 | any | > 0.5 | > 0 | Full features, playful |
 

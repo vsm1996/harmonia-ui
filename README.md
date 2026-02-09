@@ -79,14 +79,14 @@ From the four inputs, three derived fields are computed:
 
 ### Interface Modes
 
-The derived fields produce one of three interface modes:
+The derived fields produce one of four interface modes:
 
 | Mode | Trigger | Characteristics |
 |------|---------|-----------------|
 | **Minimal** | Energy < 0.2 OR (cognitive < 0.3 AND temporal < 0.3) | Stripped to essentials, high guidance, boosted contrast |
 | **Focused** | 0.2 ≤ Energy < 0.7 | Balanced density, medium guidance, subtle motion |
 | **Exploratory** | Energy ≥ 0.7 AND emotional > 0.5 AND valence > 0 | Full features, low guidance, expressive motion |
-
+| **Calm** | 0.2 ≤ Energy < 0.7 | Balanced density, medium guidance, subtle motion 
 ---
 
 ## Architecture
