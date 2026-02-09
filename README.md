@@ -29,9 +29,9 @@ Harmonia UI is a framework for building interfaces that adapt to a user's curren
 
 **The core insight:** Users don't always have the same capacity. Sometimes you're focused and energized; sometimes you're exhausted and overwhelmed. Interfaces should respond to this reality.
 
-```
+\`\`\`
 CapacityField (4 inputs) → InterfaceMode → Tokens → Components
-```
+\`\`\`
 
 Raw inputs are never mapped directly to styles. Inputs derive modes; modes produce tokens; components consume tokens. This separation keeps adaptation consistent, predictable, and maintainable.
 
@@ -83,15 +83,15 @@ The derived fields produce one of four interface modes:
 
 | Mode | Trigger | Characteristics |
 |------|---------|-----------------|
-| **Minimal** | Energy < 0.2 OR (cognitive < 0.3 AND temporal < 0.3) | Stripped to essentials, high guidance, boosted contrast |
-| **Focused** | 0.2 ≤ Energy < 0.7 | Balanced density, medium guidance, subtle motion |
-| **Exploratory** | Energy ≥ 0.7 AND emotional > 0.5 AND valence > 0 | Full features, low guidance, expressive motion |
-| **Calm** | 0.2 ≤ Energy < 0.7 | Balanced density, medium guidance, subtle motion 
+| **Minimal** | cognitive < 0.35 AND temporal < 0.35 | Stripped to essentials, high guidance, boosted contrast |
+| **Calm** | Moderate capacity, not meeting Focused or Exploratory thresholds | Gentle density, medium guidance, subtle motion |
+| **Focused** | cognitive >= 0.6 AND temporal >= 0.6 | Balanced density, medium guidance, subtle motion |
+| **Exploratory** | cognitive > 0.65 AND emotional > 0.65 | Full features, low guidance, expressive motion |
 ---
 
 ## Architecture
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────────────────────┐
 │                        CapacityProvider                         │
 │  ┌───────────────┐    ┌───────────────┐    ┌────────────────┐  │
@@ -112,7 +112,7 @@ The derived fields produce one of four interface modes:
 │  │ motion   │  │          │  │ contrast │  │ motion       │   │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
-```
+\`\`\`
 
 ### Key Files
 
@@ -131,41 +131,41 @@ The following rules transform raw inputs into interface tokens:
 
 ### Density (from Cognitive)
 
-```typescript
+\`\`\`typescript
 if (cognitive < 0.35) return 'low'
 if (cognitive > 0.75) return 'high'
 return 'medium'
-```
+\`\`\`
 
 ### Choices (from Temporal)
 
-```typescript
+\`\`\`typescript
 if (temporal < 0.35) return 'minimal'
 return 'normal'
-```
+\`\`\`
 
 ### Motion (from Emotional + Valence)
 
-```typescript
+\`\`\`typescript
 if (emotional < 0.35) return 'subtle'
 if (valence > 0.25) return 'expressive'
 return 'subtle'
-```
+\`\`\`
 
 ### Contrast (from Valence)
 
-```typescript
+\`\`\`typescript
 if (valence < -0.25) return 'boosted'
 return 'standard'
-```
+\`\`\`
 
 ### Guidance (from Energy)
 
-```typescript
+\`\`\`typescript
 if (energy < 0.3) return 'high'
 if (energy > 0.7) return 'low'
 return 'medium'
-```
+\`\`\`
 
 ---
 
@@ -184,6 +184,20 @@ return 'medium'
 | choices | minimal | Reduced options, smart defaults |
 
 **Tone message:** "Take your time."
+
+### Calm Mode
+
+**When:** User has moderate but uneven capacity. Includes neutral states (all sliders around 0.5), distracted states (okay cognitive but low temporal), and other in-between conditions that don't meet the thresholds for Focused or Exploratory.
+
+| Token | Value | Effect |
+|-------|-------|--------|
+| density | low to medium | Gentle information load |
+| guidance | medium | Some assistance available |
+| motion | subtle | No surprises, grounded transitions |
+| contrast | standard | Normal contrast |
+| choices | varies | May reduce options if temporal is low |
+
+**Tone message:** "Take it easy."
 
 ### Focused Mode
 
@@ -224,7 +238,7 @@ return 'medium'
 
 ### Installation
 
-```bash
+\`\`\`bash
 # Clone the repository
 git clone https://github.com/vsm1996/harmonia-ui.git
 cd harmonia-ui
@@ -234,22 +248,22 @@ pnpm install
 
 # Start development server
 pnpm dev
-```
+\`\`\`
 
 Open [http://localhost:3000](http://localhost:3000) to see the demo.
 
 ### Build for Production
 
-```bash
+\`\`\`bash
 pnpm build
 pnpm start
-```
+\`\`\`
 
 ---
 
 ## Project Structure
 
-```
+\`\`\`
 harmonia-ui/
 ├── app/
 │   ├── page.tsx              # Homepage with live demo
@@ -272,7 +286,7 @@ harmonia-ui/
 │   └── globals.css           # Global styles and CSS variables
 └── public/
     └── images/               # Static assets
-```
+\`\`\`
 
 ---
 
@@ -280,7 +294,7 @@ harmonia-ui/
 
 ### Wrapping Your App
 
-```tsx
+\`\`\`tsx
 // app/layout.tsx
 import { CapacityProvider } from '@/lib/capacity-context'
 
@@ -295,11 +309,11 @@ export default function RootLayout({ children }) {
     </html>
   )
 }
-```
+\`\`\`
 
 ### Consuming Capacity in a Component
 
-```tsx
+\`\`\`tsx
 import { useCapacity } from '@/lib/capacity-context'
 
 function AdaptiveCard({ title, description, features }) {
@@ -331,11 +345,11 @@ function AdaptiveCard({ title, description, features }) {
     </div>
   )
 }
-```
+\`\`\`
 
 ### Responding to Mode Changes
 
-```tsx
+\`\`\`tsx
 import { useCapacity } from '@/lib/capacity-context'
 
 function EventGrid({ events }) {
@@ -368,7 +382,7 @@ function EventGrid({ events }) {
     </div>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -386,7 +400,7 @@ The system adapts to what a user *can handle*, not what they "like." This is abo
 
 Raw inputs are never mapped directly to styles. The abstraction layers ensure consistency:
 - **Fields** are raw user inputs
-- **Modes** are derived states (Minimal, Focused, Exploratory)
+- **Modes** are derived states (Minimal, Calm, Focused, Exploratory)
 - **Tokens** are design primitives (density: low/medium/high)
 - **Components** consume tokens, never raw fields
 
@@ -428,7 +442,7 @@ Harmonia UI is built with accessibility as a core constraint:
 ### Phase 1: Manual Inputs ✅
 
 - [x] Four-input capacity controls (cognitive, temporal, emotional, valence)
-- [x] Mode derivation (Minimal, Focused, Exploratory)
+- [x] Mode derivation (Minimal, Calm, Focused, Exploratory)
 - [x] Token system (density, guidance, motion, contrast, choices)
 - [x] Demo components with real-time adaptation
 - [x] Convention page example

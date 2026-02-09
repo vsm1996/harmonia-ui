@@ -10,9 +10,9 @@ This document describes the public API of Harmonia UI.
 
 The primary hook for accessing capacity state and derived values.
 
-```typescript
+\`\`\`typescript
 function useCapacity(): CapacityContextValue
-```
+\`\`\`
 
 #### Returns
 
@@ -27,7 +27,7 @@ function useCapacity(): CapacityContextValue
 
 #### Example
 
-```tsx
+\`\`\`tsx
 import { useCapacity } from '@/lib/capacity-context'
 
 function MyComponent() {
@@ -42,7 +42,7 @@ function MyComponent() {
     </div>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -52,14 +52,14 @@ function MyComponent() {
 
 Wraps your application and provides capacity context to all children.
 
-```tsx
+\`\`\`tsx
 <CapacityProvider
   initialCapacity?: Partial<CapacityField>
   persistKey?: string
 >
   {children}
 </CapacityProvider>
-```
+\`\`\`
 
 #### Props
 
@@ -71,7 +71,7 @@ Wraps your application and provides capacity context to all children.
 
 #### Example
 
-```tsx
+\`\`\`tsx
 // app/layout.tsx
 import { CapacityProvider } from '@/lib/capacity-context'
 
@@ -89,7 +89,7 @@ export default function RootLayout({ children }) {
     </html>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -97,13 +97,13 @@ export default function RootLayout({ children }) {
 
 A pre-built UI panel for adjusting capacity inputs.
 
-```tsx
+\`\`\`tsx
 <CapacityControls
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
   collapsible?: boolean
   defaultCollapsed?: boolean
 />
-```
+\`\`\`
 
 #### Props
 
@@ -115,7 +115,7 @@ A pre-built UI panel for adjusting capacity inputs.
 
 #### Example
 
-```tsx
+\`\`\`tsx
 import { CapacityControls } from '@/components/capacity-controls'
 
 function App() {
@@ -126,7 +126,7 @@ function App() {
     </main>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -134,14 +134,14 @@ function App() {
 
 An example adaptive card component demonstrating token consumption.
 
-```tsx
+\`\`\`tsx
 <CapacityDemoCard
   title: string
   description?: string
   features?: string[]
   cta?: string
 />
-```
+\`\`\`
 
 #### Props
 
@@ -170,7 +170,7 @@ An example adaptive card component demonstrating token consumption.
 
 The raw input model.
 
-```typescript
+\`\`\`typescript
 interface CapacityField {
   /** Mental bandwidth available (0-1) */
   cognitive: number
@@ -184,13 +184,13 @@ interface CapacityField {
   /** Emotional direction (-1 to +1) */
   valence: number
 }
-```
+\`\`\`
 
 ### `DerivedFields`
 
 Computed aggregate values.
 
-```typescript
+\`\`\`typescript
 interface DerivedFields {
   /** Overall capacity (geometric mean) */
   energy: number
@@ -201,21 +201,35 @@ interface DerivedFields {
   /** Emotional direction (pass-through) */
   valence: number
 }
-```
+\`\`\`
 
-### `InterfaceMode`
+### `InterfaceModeLabel`
 
-Discrete interface states.
+Human-readable mode labels for UI display.
 
 ```typescript
-type InterfaceMode = 'minimal' | 'focused' | 'exploratory'
+function getToneMessage(mode: InterfaceModeLabel, valence: number): string
+
+// Returns:
+// mode === 'Minimal' && valence < 0 → "Take your time."
+// mode === 'Calm'                   → "Take it easy."
+// mode === 'Focused'                → "Here's how it works:"
+// mode === 'Exploratory' && valence > 0.25 → "You're doing great!"
+// default → "Here's how it works:"
 ```
+
+| Label | Trigger | Description |
+|-------|---------|-------------|
+| Minimal | cognitive < 0.35 AND temporal < 0.35 | Very low capacity, protective mode |
+| Calm | Moderate capacity, not Focused or Exploratory | Gentle, balanced, no pressure |
+| Focused | cognitive >= 0.6 AND temporal >= 0.6 | Good capacity, task-oriented |
+| Exploratory | cognitive > 0.65 AND emotional > 0.65 | High capacity, full features |
 
 ### `InterfaceModeTokens`
 
 Design tokens consumed by components.
 
-```typescript
+\`\`\`typescript
 interface InterfaceModeTokens {
   /** Visual density */
   density: 'low' | 'medium' | 'high'
@@ -232,7 +246,7 @@ interface InterfaceModeTokens {
   /** Options visibility */
   choices: 'minimal' | 'normal'
 }
-```
+\`\`\`
 
 ---
 
@@ -240,35 +254,38 @@ interface InterfaceModeTokens {
 
 ### `DEFAULT_CAPACITY`
 
-```typescript
+\`\`\`typescript
 const DEFAULT_CAPACITY: CapacityField = {
   cognitive: 0.7,
   temporal: 0.7,
   emotional: 0.7,
   valence: 0.3
 }
-```
+\`\`\`
 
 ### `MODE_THRESHOLDS`
 
 ```typescript
 const MODE_THRESHOLDS = {
-  minimal: {
-    energy: 0.2,
-    cognitive: 0.3,
-    temporal: 0.3
-  },
   exploratory: {
-    energy: 0.7,
-    emotional: 0.5,
-    valence: 0
+    cognitive: 0.65,   // Must exceed
+    emotional: 0.65    // Must exceed
+  },
+  minimal: {
+    cognitive: 0.35,   // Must be below
+    temporal: 0.35     // Must be below
+  },
+  focused: {
+    cognitive: 0.6,    // Must meet or exceed
+    temporal: 0.6      // Must meet or exceed
   }
+  // Calm: fallthrough when none of the above match
 }
 ```
 
 ### `TOKEN_THRESHOLDS`
 
-```typescript
+\`\`\`typescript
 const TOKEN_THRESHOLDS = {
   density: {
     low: 0.35,
@@ -288,7 +305,7 @@ const TOKEN_THRESHOLDS = {
     minimal: 0.35
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -298,38 +315,38 @@ const TOKEN_THRESHOLDS = {
 
 Compute derived fields from raw capacity.
 
-```typescript
+\`\`\`typescript
 function deriveFields(capacity: CapacityField): DerivedFields
-```
+\`\`\`
 
 ### `deriveMode(fields, capacity)`
 
 Compute interface mode from derived fields and capacity.
 
-```typescript
+\`\`\`typescript
 function deriveMode(fields: DerivedFields, capacity: CapacityField): InterfaceMode
-```
+\`\`\`
 
 ### `deriveTokens(capacity, valence)`
 
 Compute design tokens from capacity and valence.
 
-```typescript
+\`\`\`typescript
 function deriveTokens(capacity: CapacityField, valence: number): InterfaceModeTokens
-```
+\`\`\`
 
 ### `getToneMessage(mode, valence)`
 
 Get the appropriate tone message for current state.
 
-```typescript
+\`\`\`typescript
 function getToneMessage(mode: InterfaceMode, valence: number): string
 
 // Returns:
 // mode === 'minimal' && valence < 0 → "Take your time."
 // mode === 'exploratory' && valence > 0.25 → "You're doing great!"
 // default → "Here's how it works:"
-```
+\`\`\`
 
 ---
 
@@ -339,7 +356,7 @@ Harmonia UI provides CSS classes that map to token values:
 
 ### Density Classes
 
-```css
+\`\`\`css
 .density-low {
   /* Reduced information density */
 }
@@ -351,11 +368,11 @@ Harmonia UI provides CSS classes that map to token values:
 .density-high {
   /* Full information density */
 }
-```
+\`\`\`
 
 ### Motion Classes
 
-```css
+\`\`\`css
 .motion-subtle {
   /* Minimal transitions */
   --transition-duration: 150ms;
@@ -365,11 +382,11 @@ Harmonia UI provides CSS classes that map to token values:
   /* Playful animations */
   --transition-duration: 300ms;
 }
-```
+\`\`\`
 
 ### Contrast Classes
 
-```css
+\`\`\`css
 .contrast-standard {
   /* Normal contrast */
 }
@@ -377,7 +394,7 @@ Harmonia UI provides CSS classes that map to token values:
 .contrast-boosted {
   /* Enhanced contrast for accessibility */
 }
-```
+\`\`\`
 
 ---
 
@@ -385,7 +402,7 @@ Harmonia UI provides CSS classes that map to token values:
 
 The capacity system doesn't emit events directly, but you can observe changes using React's useEffect:
 
-```typescript
+\`\`\`typescript
 function useCapacityChange(callback: (capacity: CapacityField) => void) {
   const { capacity } = useCapacity()
   
@@ -398,7 +415,7 @@ function useCapacityChange(callback: (capacity: CapacityField) => void) {
 useCapacityChange((capacity) => {
   analytics.track('capacity_changed', capacity)
 })
-```
+\`\`\`
 
 ---
 
@@ -408,7 +425,7 @@ useCapacityChange((capacity) => {
 
 The system clamps values to valid ranges:
 
-```typescript
+\`\`\`typescript
 function validateCapacity(capacity: CapacityField): CapacityField {
   return {
     cognitive: Math.max(0, Math.min(1, capacity.cognitive)),
@@ -417,15 +434,15 @@ function validateCapacity(capacity: CapacityField): CapacityField {
     valence: Math.max(-1, Math.min(1, capacity.valence))
   }
 }
-```
+\`\`\`
 
 ### Missing Provider
 
 Using `useCapacity()` outside of `CapacityProvider` throws:
 
-```typescript
+\`\`\`typescript
 const context = useContext(CapacityContext)
 if (!context) {
   throw new Error('useCapacity must be used within a CapacityProvider')
 }
-```
+\`\`\`
