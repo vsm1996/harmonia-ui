@@ -6,9 +6,9 @@ This document describes the technical architecture of Harmonia UI.
 
 Harmonia UI follows a unidirectional data flow pattern:
 
-\`\`\`
+```
 User Inputs → CapacityField → Derived Fields → InterfaceMode → Tokens → Components
-\`\`\`
+```
 
 Each layer transforms data for the next, maintaining clear boundaries and predictable behavior.
 
@@ -18,14 +18,14 @@ Each layer transforms data for the next, maintaining clear boundaries and predic
 
 The CapacityField represents the user's current state through four dimensions:
 
-\`\`\`typescript
+```typescript
 interface CapacityField {
   cognitive: number   // 0-1: Mental bandwidth available
   temporal: number    // 0-1: Time/effort budget
   emotional: number   // 0-1: Load tolerance
   valence: number     // -1 to +1: Emotional direction
 }
-\`\`\`
+```
 
 ### Input Semantics
 
@@ -38,14 +38,14 @@ interface CapacityField {
 
 ### Default Values
 
-\`\`\`typescript
+```typescript
 const DEFAULT_CAPACITY: CapacityField = {
   cognitive: 0.7,
   temporal: 0.7,
   emotional: 0.7,
   valence: 0.3
 }
-\`\`\`
+```
 
 ---
 
@@ -53,17 +53,17 @@ const DEFAULT_CAPACITY: CapacityField = {
 
 Derived fields are computed from raw inputs to provide higher-level signals:
 
-\`\`\`typescript
+```typescript
 interface DerivedFields {
   energy: number      // 0-1: Overall capacity
   attention: number   // 0-1: Focus demand
   valence: number     // -1 to +1: Pass-through
 }
-\`\`\`
+```
 
 ### Derivation Formulas
 
-\`\`\`typescript
+```typescript
 // Energy: Geometric mean of capacity inputs
 const energy = Math.pow(
   cognitive * temporal * emotional, 
@@ -75,7 +75,7 @@ const attention = 1 - (temporal * 0.5)
 
 // Valence: Direct pass-through
 const valence = capacityField.valence
-\`\`\`
+```
 
 ---
 
@@ -136,7 +136,7 @@ function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
 
 Tokens are the bridge between mode and components. They provide semantic values that components consume:
 
-\`\`\`typescript
+```typescript
 interface InterfaceModeTokens {
   density: 'low' | 'medium' | 'high'
   guidance: 'low' | 'medium' | 'high'
@@ -144,11 +144,11 @@ interface InterfaceModeTokens {
   contrast: 'standard' | 'boosted'
   choices: 'minimal' | 'normal'
 }
-\`\`\`
+```
 
 ### Token Derivation
 
-\`\`\`typescript
+```typescript
 function deriveTokens(capacity: CapacityField, valence: number): InterfaceModeTokens {
   return {
     // Density from cognitive
@@ -173,11 +173,11 @@ function deriveTokens(capacity: CapacityField, valence: number): InterfaceModeTo
     choices: capacity.temporal < 0.35 ? 'minimal' : 'normal'
   }
 }
-\`\`\`
+```
 
 ### Token-to-CSS Mapping
 
-\`\`\`css
+```css
 /* Density */
 .density-low { --items-visible: 3; --grid-cols: 1; }
 .density-medium { --items-visible: 6; --grid-cols: 2; }
@@ -190,7 +190,7 @@ function deriveTokens(capacity: CapacityField, valence: number): InterfaceModeTo
 /* Contrast */
 .contrast-standard { --text-opacity: 0.9; }
 .contrast-boosted { --text-opacity: 1; --font-weight: 500; }
-\`\`\`
+```
 
 ---
 
@@ -200,7 +200,7 @@ Components consume tokens and render accordingly. They never read raw capacity v
 
 ### Component Pattern
 
-\`\`\`tsx
+```tsx
 function AdaptiveComponent() {
   const { tokens, mode } = useCapacity()
   
@@ -220,7 +220,7 @@ function AdaptiveComponent() {
     </div>
   )
 }
-\`\`\`
+```
 
 ### What Components Should Do
 
@@ -239,7 +239,7 @@ function AdaptiveComponent() {
 
 ## Data Flow Example
 
-\`\`\`
+```
 User drags cognitive slider to 0.2
     │
     ▼
@@ -259,7 +259,7 @@ Components re-render with new tokens
     │
     ▼
 Grid shows 1 column, descriptions hidden, helper text appears
-\`\`\`
+```
 
 ---
 
@@ -267,7 +267,7 @@ Grid shows 1 column, descriptions hidden, helper text appears
 
 ### Context Structure
 
-\`\`\`typescript
+```typescript
 interface CapacityContextValue {
   // Raw inputs
   capacity: CapacityField
@@ -281,11 +281,11 @@ interface CapacityContextValue {
   // Convenience
   updateCapacity: (partial: Partial<CapacityField>) => void
 }
-\`\`\`
+```
 
 ### Provider Implementation
 
-\`\`\`tsx
+```tsx
 function CapacityProvider({ children }) {
   const [capacity, setCapacity] = useState(DEFAULT_CAPACITY)
   
@@ -309,7 +309,7 @@ function CapacityProvider({ children }) {
     </CapacityContext.Provider>
   )
 }
-\`\`\`
+```
 
 ---
 
@@ -328,14 +328,14 @@ Each layer has one job:
 
 Each layer can be tested independently:
 
-\`\`\`typescript
+```typescript
 // Test mode derivation
 expect(deriveMode({ energy: 0.1 }, capacity)).toBe('minimal')
 expect(deriveMode({ energy: 0.5 }, capacity)).toBe('focused')
 
 // Test token derivation
 expect(deriveTokens({ cognitive: 0.2 }).density).toBe('low')
-\`\`\`
+```
 
 ### 3. Predictability
 
@@ -360,17 +360,17 @@ New dimensions can be added without changing existing code:
 
 All derivations are memoized to prevent unnecessary recalculation:
 
-\`\`\`typescript
+```typescript
 const derivedFields = useMemo(() => deriveFields(capacity), [capacity])
 const mode = useMemo(() => deriveMode(derivedFields, capacity), [derivedFields, capacity])
 const tokens = useMemo(() => deriveTokens(capacity, derivedFields.valence), [capacity, derivedFields])
-\`\`\`
+```
 
 ### Selective Re-rendering
 
 Components only re-render when their consumed tokens change:
 
-\`\`\`typescript
+```typescript
 // This component only re-renders when density changes
 function DensityAwareGrid({ children }) {
   const { tokens } = useCapacity()
@@ -378,18 +378,18 @@ function DensityAwareGrid({ children }) {
   // If only valence changes, this won't re-render
   return <div className={`grid-${tokens.density}`}>{children}</div>
 }
-\`\`\`
+```
 
 ### CSS Variables
 
 Token values are mapped to CSS variables to minimize JavaScript involvement:
 
-\`\`\`typescript
+```typescript
 useEffect(() => {
   document.documentElement.style.setProperty('--density', tokens.density)
   document.documentElement.style.setProperty('--motion', tokens.motion)
 }, [tokens])
-\`\`\`
+```
 
 ---
 
@@ -397,7 +397,7 @@ useEffect(() => {
 
 ### Automatic Signal Integration (Phase 2)
 
-\`\`\`typescript
+```typescript
 interface AutomaticSignals {
   scrollVelocity: number      // Derived from scroll events
   timeOnPage: number          // Time since page load
@@ -416,15 +416,15 @@ function modulateCapacity(
     cognitive: capacity.cognitive * (1 - signals.idleTime * 0.01)
   }
 }
-\`\`\`
+```
 
 ### Arousal Dimension (Phase 3)
 
-\`\`\`typescript
+```typescript
 interface ExtendedCapacityField extends CapacityField {
   arousal: number  // 0-1: Calm to activated
 }
 
 // Arousal affects motion and pacing
 const motion = arousal > 0.7 ? 'energetic' : arousal < 0.3 ? 'calm' : 'subtle'
-\`\`\`
+```

@@ -29,9 +29,9 @@ Harmonia UI is a framework for building interfaces that adapt to a user's curren
 
 **The core insight:** Users don't always have the same capacity. Sometimes you're focused and energized; sometimes you're exhausted and overwhelmed. Interfaces should respond to this reality.
 
-\`\`\`
+```
 CapacityField (4 inputs) → InterfaceMode → Tokens → Components
-\`\`\`
+```
 
 Raw inputs are never mapped directly to styles. Inputs derive modes; modes produce tokens; components consume tokens. This separation keeps adaptation consistent, predictable, and maintainable.
 
@@ -91,7 +91,7 @@ The derived fields produce one of four interface modes:
 
 ## Architecture
 
-\`\`\`
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │                        CapacityProvider                         │
 │  ┌───────────────┐    ┌───────────────┐    ┌────────────────┐  │
@@ -112,7 +112,7 @@ The derived fields produce one of four interface modes:
 │  │ motion   │  │          │  │ contrast │  │ motion       │   │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
-\`\`\`
+```
 
 ### Key Files
 
@@ -131,41 +131,41 @@ The following rules transform raw inputs into interface tokens:
 
 ### Density (from Cognitive)
 
-\`\`\`typescript
+```typescript
 if (cognitive < 0.35) return 'low'
 if (cognitive > 0.75) return 'high'
 return 'medium'
-\`\`\`
+```
 
 ### Choices (from Temporal)
 
-\`\`\`typescript
+```typescript
 if (temporal < 0.35) return 'minimal'
 return 'normal'
-\`\`\`
+```
 
 ### Motion (from Emotional + Valence)
 
-\`\`\`typescript
+```typescript
 if (emotional < 0.35) return 'subtle'
 if (valence > 0.25) return 'expressive'
 return 'subtle'
-\`\`\`
+```
 
 ### Contrast (from Valence)
 
-\`\`\`typescript
+```typescript
 if (valence < -0.25) return 'boosted'
 return 'standard'
-\`\`\`
+```
 
 ### Guidance (from Energy)
 
-\`\`\`typescript
+```typescript
 if (energy < 0.3) return 'high'
 if (energy > 0.7) return 'low'
 return 'medium'
-\`\`\`
+```
 
 ---
 
@@ -238,7 +238,7 @@ return 'medium'
 
 ### Installation
 
-\`\`\`bash
+```bash
 # Clone the repository
 git clone https://github.com/vsm1996/harmonia-ui.git
 cd harmonia-ui
@@ -248,22 +248,22 @@ pnpm install
 
 # Start development server
 pnpm dev
-\`\`\`
+```
 
 Open [http://localhost:3000](http://localhost:3000) to see the demo.
 
 ### Build for Production
 
-\`\`\`bash
+```bash
 pnpm build
 pnpm start
-\`\`\`
+```
 
 ---
 
 ## Project Structure
 
-\`\`\`
+```
 harmonia-ui/
 ├── app/
 │   ├── page.tsx              # Homepage with live demo
@@ -286,7 +286,7 @@ harmonia-ui/
 │   └── globals.css           # Global styles and CSS variables
 └── public/
     └── images/               # Static assets
-\`\`\`
+```
 
 ---
 
@@ -294,7 +294,7 @@ harmonia-ui/
 
 ### Wrapping Your App
 
-\`\`\`tsx
+```tsx
 // app/layout.tsx
 import { CapacityProvider } from '@/lib/capacity-context'
 
@@ -309,11 +309,11 @@ export default function RootLayout({ children }) {
     </html>
   )
 }
-\`\`\`
+```
 
 ### Consuming Capacity in a Component
 
-\`\`\`tsx
+```tsx
 import { useCapacity } from '@/lib/capacity-context'
 
 function AdaptiveCard({ title, description, features }) {
@@ -345,11 +345,11 @@ function AdaptiveCard({ title, description, features }) {
     </div>
   )
 }
-\`\`\`
+```
 
 ### Responding to Mode Changes
 
-\`\`\`tsx
+```tsx
 import { useCapacity } from '@/lib/capacity-context'
 
 function EventGrid({ events }) {
@@ -382,7 +382,7 @@ function EventGrid({ events }) {
     </div>
   )
 }
-\`\`\`
+```
 
 ---
 
