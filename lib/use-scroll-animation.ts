@@ -1,56 +1,54 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 
 /**
- * Lightweight scroll animation hook using IntersectionObserver
- * Adds 'in-view' class when element enters viewport
+ * Lightweight scroll animation hook using IntersectionObserver.
  * 
- * Usage: Pass the ref to a container element. All children with
- * 'animate-fade-in' class will animate when the container is in view.
+ * Returns a ref and an `isInView` boolean. When the container enters the
+ * viewport, `isInView` flips to true and stays true forever (one-shot).
+ * 
+ * Components use `isInView` to conditionally apply animation classes in JSX,
+ * so the classes survive React re-renders (unlike direct DOM classList mutations).
  */
 export function useScrollAnimation<T extends HTMLElement>() {
   const ref = useRef<T>(null)
+  const [isInView, setIsInView] = useState(false)
 
   useEffect(() => {
     const element = ref.current
-    if (!element) return
-
-    // Find all animate-fade-in elements within this container
-    const animatedElements = element.querySelectorAll('.animate-fade-in')
-    
-    // Also check if the container itself has the class
-    const allElements = element.classList.contains('animate-fade-in') 
-      ? [element, ...Array.from(animatedElements)]
-      : Array.from(animatedElements)
-
-    if (allElements.length === 0) return
+    if (!element || isInView) return
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Add in-view class to all animated elements
-            allElements.forEach((el) => {
-              el.classList.add('in-view')
-            })
-            // Disconnect after triggering - only animate once
+            setIsInView(true)
             observer.disconnect()
           }
         })
       },
       { 
-        threshold: 0.1,
-        rootMargin: '50px 0px' // Start animation slightly before element is fully in view
+        threshold: 0.05,
+        rootMargin: '80px 0px'
       }
     )
 
     observer.observe(element)
 
     return () => observer.disconnect()
-  }, [])
+  }, [isInView])
 
-  return ref
+  return { ref, isInView }
+}
+
+/**
+ * Helper: returns the correct animation class string.
+ * Before in-view: hidden (opacity 0, translated down).
+ * After in-view: plays the fadeInUp animation via CSS.
+ */
+export function fadeClass(isInView: boolean): string {
+  return isInView ? "animate-fade-in in-view" : "animate-fade-in"
 }
 
 /**
@@ -58,16 +56,17 @@ export function useScrollAnimation<T extends HTMLElement>() {
  */
 export function useInViewAnimation<T extends HTMLElement>() {
   const ref = useRef<T>(null)
+  const [isInView, setIsInView] = useState(false)
 
   useEffect(() => {
     const element = ref.current
-    if (!element) return
+    if (!element || isInView) return
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            element.classList.add('in-view')
+            setIsInView(true)
             observer.disconnect()
           }
         })
@@ -81,7 +80,7 @@ export function useInViewAnimation<T extends HTMLElement>() {
     observer.observe(element)
 
     return () => observer.disconnect()
-  }, [])
+  }, [isInView])
 
-  return ref
+  return { ref, isInView }
 }

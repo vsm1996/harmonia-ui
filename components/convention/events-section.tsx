@@ -5,7 +5,7 @@ import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capaci
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
-import { useScrollAnimation } from "@/lib/use-scroll-animation"
+import { useScrollAnimation, fadeClass } from "@/lib/use-scroll-animation"
 
 /**
  * Events Section - Simplified for scroll performance
@@ -104,7 +104,7 @@ const CATEGORY_STYLES: Record<string, string> = {
 
 export function EventsSection() {
   const { context } = useCapacityContext()
-  const sectionRef = useScrollAnimation<HTMLElement>()
+  const { ref: sectionRef, isInView } = useScrollAnimation<HTMLElement>()
   
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
@@ -135,7 +135,7 @@ export function EventsSection() {
     >
       <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Header */}
-        <header className="mb-16 text-center animate-fade-in">
+        <header className={`mb-16 text-center ${fadeClass(isInView)}`}>
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
             SCHEDULE
           </Badge>
@@ -153,7 +153,7 @@ export function EventsSection() {
           {EVENTS.map((event, index) => (
             <div
               key={event.id}
-              className="animate-fade-in"
+              className={fadeClass(isInView)}
               style={{ animationDelay: `${index * 60}ms` }}
             >
               <EventCard
@@ -167,7 +167,7 @@ export function EventsSection() {
         </div>
 
         {/* View all link */}
-        <div className="mt-12 text-center animate-fade-in" style={{ animationDelay: "400ms" }}>
+        <div className={`mt-12 text-center ${fadeClass(isInView)}`} style={{ animationDelay: "400ms" }}>
           <a
             href="#schedule"
             className="font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
