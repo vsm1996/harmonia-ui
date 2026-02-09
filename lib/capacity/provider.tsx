@@ -154,7 +154,7 @@ export function useEffectiveMotion(): {
 
   // Derive mode from field
   const derivedMode = deriveMode(field)
-  
+
   // System preference is a HARD OVERRIDE
   const effectiveMode: MotionMode = prefersReducedMotion ? "off" : derivedMode.motion
 

@@ -118,8 +118,8 @@ The derived fields produce one of three interface modes:
 
 | File | Purpose |
 |------|---------|
-| `lib/capacity-context.tsx` | CapacityProvider, field derivation, mode computation |
-| `lib/capacity-types.ts` | TypeScript interfaces for CapacityField, InterfaceMode, tokens |
+| `lib/capacity/provider.tsx` | CapacityProvider, field derivation, mode computation |
+| `lib/capacity/types.ts` | TypeScript interfaces for CapacityField, InterfaceMode, tokens |
 | `components/capacity-controls.tsx` | UI panel for manual capacity adjustment |
 | `components/capacity-demo-card.tsx` | Example adaptive component |
 

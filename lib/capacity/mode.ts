@@ -108,25 +108,25 @@ export function deriveMode(field: CapacityField): InterfaceMode {
  */
 export function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
   const { cognitive, temporal, emotional } = inputs
-  
+
   // Exploratory: High cognitive AND high emotional capacity (energetic, engaged)
   // Threshold: both > 0.65
   if (cognitive > 0.65 && emotional > 0.65) {
     return "Exploratory"
   }
-  
+
   // Minimal: Very low capacity (cognitive AND temporal both low)
   // Threshold: both < 0.35
   if (cognitive < 0.35 && temporal < 0.35) {
     return "Minimal"
   }
-  
+
   // Focused: Good cognitive AND good temporal capacity (ready to work)
   // Threshold: both >= 0.6
   if (cognitive >= 0.6 && temporal >= 0.6) {
     return "Focused"
   }
-  
+
   // Calm: Everything else
   // Includes: Neutral (0.5s), Distracted (ok cognitive but low temporal), moderate states
   return "Calm"
