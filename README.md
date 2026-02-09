@@ -29,9 +29,9 @@ Harmonia UI is a framework for building interfaces that adapt to a user's curren
 
 **The core insight:** Users don't always have the same capacity. Sometimes you're focused and energized; sometimes you're exhausted and overwhelmed. Interfaces should respond to this reality.
 
-```
+\`\`\`
 CapacityField (4 inputs) → InterfaceMode → Tokens → Components
-```
+\`\`\`
 
 Raw inputs are never mapped directly to styles. Inputs derive modes; modes produce tokens; components consume tokens. This separation keeps adaptation consistent, predictable, and maintainable.
 
@@ -91,7 +91,7 @@ The derived fields produce one of four interface modes:
 
 ## Architecture
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────────────────────┐
 │                        CapacityProvider                         │
 │  ┌───────────────┐    ┌───────────────┐    ┌────────────────┐  │
@@ -108,11 +108,11 @@ The derived fields produce one of four interface modes:
 │  │          │  │          │  │          │  │              │   │
 │  │ Reads:   │  │ Reads:   │  │ Reads:   │  │ Reads:       │   │
 │  │ density  │  │ density  │  │ density  │  │ density      │   │
-│  │ guidance │  │ choices  │  │ motion   │  │ guidance     │   │
-│  │ motion   │  │          │  │ contrast │  │ motion       │   │
+│  │ motion   │  │ contrast │  │ motion   │  │ motion       │   │
+│  │ contrast │  │          │  │ contrast │  │ contrast     │   │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
-```
+\`\`\`
 
 ### Key Files
 
@@ -131,18 +131,11 @@ The following rules transform raw inputs into interface tokens:
 
 ### Density (from Cognitive)
 
-```typescript
+\`\`\`typescript
 if (cognitive < 0.35) return 'low'
 if (cognitive > 0.75) return 'high'
 return 'medium'
-```
-
-### Choices (from Temporal)
-
-```typescript
-if (temporal < 0.35) return 'minimal'
-return 'normal'
-```
+\`\`\`
 
 ### Motion (from Emotional + Valence)
 
@@ -159,12 +152,23 @@ if (valence < -0.25) return 'boosted'
 return 'standard'
 ```
 
-### Guidance (from Energy)
+### Guidance (from Cognitive + Temporal)
+
+> **Note:** `guidance` is defined in the `InterfaceMode` TypeScript interface and derived in code, but is not yet consumed by any component or mapped to a CSS custom property. It is available for future use.
 
 ```typescript
-if (energy < 0.3) return 'high'
-if (energy > 0.7) return 'low'
-return 'medium'
+if (cognitive < 0.35) return 'high'   // Low cognitive = more scaffolding
+if (temporal < 0.35) return 'medium'  // Low temporal = some shortcuts
+return 'low'                           // Otherwise, trust the user
+```
+
+### Choice Load (from Temporal)
+
+> **Note:** `choiceLoad` is defined in the `InterfaceMode` TypeScript interface and derived in code, but is not yet consumed by any component or mapped to a CSS custom property. It is available for future use.
+
+```typescript
+if (temporal < 0.35) return 'minimal'
+return 'normal'
 ```
 
 ---
@@ -175,13 +179,13 @@ return 'medium'
 
 **When:** User is overwhelmed, exhausted, or in distress.
 
-| Token | Value | Effect |
-|-------|-------|--------|
-| density | low | Fewer items visible |
-| guidance | high | More labels, helper text |
-| motion | subtle | No surprises |
-| contrast | boosted | Higher accessibility |
-| choices | minimal | Reduced options, smart defaults |
+| Token | Value | Effect | Status |
+|-------|-------|--------|--------|
+| density | low | Fewer items visible | Active |
+| motion | subtle | No surprises | Active |
+| contrast | boosted | Higher accessibility | Active |
+| guidance | high | More labels, helper text | Defined, not yet consumed |
+| choiceLoad | minimal | Reduced options, smart defaults | Defined, not yet consumed |
 
 **Tone message:** "Take your time."
 
@@ -189,13 +193,13 @@ return 'medium'
 
 **When:** User has moderate but uneven capacity. Includes neutral states (all sliders around 0.5), distracted states (okay cognitive but low temporal), and other in-between conditions that don't meet the thresholds for Focused or Exploratory.
 
-| Token | Value | Effect |
-|-------|-------|--------|
-| density | low to medium | Gentle information load |
-| guidance | medium | Some assistance available |
-| motion | subtle | No surprises, grounded transitions |
-| contrast | standard | Normal contrast |
-| choices | varies | May reduce options if temporal is low |
+| Token | Value | Effect | Status |
+|-------|-------|--------|--------|
+| density | low to medium | Gentle information load | Active |
+| motion | subtle | No surprises, grounded transitions | Active |
+| contrast | standard | Normal contrast | Active |
+| guidance | medium | Some assistance available | Defined, not yet consumed |
+| choiceLoad | varies | May reduce options if temporal is low | Defined, not yet consumed |
 
 **Tone message:** "Take it easy."
 
@@ -203,13 +207,13 @@ return 'medium'
 
 **When:** User has moderate capacity, working on a task.
 
-| Token | Value | Effect |
-|-------|-------|--------|
-| density | medium | Balanced information |
-| guidance | medium | Some assistance |
-| motion | subtle | Calm animations |
-| contrast | standard | Normal contrast |
-| choices | normal | Full options available |
+| Token | Value | Effect | Status |
+|-------|-------|--------|--------|
+| density | medium | Balanced information | Active |
+| motion | subtle | Calm animations | Active |
+| contrast | standard | Normal contrast | Active |
+| guidance | medium | Some assistance | Defined, not yet consumed |
+| choiceLoad | normal | Full options available | Defined, not yet consumed |
 
 **Tone message:** "Here's how it works:"
 
@@ -217,13 +221,13 @@ return 'medium'
 
 **When:** User is energized, curious, and positive.
 
-| Token | Value | Effect |
-|-------|-------|--------|
-| density | high | Full feature display |
-| guidance | low | User knows what they're doing |
-| motion | expressive | Playful micro-interactions |
-| contrast | standard | Normal contrast |
-| choices | normal | All options visible |
+| Token | Value | Effect | Status |
+|-------|-------|--------|--------|
+| density | high | Full feature display | Active |
+| motion | expressive | Playful micro-interactions | Active |
+| contrast | standard | Normal contrast | Active |
+| guidance | low | User knows what they're doing | Defined, not yet consumed |
+| choiceLoad | normal | All options visible | Defined, not yet consumed |
 
 **Tone message:** "You're doing great!"
 
@@ -238,7 +242,7 @@ return 'medium'
 
 ### Installation
 
-```bash
+\`\`\`bash
 # Clone the repository
 git clone https://github.com/vsm1996/harmonia-ui.git
 cd harmonia-ui
@@ -248,22 +252,22 @@ pnpm install
 
 # Start development server
 pnpm dev
-```
+\`\`\`
 
 Open [http://localhost:3000](http://localhost:3000) to see the demo.
 
 ### Build for Production
 
-```bash
+\`\`\`bash
 pnpm build
 pnpm start
-```
+\`\`\`
 
 ---
 
 ## Project Structure
 
-```
+\`\`\`
 harmonia-ui/
 ├── app/
 │   ├── page.tsx              # Homepage with live demo
@@ -286,7 +290,7 @@ harmonia-ui/
 │   └── globals.css           # Global styles and CSS variables
 └── public/
     └── images/               # Static assets
-```
+\`\`\`
 
 ---
 
@@ -294,7 +298,7 @@ harmonia-ui/
 
 ### Wrapping Your App
 
-```tsx
+\`\`\`tsx
 // app/layout.tsx
 import { CapacityProvider } from '@/lib/capacity-context'
 
@@ -309,11 +313,11 @@ export default function RootLayout({ children }) {
     </html>
   )
 }
-```
+\`\`\`
 
 ### Consuming Capacity in a Component
 
-```tsx
+\`\`\`tsx
 import { useCapacity } from '@/lib/capacity-context'
 
 function AdaptiveCard({ title, description, features }) {
@@ -333,23 +337,25 @@ function AdaptiveCard({ title, description, features }) {
         </ul>
       )}
       
-      {/* Adaptive CTA based on temporal capacity */}
+      {/* Adaptive CTA based on temporal capacity (choiceLoad token) */}
       <button>
-        {tokens.choices === 'minimal' ? 'Go' : 'Explore Options'}
+        {tokens.choiceLoad === 'minimal' ? 'Go' : 'Explore Options'}
       </button>
       
-      {/* Guidance text for struggling users */}
+      {/* Guidance text for struggling users (guidance token) */}
+      {/* Note: guidance and choiceLoad are derived but not yet consumed */}
+      {/* by built-in components. This shows intended future usage. */}
       {tokens.guidance === 'high' && (
         <p className="helper">Take your time. No rush.</p>
       )}
     </div>
   )
 }
-```
+\`\`\`
 
 ### Responding to Mode Changes
 
-```tsx
+\`\`\`tsx
 import { useCapacity } from '@/lib/capacity-context'
 
 function EventGrid({ events }) {
@@ -382,7 +388,7 @@ function EventGrid({ events }) {
     </div>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -443,7 +449,7 @@ Harmonia UI is built with accessibility as a core constraint:
 
 - [x] Four-input capacity controls (cognitive, temporal, emotional, valence)
 - [x] Mode derivation (Minimal, Calm, Focused, Exploratory)
-- [x] Token system (density, guidance, motion, contrast, choices)
+- [x] Token system (density, motion, contrast — active; guidance, choiceLoad — defined, not yet consumed)
 - [x] Demo components with real-time adaptation
 - [x] Convention page example
 

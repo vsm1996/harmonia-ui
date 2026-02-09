@@ -6,9 +6,9 @@ This document describes the technical architecture of Harmonia UI.
 
 Harmonia UI follows a unidirectional data flow pattern:
 
-```
+\`\`\`
 User Inputs → CapacityField → Derived Fields → InterfaceMode → Tokens → Components
-```
+\`\`\`
 
 Each layer transforms data for the next, maintaining clear boundaries and predictable behavior.
 
@@ -18,14 +18,14 @@ Each layer transforms data for the next, maintaining clear boundaries and predic
 
 The CapacityField represents the user's current state through four dimensions:
 
-```typescript
+\`\`\`typescript
 interface CapacityField {
   cognitive: number   // 0-1: Mental bandwidth available
   temporal: number    // 0-1: Time/effort budget
   emotional: number   // 0-1: Load tolerance
   valence: number     // -1 to +1: Emotional direction
 }
-```
+\`\`\`
 
 ### Input Semantics
 
@@ -38,14 +38,14 @@ interface CapacityField {
 
 ### Default Values
 
-```typescript
+\`\`\`typescript
 const DEFAULT_CAPACITY: CapacityField = {
   cognitive: 0.7,
   temporal: 0.7,
   emotional: 0.7,
   valence: 0.3
 }
-```
+\`\`\`
 
 ---
 
@@ -53,17 +53,17 @@ const DEFAULT_CAPACITY: CapacityField = {
 
 Derived fields are computed from raw inputs to provide higher-level signals:
 
-```typescript
+\`\`\`typescript
 interface DerivedFields {
   energy: number      // 0-1: Overall capacity
   attention: number   // 0-1: Focus demand
   valence: number     // -1 to +1: Pass-through
 }
-```
+\`\`\`
 
 ### Derivation Formulas
 
-```typescript
+\`\`\`typescript
 // Energy: Geometric mean of capacity inputs
 const energy = Math.pow(
   cognitive * temporal * emotional, 
@@ -75,7 +75,7 @@ const attention = 1 - (temporal * 0.5)
 
 // Valence: Direct pass-through
 const valence = capacityField.valence
-```
+\`\`\`
 
 ---
 
@@ -83,15 +83,15 @@ const valence = capacityField.valence
 
 The InterfaceMode is a discrete state derived from the continuous field values:
 
-```typescript
+\`\`\`typescript
 type InterfaceModeLabel = 'Minimal' | 'Calm' | 'Focused' | 'Exploratory'
-```
+\`\`\`
 
 ### Mode Label Derivation Logic
 
 Mode labels are derived from **raw capacity values** (not derived fields), because states like Neutral and Focused can produce the same `InterfaceMode` tokens but should have different labels for the user.
 
-```typescript
+\`\`\`typescript
 function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
   const { cognitive, temporal, emotional } = inputs
 
@@ -107,7 +107,7 @@ function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
   // Calm: Everything else (neutral, distracted, moderate states)
   return 'Calm'
 }
-```
+\`\`\`
 
 ### Mode Characteristics
 
@@ -137,18 +137,41 @@ function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
 Tokens are the bridge between mode and components. They provide semantic values that components consume:
 
 ```typescript
-interface InterfaceModeTokens {
-  density: 'low' | 'medium' | 'high'
-  guidance: 'low' | 'medium' | 'high'
-  motion: 'subtle' | 'expressive'
-  contrast: 'standard' | 'boosted'
-  choices: 'minimal' | 'normal'
+function deriveMode(field: CapacityField): InterfaceMode {
+  return {
+    // ACTIVE TOKENS (consumed by components)
+    
+    // Density from cognitive
+    density: field.cognitive < 0.35 ? 'low' 
+           : field.cognitive > 0.75 ? 'high' 
+           : 'medium',
+    
+    // Motion from emotional + valence
+    motion: field.emotional < 0.35 ? 'subtle'
+          : field.valence > 0.25 ? 'expressive'
+          : 'subtle',
+    
+    // Contrast from valence (boost when negative)
+    contrast: field.valence < -0.25 ? 'boosted' : 'standard',
+    
+    // DERIVED TOKENS (not yet consumed by components or CSS)
+    
+    // Guidance from cognitive + temporal
+    guidance: field.cognitive < 0.35 ? 'high' 
+            : field.temporal < 0.35 ? 'medium' 
+            : 'low',
+    
+    // Choice load from temporal
+    choiceLoad: field.temporal < 0.35 ? 'minimal' : 'normal'
+  }
 }
 ```
 
+> **Implementation note:** `guidance` and `choiceLoad` are derived from capacity inputs in `mode.ts` and included in the `InterfaceMode` TypeScript interface, but no component currently reads them and they have no CSS custom property equivalents. They exist as a foundation for future component development.
+
 ### Token Derivation
 
-```typescript
+\`\`\`typescript
 function deriveTokens(capacity: CapacityField, valence: number): InterfaceModeTokens {
   return {
     // Density from cognitive
@@ -173,9 +196,11 @@ function deriveTokens(capacity: CapacityField, valence: number): InterfaceModeTo
     choices: capacity.temporal < 0.35 ? 'minimal' : 'normal'
   }
 }
-```
+\`\`\`
 
 ### Token-to-CSS Mapping
+
+Only the active tokens (`density`, `motion`, `contrast`) have CSS equivalents. `guidance` and `choiceLoad` are TypeScript-only and available for future component logic.
 
 ```css
 /* Density */
@@ -190,6 +215,8 @@ function deriveTokens(capacity: CapacityField, valence: number): InterfaceModeTo
 /* Contrast */
 .contrast-standard { --text-opacity: 0.9; }
 .contrast-boosted { --text-opacity: 1; --font-weight: 500; }
+
+/* No CSS mappings for guidance or choiceLoad — these are consumed in TypeScript only */
 ```
 
 ---
@@ -200,7 +227,7 @@ Components consume tokens and render accordingly. They never read raw capacity v
 
 ### Component Pattern
 
-```tsx
+\`\`\`tsx
 function AdaptiveComponent() {
   const { tokens, mode } = useCapacity()
   
@@ -220,26 +247,26 @@ function AdaptiveComponent() {
     </div>
   )
 }
-```
+\`\`\`
 
 ### What Components Should Do
 
-| Token | Component Response |
-|-------|-------------------|
-| `density: low` | Show fewer items, larger touch targets, more whitespace |
-| `density: high` | Show all items, dense grid, full information |
-| `guidance: high` | Show helper text, labels, tooltips |
-| `guidance: low` | Hide scaffolding, trust user knowledge |
-| `motion: subtle` | Minimal transitions, no decorative animation |
-| `motion: expressive` | Playful micro-interactions, spring physics |
-| `contrast: boosted` | Higher text contrast, bolder weights |
-| `choices: minimal` | Reduce options, smart defaults, progressive disclosure |
+| Token | Component Response | Status |
+|-------|-------------------|--------|
+| `density: low` | Show fewer items, larger touch targets, more whitespace | Active |
+| `density: high` | Show all items, dense grid, full information | Active |
+| `motion: subtle` | Minimal transitions, no decorative animation | Active |
+| `motion: expressive` | Playful micro-interactions, spring physics | Active |
+| `contrast: boosted` | Higher text contrast, bolder weights | Active |
+| `guidance: high` | Show helper text, labels, tooltips | Not yet consumed |
+| `guidance: low` | Hide scaffolding, trust user knowledge | Not yet consumed |
+| `choiceLoad: minimal` | Reduce options, smart defaults, progressive disclosure | Not yet consumed |
 
 ---
 
 ## Data Flow Example
 
-```
+\`\`\`
 User drags cognitive slider to 0.2
     │
     ▼
@@ -252,14 +279,14 @@ Derived fields compute: { energy: 0.42, attention: 0.65, valence: 0.3 }
 Mode derives: 'focused' (energy >= 0.2, not exploratory conditions)
     │
     ▼
-Tokens derive: { density: 'low', guidance: 'medium', motion: 'subtle', ... }
+Tokens derive: { density: 'low', motion: 'subtle', contrast: 'standard', guidance: 'medium', choiceLoad: 'normal' }
     │
     ▼
 Components re-render with new tokens
     │
     ▼
 Grid shows 1 column, descriptions hidden, helper text appears
-```
+\`\`\`
 
 ---
 
@@ -267,7 +294,7 @@ Grid shows 1 column, descriptions hidden, helper text appears
 
 ### Context Structure
 
-```typescript
+\`\`\`typescript
 interface CapacityContextValue {
   // Raw inputs
   capacity: CapacityField
@@ -281,11 +308,11 @@ interface CapacityContextValue {
   // Convenience
   updateCapacity: (partial: Partial<CapacityField>) => void
 }
-```
+\`\`\`
 
 ### Provider Implementation
 
-```tsx
+\`\`\`tsx
 function CapacityProvider({ children }) {
   const [capacity, setCapacity] = useState(DEFAULT_CAPACITY)
   
@@ -309,7 +336,7 @@ function CapacityProvider({ children }) {
     </CapacityContext.Provider>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -328,14 +355,14 @@ Each layer has one job:
 
 Each layer can be tested independently:
 
-```typescript
+\`\`\`typescript
 // Test mode derivation
 expect(deriveMode({ energy: 0.1 }, capacity)).toBe('minimal')
 expect(deriveMode({ energy: 0.5 }, capacity)).toBe('focused')
 
 // Test token derivation
 expect(deriveTokens({ cognitive: 0.2 }).density).toBe('low')
-```
+\`\`\`
 
 ### 3. Predictability
 
@@ -360,17 +387,17 @@ New dimensions can be added without changing existing code:
 
 All derivations are memoized to prevent unnecessary recalculation:
 
-```typescript
+\`\`\`typescript
 const derivedFields = useMemo(() => deriveFields(capacity), [capacity])
 const mode = useMemo(() => deriveMode(derivedFields, capacity), [derivedFields, capacity])
 const tokens = useMemo(() => deriveTokens(capacity, derivedFields.valence), [capacity, derivedFields])
-```
+\`\`\`
 
 ### Selective Re-rendering
 
 Components only re-render when their consumed tokens change:
 
-```typescript
+\`\`\`typescript
 // This component only re-renders when density changes
 function DensityAwareGrid({ children }) {
   const { tokens } = useCapacity()
@@ -378,18 +405,18 @@ function DensityAwareGrid({ children }) {
   // If only valence changes, this won't re-render
   return <div className={`grid-${tokens.density}`}>{children}</div>
 }
-```
+\`\`\`
 
 ### CSS Variables
 
 Token values are mapped to CSS variables to minimize JavaScript involvement:
 
-```typescript
+\`\`\`typescript
 useEffect(() => {
   document.documentElement.style.setProperty('--density', tokens.density)
   document.documentElement.style.setProperty('--motion', tokens.motion)
 }, [tokens])
-```
+\`\`\`
 
 ---
 
@@ -397,7 +424,7 @@ useEffect(() => {
 
 ### Automatic Signal Integration (Phase 2)
 
-```typescript
+\`\`\`typescript
 interface AutomaticSignals {
   scrollVelocity: number      // Derived from scroll events
   timeOnPage: number          // Time since page load
@@ -416,15 +443,15 @@ function modulateCapacity(
     cognitive: capacity.cognitive * (1 - signals.idleTime * 0.01)
   }
 }
-```
+\`\`\`
 
 ### Arousal Dimension (Phase 3)
 
-```typescript
+\`\`\`typescript
 interface ExtendedCapacityField extends CapacityField {
   arousal: number  // 0-1: Calm to activated
 }
 
 // Arousal affects motion and pacing
 const motion = arousal > 0.7 ? 'energetic' : arousal < 0.3 ? 'calm' : 'subtle'
-```
+\`\`\`
