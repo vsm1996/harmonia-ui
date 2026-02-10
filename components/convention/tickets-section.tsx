@@ -96,18 +96,34 @@ const HEADERS = {
 export function TicketsSection() {
   const { context } = useCapacityContext()
   const { ref: sectionRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
-  console.log("[v0] TicketsSection isInView:", isInView, "hasPlayed:", hasPlayed)
   
-  const mode = deriveMode({
+  const field = {
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
     emotional: context.userCapacity.emotional,
     valence: context.emotionalState.valence,
-  })
+  }
+  const mode = deriveMode(field)
 
   const cognitiveCapacity = context.userCapacity.cognitive
   const temporalCapacity = context.userCapacity.temporal
   const valence = context.emotionalState.valence
+
+  // Capacity-aware entrance animation (emotional -> motion restraint)
+  const entranceClass =
+    mode.motion === "expressive"
+      ? "spiral-in"
+      : mode.motion === "subtle"
+        ? "bloom"
+        : ""
+
+  // Capacity-aware hover animation
+  const hoverClass =
+    mode.motion === "expressive"
+      ? "hover-expand"
+      : mode.motion === "subtle"
+        ? "hover-lift"
+        : ""
 
   // Adaptive color shift based on valence
   const warmthShift = valence * 15
@@ -130,7 +146,7 @@ export function TicketsSection() {
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
             PASSES
           </Badge>
-          <h2 id="tickets-title" className="text-4xl md:text-6xl font-black tracking-tight mb-4">
+          <h2 id="tickets-title" className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${mode.motion === "expressive" ? "float" : ""}`}>
             {header.title}
           </h2>
           {header.description && (
@@ -145,14 +161,14 @@ export function TicketsSection() {
           {visibleTiers.map((tier, index) => (
             <div
               key={tier.id}
-              className={fadeClass(isInView, hasPlayed)}
-              style={{ animationDelay: `${100 + index * 80}ms` }}
+              className={`${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
+              style={{ animationDelay: `${100 + index * 100}ms` }}
             >
-              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/50 ${
+              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${
                 tier.highlight 
                   ? "border-primary/50 shadow-lg" 
                   : "border-border/50"
-              }`}>
+              } ${mode.motion === "expressive" ? "breathe" : ""}`}>
                 {tier.highlight && (
                   <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
                     Popular
@@ -160,12 +176,14 @@ export function TicketsSection() {
                 )}
 
                 <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors">{tier.name}</CardTitle>
+                  <CardTitle className={`text-2xl font-bold group-hover:text-primary transition-colors ${mode.motion === "expressive" ? "float" : ""}`}>
+                    {tier.name}
+                  </CardTitle>
                   <CardDescription>
                     {tier.description[featureVariant === "full" ? "full" : "short"]}
                   </CardDescription>
                   <div className="mt-4">
-                    <span className="text-4xl font-black">${tier.price}</span>
+                    <span className={`text-4xl font-black ${mode.motion === "expressive" ? "pulse" : ""}`}>${tier.price}</span>
                     <span className="text-muted-foreground ml-1">/pass</span>
                   </div>
                 </CardHeader>
@@ -173,7 +191,13 @@ export function TicketsSection() {
                 <CardContent className="flex-1 flex flex-col">
                   <ul className="space-y-3 flex-1 mb-6">
                     {tier.features[featureVariant].map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm">
+                      <li
+                        key={i}
+                        className={`flex items-start gap-2 text-sm ${
+                          mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "sacred-fade" : ""
+                        }`}
+                        style={{ animationDelay: `${i * 0.12}s` }}
+                      >
                         <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                         <span>{feature}</span>
                       </li>
@@ -181,7 +205,9 @@ export function TicketsSection() {
                   </ul>
 
                   <Button 
-                    className={`w-full ${tier.highlight ? "" : "bg-transparent"}`}
+                    className={`w-full ${tier.highlight ? "" : "bg-transparent"} ${
+                      mode.motion === "expressive" ? "hover-pulse" : mode.motion === "subtle" ? "hover-lift" : ""
+                    }`}
                     variant={tier.highlight ? "default" : "outline"}
                     size="lg"
                   >
@@ -196,7 +222,7 @@ export function TicketsSection() {
         {/* Footer */}
         {header.footer && (
           <p 
-            className={`mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${fadeClass(isInView, hasPlayed)}`}
+            className={`mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${hasPlayed ? (mode.motion === "subtle" ? "sacred-fade" : "") : fadeClass(isInView, hasPlayed)}`}
             style={{ animationDelay: "350ms" }}
           >
             {header.footer}

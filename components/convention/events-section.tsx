@@ -105,14 +105,14 @@ const CATEGORY_STYLES: Record<string, string> = {
 export function EventsSection() {
   const { context } = useCapacityContext()
   const { ref: sectionRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
-  console.log("[v0] EventsSection isInView:", isInView, "hasPlayed:", hasPlayed)
   
-  const mode = deriveMode({
+  const field = {
     cognitive: context.userCapacity.cognitive,
     temporal: context.userCapacity.temporal,
     emotional: context.userCapacity.emotional,
     valence: context.emotionalState.valence,
-  })
+  }
+  const mode = deriveMode(field)
 
   const cognitiveCapacity = context.userCapacity.cognitive
   const temporalCapacity = context.userCapacity.temporal
@@ -122,9 +122,25 @@ export function EventsSection() {
     ? "grid-cols-1 md:grid-cols-2"
     : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
 
-  // Adaptive color based on valence: warmer (orange) for positive, cooler (rust) for negative
-  const baseHue = 45 // rust/copper
-  const hueShift = valence * 15 // shifts toward orange (+) or deeper rust (-)
+  // Capacity-aware entrance animation (emotional -> motion restraint)
+  const entranceClass =
+    mode.motion === "expressive"
+      ? "vortex-reveal"
+      : mode.motion === "subtle"
+        ? "sacred-fade"
+        : ""
+
+  // Capacity-aware hover animation
+  const hoverClass =
+    mode.motion === "expressive"
+      ? "hover-expand"
+      : mode.motion === "subtle"
+        ? "hover-lift"
+        : ""
+
+  // Adaptive color based on valence
+  const baseHue = 45
+  const hueShift = valence * 15
   const infectedColor = `oklch(0.65 0.18 ${baseHue + hueShift})`
   const warmthShift = valence * 15
 
@@ -140,7 +156,10 @@ export function EventsSection() {
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
             SCHEDULE
           </Badge>
-          <h2 id="events-title" className="text-4xl md:text-6xl font-black tracking-tight mb-4">
+          <h2
+            id="events-title"
+            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${mode.motion === "expressive" ? "float" : ""}`}
+          >
             <InfectedText text="What We" infectColor={infectedColor} />
             <span style={{ color: infectedColor }}> Salvaged</span>
           </h2>
@@ -154,14 +173,16 @@ export function EventsSection() {
           {EVENTS.map((event, index) => (
             <div
               key={event.id}
-              className={fadeClass(isInView, hasPlayed)}
-              style={{ animationDelay: `${index * 60}ms` }}
+              className={`${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
+              style={{ animationDelay: `${index * 80}ms` }}
             >
               <EventCard
                 event={event}
                 cognitiveCapacity={cognitiveCapacity}
                 temporalCapacity={temporalCapacity}
                 guidance={mode.guidance}
+                motionMode={mode.motion}
+                hoverClass={hoverClass}
               />
             </div>
           ))}
@@ -171,7 +192,9 @@ export function EventsSection() {
         <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "400ms" }}>
           <a
             href="#schedule"
-            className="font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+            className={`font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${
+              mode.motion === "expressive" ? "hover-pulse" : ""
+            }`}
           >
             View Full Schedule
             <span aria-hidden="true">→</span>
@@ -187,11 +210,15 @@ function EventCard({
   cognitiveCapacity,
   temporalCapacity,
   guidance,
+  motionMode,
+  hoverClass,
 }: {
   event: (typeof EVENTS)[number]
   cognitiveCapacity: number
   temporalCapacity: number
   guidance: "low" | "medium" | "high"
+  motionMode: "off" | "subtle" | "expressive"
+  hoverClass: string
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const categoryStyle = CATEGORY_STYLES[event.category] || "bg-secondary text-secondary-foreground"
@@ -216,9 +243,9 @@ function EventCard({
 
   return (
     <Card
-      className={`h-full flex flex-col overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/50 ${
+      className={`h-full flex flex-col overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${
         !shouldAutoShowDescription ? "cursor-pointer" : ""
-      }`}
+      } ${motionMode === "expressive" ? "breathe" : ""}`}
       onClick={handleCardClick}
       role={!shouldAutoShowDescription ? "button" : undefined}
       tabIndex={!shouldAutoShowDescription ? 0 : undefined}
@@ -229,12 +256,12 @@ function EventCard({
         }
       } : undefined}
     >
-      {/* Category color bar */}
-      <div className={`h-1.5 w-full ${categoryStyle.split(" ")[0]}`} />
+      {/* Category color bar - pulses in expressive mode */}
+      <div className={`h-1.5 w-full ${categoryStyle.split(" ")[0]} ${motionMode === "expressive" ? "pulse" : ""}`} />
 
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-3">
-          <CardTitle className={`font-bold leading-tight group-hover:text-primary transition-colors ${isLowCognitive ? "text-base" : "text-lg"}`}>
+          <CardTitle className={`font-bold leading-tight group-hover:text-primary transition-colors ${isLowCognitive ? "text-base" : "text-lg"} ${motionMode === "expressive" ? "float" : ""}`}>
             {title}
           </CardTitle>
           <Badge className={`shrink-0 text-xs font-semibold ${categoryStyle}`}>
