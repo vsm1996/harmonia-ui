@@ -118,11 +118,17 @@ export function EventsSection() {
   const temporalCapacity = context.userCapacity.temporal
   const valence = context.emotionalState.valence
 
+  // DENSITY → grid layout (extreme difference between low and high)
   const gridClass = mode.density === "low"
-    ? "grid-cols-1 md:grid-cols-2"
-    : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+    ? "grid-cols-1 max-w-lg mx-auto"                     // Single column, narrow
+    : mode.density === "high"
+      ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"       // Full 3-col grid
+      : "grid-cols-1 md:grid-cols-2"                       // Medium 2-col
 
-  // Capacity-aware entrance animation (emotional -> motion restraint)
+  // DENSITY → which events to show (low = only 3 featured, high = all)
+  const visibleEvents = mode.density === "low" ? EVENTS.slice(0, 3) : EVENTS
+
+  // MOTION → entrance animation intensity (off/subtle/expressive are dramatically different)
   const entranceClass =
     mode.motion === "expressive"
       ? "vortex-reveal"
@@ -130,7 +136,7 @@ export function EventsSection() {
         ? "sacred-fade"
         : ""
 
-  // Capacity-aware hover animation
+  // MOTION → hover animation intensity
   const hoverClass =
     mode.motion === "expressive"
       ? "hover-expand"
@@ -138,7 +144,7 @@ export function EventsSection() {
         ? "hover-lift"
         : ""
 
-  // Adaptive color based on valence: warmer (orange) for positive, cooler (rust) for negative
+  // Adaptive color based on valence
   const baseHue = 45
   const hueShift = valence * 15
   const infectedColor = `oklch(0.65 0.18 ${baseHue + hueShift})`
@@ -151,26 +157,38 @@ export function EventsSection() {
       aria-labelledby="events-title"
     >
       <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
-        {/* Header */}
-        <header className={`mb-16 text-center ${fadeClass(isInView, hasPlayed)}`}>
-          <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
-            SCHEDULE
-          </Badge>
+        {/* Header -- Minimal mode: tighter, no subtitle */}
+        <header className={`${mode.density === "low" ? "mb-8" : "mb-16"} text-center ${fadeClass(isInView, hasPlayed)}`}>
+          {mode.density !== "low" && (
+            <Badge variant="outline" className={`mb-4 tracking-widest text-primary border-primary/50 ${mode.motion === "expressive" ? "vibrate" : ""}`}>
+              SCHEDULE
+            </Badge>
+          )}
           <h2
             id="events-title"
-            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${mode.motion === "expressive" ? "float" : ""}`}
+            className={`font-black tracking-tight mb-4 ${
+              mode.density === "low" ? "text-2xl md:text-4xl" : "text-4xl md:text-6xl"
+            } ${mode.motion === "expressive" ? "float" : ""}`}
           >
-            <InfectedText text="What We" infectColor={infectedColor} />
-            <span style={{ color: infectedColor }}> Salvaged</span>
+            {mode.density === "low" ? (
+              <span style={{ color: infectedColor }}>Schedule</span>
+            ) : (
+              <>
+                <InfectedText text="What We" infectColor={infectedColor} />
+                <span style={{ color: infectedColor }}> Salvaged</span>
+              </>
+            )}
           </h2>
-          <p className="text-lg max-w-2xl mx-auto text-muted-foreground">
-            The world above threw this stuff away. We made it into something.
-          </p>
+          {mode.density !== "low" && (
+            <p className="text-lg max-w-2xl mx-auto text-muted-foreground">
+              The world above threw this stuff away. We made it into something.
+            </p>
+          )}
         </header>
 
         {/* Events grid */}
         <div className={`grid ${gridClass} gap-6`}>
-          {EVENTS.map((event, index) => (
+          {visibleEvents.map((event, index) => (
             <div
               key={event.id}
               className={`${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
@@ -188,18 +206,20 @@ export function EventsSection() {
           ))}
         </div>
 
-        {/* View all link */}
-        <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "400ms" }}>
-          <a
-            href="#schedule"
-            className={`font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${
-              mode.motion === "expressive" ? "hover-pulse" : ""
-            }`}
-          >
-            View Full Schedule
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
+        {/* View all link -- hidden in minimal density */}
+        {mode.density !== "low" && (
+          <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "400ms" }}>
+            <a
+              href="#schedule"
+              className={`font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${
+                mode.motion === "expressive" ? "hover-pulse" : ""
+              }`}
+            >
+              View Full Schedule
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        )}
       </div>
     </section>
   )
@@ -243,7 +263,11 @@ function EventCard({
 
   return (
     <Card
-      className={`h-full flex flex-col overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${
+      className={`h-full flex flex-col overflow-hidden group ${
+        motionMode !== "off" ? "transition-all duration-300" : ""
+      } ${hoverClass} ${
+        motionMode !== "off" ? "hover:border-primary/50 hover:shadow-lg" : ""
+      } ${
         !shouldAutoShowDescription ? "cursor-pointer" : ""
       } ${motionMode === "expressive" ? "breathe" : ""}`}
       onClick={handleCardClick}
@@ -256,7 +280,7 @@ function EventCard({
         }
       } : undefined}
     >
-      {/* Category color bar - pulses in expressive mode */}
+      {/* Category color bar */}
       <div className={`h-1.5 w-full ${categoryStyle.split(" ")[0]} ${motionMode === "expressive" ? "pulse" : ""}`} />
 
       <CardHeader className="pb-2">

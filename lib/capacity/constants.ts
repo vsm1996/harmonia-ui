@@ -133,23 +133,23 @@ export const MOTION_TOKENS = {
     durationBase: 0,
     durationSlow: 0,
     easing: "linear",
-    // Essential transitions still allowed
-    essentialDuration: 150,
+    // Essential transitions still allowed (opacity/visibility for usability)
+    essentialDuration: 100,
     essentialEasing: "ease-out",
   },
   subtle: {
-    durationFast: 120,
-    durationBase: 220,
-    durationSlow: 420,
+    durationFast: 100,
+    durationBase: 200,
+    durationSlow: 350,
     easing: "ease-out",
     essentialDuration: 150,
     essentialEasing: "ease-out",
   },
   expressive: {
-    durationFast: 140,
-    durationBase: 280,
-    durationSlow: 520,
-    easing: "cubic-bezier(0.34, 1.56, 0.64, 1)", // Spring-like
+    durationFast: 200,
+    durationBase: 400,
+    durationSlow: 700,
+    easing: "cubic-bezier(0.34, 1.56, 0.64, 1)", // Spring-like overshoot
     essentialDuration: 150,
     essentialEasing: "ease-out",
   },

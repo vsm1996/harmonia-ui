@@ -47,75 +47,90 @@ export function Footer() {
   return (
     <footer ref={footerRef} className="bg-card/50 border-t border-border py-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
-        <div
-          className={`grid md:grid-cols-4 gap-8 md:gap-12 ${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
-        >
-          {/* Brand column */}
-          <div className="md:col-span-2">
-            <h3 className={`font-black text-2xl tracking-tighter mb-4 ${mode.motion === "expressive" ? "float" : ""}`}>
+        {/* Minimal density: compact single-column footer */}
+        {mode.density === "low" ? (
+          <div className={`text-center space-y-4 ${fadeClass(isInView, hasPlayed)}`}>
+            <h3 className="font-black text-xl tracking-tighter">
               <span className="text-primary">ABYSS</span>
               <span className="text-foreground/80"> CON</span>
             </h3>
-            <p className="text-muted-foreground max-w-sm mb-6">
-              They threw us away. We built something better down here. 
-              See you in the Abyss. August 15-17, 2026.
-            </p>
-            <div className="flex gap-4">
-              <SocialLink href="#" label="Twitter" motionMode={mode.motion}>
-                <TwitterIcon />
-              </SocialLink>
-              <SocialLink href="#" label="Instagram" motionMode={mode.motion}>
-                <InstagramIcon />
-              </SocialLink>
-              <SocialLink href="#" label="Discord" motionMode={mode.motion}>
-                <DiscordIcon />
-              </SocialLink>
+            <p className="text-sm text-muted-foreground">August 15-17, 2026</p>
+          </div>
+        ) : (
+          <div
+            className={`grid md:grid-cols-4 gap-8 md:gap-12 ${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
+          >
+            {/* Brand column */}
+            <div className="md:col-span-2">
+              <h3 className={`font-black text-2xl tracking-tighter mb-4 ${mode.motion === "expressive" ? "float" : ""}`}>
+                <span className="text-primary">ABYSS</span>
+                <span className="text-foreground/80"> CON</span>
+              </h3>
+              <p className="text-muted-foreground max-w-sm mb-6">
+                They threw us away. We built something better down here. 
+                See you in the Abyss. August 15-17, 2026.
+              </p>
+              <div className="flex gap-4">
+                <SocialLink href="#" label="Twitter" motionMode={mode.motion}>
+                  <TwitterIcon />
+                </SocialLink>
+                <SocialLink href="#" label="Instagram" motionMode={mode.motion}>
+                  <InstagramIcon />
+                </SocialLink>
+                <SocialLink href="#" label="Discord" motionMode={mode.motion}>
+                  <DiscordIcon />
+                </SocialLink>
+              </div>
+            </div>
+
+            {/* Quick links */}
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">
+                Quick Links
+              </h4>
+              <ul className="space-y-2">
+                {["Schedule", "Guests", "Tickets", "Vendors", "FAQ", "Contact"].map(
+                  (link, i) => (
+                    <li
+                      key={link}
+                      className={mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "sacred-fade" : ""}
+                      style={{ animationDelay: `${i * 0.08}s` }}
+                    >
+                      <a
+                        href={`#${link.toLowerCase()}`}
+                        className={`text-foreground/70 hover:text-foreground ${
+                          mode.motion !== "off" ? "transition-colors" : ""
+                        } ${linkHoverClass}`}
+                      >
+                        {link}
+                      </a>
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
+
+            {/* Location */}
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">
+                Location
+              </h4>
+              <address className="not-italic text-foreground/70 space-y-1">
+                <p>Los Angeles Convention Center</p>
+                <p>1201 S Figueroa St</p>
+                <p>Los Angeles, CA 90015</p>
+              </address>
+              <a
+                href="#"
+                className={`inline-block mt-4 text-primary hover:text-primary/80 ${
+                  mode.motion !== "off" ? "transition-colors" : ""
+                } text-sm ${linkHoverClass}`}
+              >
+                Get Directions →
+              </a>
             </div>
           </div>
-
-          {/* Quick links */}
-          <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">
-              Quick Links
-            </h4>
-            <ul className="space-y-2">
-              {["Schedule", "Guests", "Tickets", "Vendors", "FAQ", "Contact"].map(
-                (link, i) => (
-                  <li
-                    key={link}
-                    className={mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "sacred-fade" : ""}
-                    style={{ animationDelay: `${i * 0.08}s` }}
-                  >
-                    <a
-                      href={`#${link.toLowerCase()}`}
-                      className={`text-foreground/70 hover:text-foreground transition-colors ${linkHoverClass}`}
-                    >
-                      {link}
-                    </a>
-                  </li>
-                )
-              )}
-            </ul>
-          </div>
-
-          {/* Location */}
-          <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">
-              Location
-            </h4>
-            <address className="not-italic text-foreground/70 space-y-1">
-              <p>Los Angeles Convention Center</p>
-              <p>1201 S Figueroa St</p>
-              <p>Los Angeles, CA 90015</p>
-            </address>
-            <a
-              href="#"
-              className={`inline-block mt-4 text-primary hover:text-primary/80 transition-colors text-sm ${linkHoverClass}`}
-            >
-              Get Directions →
-            </a>
-          </div>
-        </div>
+        )}
 
         {/* Back to Homepage */}
         <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "200ms" }}>
@@ -127,21 +142,23 @@ export function Footer() {
           </Button>
         </div>
 
-        {/* Bottom bar */}
-        <div className={`mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "300ms" }}>
-          <p>© 2026 Abyss Con. Nothing is truly discarded.</p>
-          <div className="flex gap-6">
-            <Link href="/privacy" className="hover:text-foreground transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="/terms" className="hover:text-foreground transition-colors">
-              Terms of Service
-            </Link>
-            <Link href="/accessibility" className="hover:text-foreground transition-colors">
-              Accessibility
-            </Link>
+        {/* Bottom bar -- hidden in minimal density */}
+        {mode.density !== "low" && (
+          <div className={`mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "300ms" }}>
+            <p>© 2026 Abyss Con. Nothing is truly discarded.</p>
+            <div className="flex gap-6">
+              <Link href="/privacy" className={`hover:text-foreground ${mode.motion !== "off" ? "transition-colors" : ""}`}>
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className={`hover:text-foreground ${mode.motion !== "off" ? "transition-colors" : ""}`}>
+                Terms of Service
+              </Link>
+              <Link href="/accessibility" className={`hover:text-foreground ${mode.motion !== "off" ? "transition-colors" : ""}`}>
+                Accessibility
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </footer>
   )
