@@ -144,13 +144,44 @@ export function EventsSection() {
   const infectedColor = `oklch(0.65 0.18 ${baseHue + hueShift})`
   const warmthShift = valence * 15
 
+  // Fade-to-green: capacity-aware toxic abyss tint on section bg
+  // Expressive: vivid toxic green, Subtle: muted moss, Off: none
+  const greenOpacity =
+    mode.motion === "expressive"
+      ? 0.15
+      : mode.motion === "subtle"
+        ? 0.07
+        : 0
+  const greenColor =
+    mode.motion === "expressive"
+      ? "oklch(0.65 0.2 145)"   // toxic green
+      : "oklch(0.55 0.1 140)"   // muted moss
+
   return (
     <section
       ref={sectionRef}
-      className="py-24 px-4 md:px-8 border-y border-border/30 bg-muted/20"
+      className="py-24 px-4 md:px-8 border-y border-border/30 relative overflow-hidden"
       aria-labelledby="events-title"
     >
-      <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
+      {/* Fade-to-green background layer */}
+      <div
+        className="absolute inset-0 transition-opacity duration-1000 ease-out pointer-events-none"
+        style={{
+          background: `linear-gradient(to bottom, transparent 0%, ${greenColor} 50%, transparent 100%)`,
+          opacity: isInView ? greenOpacity : 0,
+        }}
+        aria-hidden="true"
+      />
+      {/* Subtle top/bottom vignette for depth */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "linear-gradient(to bottom, var(--background) 0%, transparent 15%, transparent 85%, var(--background) 100%)",
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="relative max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Header */}
         <header className={`mb-16 text-center ${fadeClass(isInView, hasPlayed)}`}>
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
