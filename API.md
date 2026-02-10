@@ -1,48 +1,110 @@
 # API Reference
 
-This document describes the public API of Harmonia UI.
+This document describes the public API of Harmonia UI. Every signature, type, and example matches the actual codebase.
 
 ---
 
 ## Hooks
 
-### `useCapacity()`
+### `useCapacityContext()`
 
-The primary hook for accessing capacity state and derived values.
+The primary hook for accessing capacity state and update functions.
 
-\`\`\`typescript
-function useCapacity(): CapacityContextValue
-\`\`\`
+```typescript
+function useCapacityContext(): CapacityContextValue
+```
 
 #### Returns
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `capacity` | `CapacityField` | Current raw input values |
-| `setCapacity` | `(capacity: CapacityField) => void` | Replace entire capacity state |
-| `updateCapacity` | `(partial: Partial<CapacityField>) => void` | Update specific fields |
-| `derivedFields` | `DerivedFields` | Computed aggregate values |
-| `mode` | `InterfaceMode` | Current interface mode tokens (density, motion, contrast, etc.) |
-| `modeLabel` | `InterfaceModeLabel` | Human-readable label: Minimal, Calm, Focused, or Exploratory |
-| `tokens` | `InterfaceModeTokens` | Design tokens for components |
+| `context` | `AmbientContext` | Current ambient state (raw inputs + derived fields) |
+| `updateCapacity` | `(capacity: Partial<UserCapacity>) => void` | Update cognitive, temporal, or emotional values |
+| `updateEmotionalState` | `(state: Partial<EmotionalState>) => void` | Update valence (and arousal in Phase 2+) |
 
 #### Example
 
 ```tsx
-import { useCapacity } from '@/lib/capacity-context'
+import { useCapacityContext, deriveMode, deriveModeLabel } from "@/lib/capacity"
 
 function MyComponent() {
-  const { tokens, modeLabel, updateCapacity } = useCapacity()
-  
+  const { context, updateCapacity } = useCapacityContext()
+
+  // Build a CapacityField from context to derive mode
+  const field = {
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  }
+  const mode = deriveMode(field)
+  const label = deriveModeLabel(field)
+
   return (
-    <div className={`density-${tokens.density}`}>
-      {/* modeLabel is one of: 'Minimal' | 'Calm' | 'Focused' | 'Exploratory' */}
-      <p>Current mode: {modeLabel}</p>
+    <div>
+      <p>Mode: {label} | Density: {mode.density}</p>
       <button onClick={() => updateCapacity({ cognitive: 0.5 })}>
         Set cognitive to 50%
       </button>
     </div>
   )
+}
+```
+
+### `useEnergyField()`
+
+Subscribe to the derived energy field only.
+
+```typescript
+function useEnergyField(): EnergyFieldValue
+```
+
+Returns a `FieldValue<number>` with `.value`, `.trend`, `.velocity`, `.lastChange`.
+
+### `useAttentionField()`
+
+Subscribe to the derived attention field only.
+
+```typescript
+function useAttentionField(): AttentionFieldValue
+```
+
+### `useEmotionalValenceField()`
+
+Subscribe to the derived emotional valence field only.
+
+```typescript
+function useEmotionalValenceField(): EmotionalValenceFieldValue
+```
+
+### `useFieldControls()`
+
+Get update functions without subscribing to context changes.
+
+```typescript
+function useFieldControls(): {
+  updateCapacity: (capacity: Partial<UserCapacity>) => void
+  updateEmotionalState: (state: Partial<EmotionalState>) => void
+}
+```
+
+### `usePrefersReducedMotion()`
+
+Detect the system `prefers-reduced-motion` media query.
+
+```typescript
+function usePrefersReducedMotion(): boolean
+```
+
+### `useEffectiveMotion()`
+
+Get the effective motion mode after applying the system reduced-motion override. System `prefers-reduced-motion` is a hard override that forces `"off"` regardless of derived mode.
+
+```typescript
+function useEffectiveMotion(): {
+  mode: MotionMode              // "off" | "subtle" | "expressive"
+  tokens: typeof MOTION_TOKENS  // Duration and easing values
+  prefersReducedMotion: boolean
 }
 ```
 
@@ -52,117 +114,83 @@ function MyComponent() {
 
 ### `<CapacityProvider>`
 
-Wraps your application and provides capacity context to all children.
+Wraps your application and provides capacity context to all children. Takes no configuration props -- defaults come from `DEFAULT_USER_CAPACITY` and `DEFAULT_EMOTIONAL_STATE` constants.
 
-\`\`\`tsx
-<CapacityProvider
-  initialCapacity?: Partial<CapacityField>
-  persistKey?: string
->
+```tsx
+<CapacityProvider>
   {children}
 </CapacityProvider>
-\`\`\`
+```
 
 #### Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `initialCapacity` | `Partial<CapacityField>` | `DEFAULT_CAPACITY` | Override default values |
-| `persistKey` | `string` | `undefined` | LocalStorage key for persistence |
 | `children` | `ReactNode` | required | Child components |
 
 #### Example
 
-\`\`\`tsx
+```tsx
 // app/layout.tsx
-import { CapacityProvider } from '@/lib/capacity-context'
+import { CapacityProvider } from "@/lib/capacity"
 
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <CapacityProvider 
-          initialCapacity={{ cognitive: 0.8 }}
-          persistKey="harmonia-capacity"
-        >
+        <CapacityProvider>
           {children}
         </CapacityProvider>
       </body>
     </html>
   )
 }
-\`\`\`
+```
 
 ---
 
 ### `<CapacityControls>`
 
-A pre-built UI panel for adjusting capacity inputs.
+A pre-built UI panel for adjusting capacity inputs. Fixed to the bottom-right corner. Includes preset selection, individual sliders, derived field readout, and interface mode breakdown. Takes no props.
 
-\`\`\`tsx
-<CapacityControls
-  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
-  collapsible?: boolean
-  defaultCollapsed?: boolean
-/>
-\`\`\`
-
-#### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `position` | `string` | `'bottom-right'` | Panel position |
-| `collapsible` | `boolean` | `true` | Allow collapsing |
-| `defaultCollapsed` | `boolean` | `false` | Start collapsed |
+```tsx
+<CapacityControls />
+```
 
 #### Example
 
-\`\`\`tsx
-import { CapacityControls } from '@/components/capacity-controls'
+```tsx
+import { CapacityControls } from "@/components/capacity-controls"
 
 function App() {
   return (
     <main>
       <Content />
-      <CapacityControls position="bottom-right" />
+      <CapacityControls />
     </main>
   )
 }
-\`\`\`
+```
 
 ---
 
 ### `<CapacityDemoCard>`
 
-An example adaptive card component demonstrating token consumption.
+An example adaptive card demonstrating token consumption. Takes no props -- it reads all state from context internally.
 
-\`\`\`tsx
-<CapacityDemoCard
-  title: string
-  description?: string
-  features?: string[]
-  cta?: string
-/>
-\`\`\`
-
-#### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `title` | `string` | required | Card title |
-| `description` | `string` | `undefined` | Card description (hidden at low density) |
-| `features` | `string[]` | `[]` | Feature list (hidden at low density) |
-| `cta` | `string` | `'Explore'` | Call-to-action text |
+```tsx
+<CapacityDemoCard />
+```
 
 #### Adaptation Behavior
 
-| Token | Effect | Status |
-|-------|--------|--------|
-| `density: low` | Shows title + CTA only | Active |
-| `density: medium` | Shows title + description + CTA | Active |
-| `density: high` | Shows everything including features | Active |
-| `motion: expressive` | Enables hover animations | Active |
-| `guidance: high` | Shows helper text | Future (not yet consumed) |
+| Source | Token / Value | Effect | Status |
+|--------|--------------|--------|--------|
+| Cognitive | `mode.density` | Controls title complexity and visible feature count | Active |
+| Temporal | `context.userCapacity.temporal` | Controls description length (full vs abbreviated) | Active |
+| Emotional | `mode.motion` | Controls animation class (`morph-fade-in`, `sacred-fade`, or none) | Active |
+| Valence | `context.emotionalState.valence` | Controls tone/greeting text and accent color | Active |
+| Mode label | `deriveModeLabel(field)` | Badge color and label text | Active |
 
 ---
 
@@ -170,47 +198,106 @@ An example adaptive card component demonstrating token consumption.
 
 ### `CapacityField`
 
-The raw input model.
+The canonical 4-input model. Used to derive `InterfaceMode`.
 
-\`\`\`typescript
+```typescript
 interface CapacityField {
-  /** Mental bandwidth available (0-1) */
+  /** Cognitive bandwidth available (0-1) */
   cognitive: number
-  
+
   /** Time/effort budget (0-1) */
   temporal: number
-  
-  /** Load tolerance/resilience (0-1) */
+
+  /** Emotional load tolerance (0-1) */
   emotional: number
-  
+
   /** Emotional direction (-1 to +1) */
   valence: number
 }
-\`\`\`
+```
 
-### `DerivedFields`
+### `UserCapacity`
 
-Computed aggregate values.
+The three 0-1 capacity dimensions (no valence). Stored on `context.userCapacity`.
 
-\`\`\`typescript
-interface DerivedFields {
-  /** Overall capacity (geometric mean) */
-  energy: number
-  
-  /** Focus demand (inverse of temporal) */
-  attention: number
-  
-  /** Emotional direction (pass-through) */
-  valence: number
+```typescript
+interface UserCapacity {
+  cognitive: number
+  temporal: number
+  emotional: number
 }
-\`\`\`
+```
+
+### `EmotionalState`
+
+Affect model stored on `context.emotionalState`.
+
+```typescript
+interface EmotionalState {
+  /** Positive/negative affect (-1 to +1) */
+  valence: number
+
+  /** Energy/activation level (0 to 1) - Phase 2+ */
+  arousal: number
+}
+```
+
+### `AmbientContext`
+
+The full context object returned by `useCapacityContext().context`.
+
+```typescript
+interface AmbientContext {
+  energy: FieldValue<number>
+  attention: FieldValue<number>
+  emotionalValence: FieldValue<number>
+
+  /** Raw user capacity (before field derivation) */
+  userCapacity: UserCapacity
+
+  /** Raw emotional state (before field derivation) */
+  emotionalState: EmotionalState
+}
+```
+
+### `FieldValue<T>`
+
+Wrapper that tracks value changes over time.
+
+```typescript
+interface FieldValue<T> {
+  value: T
+  lastChange: number                    // Timestamp (ms)
+  trend: "rising" | "falling" | "stable"
+  velocity?: number                     // Rate of change per second
+}
+```
+
+### `InterfaceMode`
+
+The complete token set derived from `CapacityField`.
+
+```typescript
+interface InterfaceMode {
+  // Active tokens -- consumed by components
+  density: "low" | "medium" | "high"
+  motion: "off" | "subtle" | "expressive"
+  contrast: "standard" | "boosted"
+
+  // Derived tokens -- computed but not yet consumed by components
+  guidance: "low" | "medium" | "high"
+  choiceLoad: "minimal" | "normal"
+}
+```
+
+> **Note:** `guidance` and `choiceLoad` are derived in `mode.ts` and included in the TypeScript interface, but no built-in component currently reads them. They are available for custom component development.
 
 ### `InterfaceModeLabel`
 
 Human-readable mode labels for UI display. Derived from **raw** `CapacityField` inputs (not from `InterfaceMode` tokens), because states like Neutral and Focused can produce the same token set but should have different labels.
 
 ```typescript
-type InterfaceModeLabel = 'Calm' | 'Focused' | 'Exploratory' | 'Minimal'
+type InterfaceModeLabel = "Calm" | "Focused" | "Exploratory" | "Minimal"
 ```
 
 #### Derivation Rules
@@ -238,8 +325,6 @@ Labels are checked in this order -- the first match wins:
 
 #### Badge Colors
 
-Each label has a distinct badge color for visual identification:
-
 | Label | Color | Value |
 |-------|-------|-------|
 | Calm | Soft blue | `oklch(0.65 0.15 220)` |
@@ -247,120 +332,145 @@ Each label has a distinct badge color for visual identification:
 | Exploratory | Toxic green | `oklch(0.65 0.2 135)` |
 | Minimal | Muted purple | `oklch(0.55 0.1 280)` |
 
-### `InterfaceMode`
-
-The complete token set derived from `CapacityField`. Contains both active and future tokens.
+### `MotionMode`
 
 ```typescript
-interface InterfaceMode {
-  // Active tokens — consumed by components, mapped to CSS
-  
-  /** Visual density (from cognitive) */
-  density: 'low' | 'medium' | 'high'
-  
-  /** Animation intensity (from emotional + valence) */
-  motion: 'off' | 'subtle' | 'expressive'
-  
-  /** Text/background contrast (from valence) */
-  contrast: 'standard' | 'boosted'
-  
-  // Derived tokens — computed but not yet consumed by components or CSS
-  
-  /** Scaffolding level (from cognitive + temporal) */
-  guidance: 'low' | 'medium' | 'high'
-  
-  /** Options visibility (from temporal) */
-  choiceLoad: 'minimal' | 'normal'
-}
+type MotionMode = "off" | "subtle" | "expressive"
 ```
 
-> **Note:** `guidance` and `choiceLoad` are derived in `mode.ts` and included in the TypeScript interface, but no built-in component currently reads them and they have no CSS custom property equivalents. They are available for custom component development.
+### `ComponentResponse`
+
+Multi-modal response specification. Components declare how they adapt across sensory dimensions.
+
+```typescript
+interface ComponentResponse {
+  visual: {
+    opacityRange: [number, number]
+    scaleRange: [number, number]
+    colorShift?: { hue?: number; chroma?: number; lightness?: number }
+  }
+  spatial: {
+    densityRange: [number, number]
+    spacingMultiplier: [number, number]
+  }
+  sonic: {
+    enabled: boolean
+    frequencyHz?: number
+    amplitude?: number
+  }
+  semantic: {
+    verbosityLevel: "minimal" | "concise" | "detailed"
+    urgencyFraming: "calm" | "neutral" | "urgent"
+  }
+}
+```
 
 ---
 
 ## Constants
 
-### `DEFAULT_CAPACITY`
+### `DEFAULT_USER_CAPACITY`
 
-\`\`\`typescript
-const DEFAULT_CAPACITY: CapacityField = {
+```typescript
+const DEFAULT_USER_CAPACITY = {
   cognitive: 0.7,
   temporal: 0.7,
   emotional: 0.7,
-  valence: 0.3
-}
-\`\`\`
+} as const
+```
 
-### `MODE_THRESHOLDS`
-
-\`\`\`typescript
-const MODE_THRESHOLDS = {
-  exploratory: {
-    cognitive: 0.65,   // Must exceed
-    emotional: 0.65    // Must exceed
-  },
-  minimal: {
-    cognitive: 0.35,   // Must be below
-    temporal: 0.35     // Must be below
-  },
-  focused: {
-    cognitive: 0.6,    // Must meet or exceed
-    temporal: 0.6      // Must meet or exceed
-  }
-  // Calm: fallthrough when none of the above match
-}
-\`\`\`
-
-### `TOKEN_THRESHOLDS`
+### `DEFAULT_EMOTIONAL_STATE`
 
 ```typescript
-const TOKEN_THRESHOLDS = {
-  // Active tokens (consumed by components)
-  density: {                // Source: cognitive
-    low: 0.35,
-    high: 0.75
+const DEFAULT_EMOTIONAL_STATE = {
+  valence: 0.3,   // > 0.25 triggers expressive motion mode
+  arousal: 0.5,
+} as const
+```
+
+### `MOTION_TOKENS`
+
+Motion timing and easing values by mode. `"off"` still allows essential transitions (opacity, height) to avoid broken-UI feelings.
+
+```typescript
+const MOTION_TOKENS = {
+  off: {
+    durationFast: 0,
+    durationBase: 0,
+    durationSlow: 0,
+    easing: "linear",
+    essentialDuration: 150,
+    essentialEasing: "ease-out",
   },
-  motion: {                 // Source: emotional
-    subtle: 0.35
+  subtle: {
+    durationFast: 120,
+    durationBase: 220,
+    durationSlow: 420,
+    easing: "ease-out",
+    essentialDuration: 150,
+    essentialEasing: "ease-out",
   },
-  contrast: {               // Source: valence
-    boosted: -0.25
+  expressive: {
+    durationFast: 140,
+    durationBase: 280,
+    durationSlow: 520,
+    easing: "cubic-bezier(0.34, 1.56, 0.64, 1)", // Spring-like
+    essentialDuration: 150,
+    essentialEasing: "ease-out",
   },
-  
-  // Derived tokens (not yet consumed by components or CSS)
-  guidance: {               // Source: cognitive, temporal
-    high: 0.35,             // cognitive < 0.35 → 'high'
-    medium: 0.35            // temporal < 0.35 → 'medium' (fallback)
-  },
-  choiceLoad: {             // Source: temporal
-    minimal: 0.35
-  }
-}
+} as const
+```
+
+### `PHI` / `PHI_INVERSE` / `FIBONACCI`
+
+Golden ratio constants for proportional spacing.
+
+```typescript
+const PHI = 1.618033988749895
+const PHI_INVERSE = 0.618033988749895
+const FIBONACCI = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144] as const
+```
+
+### `DEFAULT_COMPONENT_RESPONSE`
+
+Intelligent defaults for component response. 90% of components can use these without override.
+
+### Accessibility Constants
+
+```typescript
+const MIN_CONTRAST_RATIO = 4.5           // WCAG AA invariant
+const PREFERS_REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
+const MAX_ANIMATION_DURATION_MS = 300     // For time-sensitive users
 ```
 
 ---
 
 ## Utility Functions
 
-### `deriveFields(capacity)`
-
-Compute derived fields from raw capacity.
-
-\`\`\`typescript
-function deriveFields(capacity: CapacityField): DerivedFields
-\`\`\`
-
 ### `deriveMode(field)`
 
-Compute interface mode tokens from capacity field.
+Compute the full `InterfaceMode` token set from a `CapacityField`.
 
 ```typescript
 function deriveMode(field: CapacityField): InterfaceMode
 ```
 
+Components build a `CapacityField` from context, then call this inline:
+
+```tsx
+const field = {
+  cognitive: context.userCapacity.cognitive,
+  temporal: context.userCapacity.temporal,
+  emotional: context.userCapacity.emotional,
+  valence: context.emotionalState.valence,
+}
+const mode = deriveMode(field)
+// mode.density, mode.motion, mode.contrast, etc.
+```
+
 ### `deriveModeLabel(inputs)`
 
-Derive a human-readable mode label from raw capacity inputs. Uses raw values (not derived tokens) because states like Neutral and Focused can produce the same `InterfaceMode` but should have different labels.
+Derive a human-readable mode label from raw capacity inputs.
 
 ```typescript
 function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel
@@ -374,122 +484,133 @@ Get the OKLCH color string for a mode label badge.
 function getModeBadgeColor(label: InterfaceModeLabel): string
 
 // Returns:
-// 'Calm'        → 'oklch(0.65 0.15 220)' (soft blue)
-// 'Focused'     → 'oklch(0.68 0.16 45)'  (primary rust)
-// 'Exploratory' → 'oklch(0.65 0.2 135)'  (toxic green)
-// 'Minimal'     → 'oklch(0.55 0.1 280)'  (muted purple)
+// "Calm"        -> "oklch(0.65 0.15 220)"
+// "Focused"     -> "oklch(0.68 0.16 45)"
+// "Exploratory" -> "oklch(0.65 0.2 135)"
+// "Minimal"     -> "oklch(0.55 0.1 280)"
 ```
 
-### `getToneMessage(mode, valence)`
+### `getToneMessage(label, valence)`
 
 Get the appropriate tone message for current state.
 
 ```typescript
-function getToneMessage(mode: InterfaceModeLabel, valence: number): string
+function getToneMessage(label: InterfaceModeLabel, valence: number): string
 
 // Returns:
-// mode === 'Minimal' && valence < 0 → "Take your time."
-// mode === 'Calm'                   → "Take it easy."
-// mode === 'Focused'                → "Here's how it works:"
-// mode === 'Exploratory' && valence > 0.25 → "You're doing great!"
-// default → "Here's how it works:"
+// label === "Minimal" && valence < 0  -> "Take your time."
+// label === "Calm"                    -> "Take it easy."
+// label === "Focused"                 -> "Here's how it works:"
+// label === "Exploratory" && valence > 0.25 -> "You're doing great!"
+// default -> "Here's how it works:"
+```
+
+### Typography Utilities
+
+Exported from `lib/capacity/utils/typography.ts`:
+
+```typescript
+function modularScale(step: number, base?: number): number
+function getFontSize(role: TypographyRole, energy?: EnergyLevel): number
+function getFontWeight(attention?: AttentionLevel): number
+function getLetterSpacing(attention?: AttentionLevel): number
+function getLineHeight(role: TypographyRole): number
+function getTypographyStyles(role: TypographyRole, energy?: EnergyLevel, attention?: AttentionLevel): object
+function getFluidFontSize(role: TypographyRole, energy?: EnergyLevel): string
 ```
 
 ---
 
-## CSS Classes
+## CSS Animations
 
-Harmonia UI provides CSS classes that map to the three **active** token values (`density`, `motion`, `contrast`). The `guidance` and `choiceLoad` tokens have no CSS equivalents — they are TypeScript-only and available for future component logic.
+Harmonia does **not** use CSS classes for token values (no `.density-low`, `.motion-subtle`, etc.). Components read tokens in JavaScript and make rendering decisions in JSX.
 
-### Density Classes
+Animation effects are applied via CSS animation classes defined in `globals.css`. Components conditionally apply these classes based on `mode.motion`:
 
-\`\`\`css
-.density-low {
-  /* Reduced information density */
-}
+### Entrance Animations
 
-.density-medium {
-  /* Balanced density */
-}
+| Class | Effect | Used when |
+|-------|--------|-----------|
+| `morph-fade-in` | Scale + border-radius morph | `motion === "expressive"` |
+| `sacred-fade` | Gentle opacity + scale | `motion === "subtle"` |
+| `helix-rise` | Translate + rotate entrance | `motion === "expressive"` (list items) |
+| `vortex-reveal` | Scale + rotate reveal | `motion === "expressive"` |
+| `gentle-fade` | Soft opacity + scale | `motion === "subtle"` |
+| `spiral-in` | Translate + rotate + opacity | `motion === "expressive"` |
+| `bloom` | Scale bloom entrance | `motion === "expressive"` |
 
-.density-high {
-  /* Full information density */
-}
-\`\`\`
+### Continuous Animations
 
-### Motion Classes
+| Class | Effect | Used when |
+|-------|--------|-----------|
+| `breathe` | Slow scale pulse (7.77s) | `motion === "expressive"` (CTA buttons) |
+| `float` | Vertical drift (4.44s) | `motion === "expressive"` (titles) |
+| `pulse` | Heartbeat rhythm (4.44s) | Decorative elements |
+| `wave` | Gentle rotation (4.44s) | Decorative elements |
 
-\`\`\`css
-.motion-subtle {
-  /* Minimal transitions */
-  --transition-duration: 150ms;
-}
+### Hover Effects
 
-.motion-expressive {
-  /* Playful animations */
-  --transition-duration: 300ms;
-}
-\`\`\`
+| Class | Effect | Used when |
+|-------|--------|-----------|
+| `hover-pulse` | Scale pulse on hover | `motion === "expressive"` |
+| `hover-lift` | Translate up on hover | `motion === "subtle"` |
+| `hover-expand` | Scale up on hover | `motion === "expressive"` |
 
-### Contrast Classes
+### Intersection Observer Animations
 
-\`\`\`css
-.contrast-standard {
-  /* Normal contrast */
-}
+| Class | Effect | Trigger |
+|-------|--------|---------|
+| `animate-fade-in` | Hidden until `.in-view` added | IntersectionObserver |
+| `animate-fade-in-immediate` | Animates on load | Above-fold content |
 
-.contrast-boosted {
-  /* Enhanced contrast for accessibility */
-}
-\`\`\`
+### CON Letter Collision (Convention page)
+
+| Class | Effect |
+|-------|--------|
+| `letter-smash-c` | Smash in from left |
+| `letter-smash-o` | Drop from above |
+| `letter-smash-n` | Smash in from right |
+
+### Reduced Motion
+
+All animations respect `prefers-reduced-motion: reduce` via a CSS media query that forces `animation: none` and removes transforms.
 
 ---
 
-## Events
+## FieldManager (Advanced)
 
-The capacity system doesn't emit events directly, but you can observe changes using React's useEffect:
+The `FieldManager` singleton maintains ambient field state. Components subscribe through the provider; direct usage is for advanced cases only.
 
-\`\`\`typescript
-function useCapacityChange(callback: (capacity: CapacityField) => void) {
-  const { capacity } = useCapacity()
-  
-  useEffect(() => {
-    callback(capacity)
-  }, [capacity, callback])
-}
+```typescript
+FieldManager.getContext(): Readonly<AmbientContext>
+FieldManager.updateCapacity(capacity: Partial<UserCapacity>): void
+FieldManager.updateEmotionalState(state: Partial<EmotionalState>): void
+FieldManager.subscribe(listener: (context: AmbientContext) => void): Unsubscribe
+```
 
-// Usage
-useCapacityChange((capacity) => {
-  analytics.track('capacity_changed', capacity)
-})
-\`\`\`
+---
+
+## SignalBus (Advanced)
+
+Type-safe pub/sub for inter-component communication.
+
+```typescript
+SignalBus.emit(signal: Signal): void
+SignalBus.subscribe(type: string, handler: SignalHandler): Unsubscribe
+```
 
 ---
 
 ## Error Handling
 
-### Invalid Capacity Values
-
-The system clamps values to valid ranges:
-
-\`\`\`typescript
-function validateCapacity(capacity: CapacityField): CapacityField {
-  return {
-    cognitive: Math.max(0, Math.min(1, capacity.cognitive)),
-    temporal: Math.max(0, Math.min(1, capacity.temporal)),
-    emotional: Math.max(0, Math.min(1, capacity.emotional)),
-    valence: Math.max(-1, Math.min(1, capacity.valence))
-  }
-}
-\`\`\`
-
 ### Missing Provider
 
-Using `useCapacity()` outside of `CapacityProvider` throws:
+Using `useCapacityContext()` outside of `CapacityProvider` throws:
 
-\`\`\`typescript
-const context = useContext(CapacityContext)
-if (!context) {
-  throw new Error('useCapacity must be used within a CapacityProvider')
-}
-\`\`\`
+```
+Error: useCapacityContext must be used within CapacityProvider
+```
+
+### Value Ranges
+
+The system does not auto-clamp values. Capacity fields expect 0-1, valence expects -1 to +1. Invalid ranges produce undefined behavior in mode derivation.
