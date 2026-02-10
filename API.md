@@ -369,7 +369,9 @@ interface ComponentResponse {
 
 ## Constants
 
-### `DEFAULT_USER_CAPACITY`
+### `DEFAULT_USER_CAPACITY` (internal)
+
+Used by the `FieldManager` to initialize state. Not exported from `@/lib/capacity` -- documented here for reference.
 
 ```typescript
 const DEFAULT_USER_CAPACITY = {
@@ -379,7 +381,9 @@ const DEFAULT_USER_CAPACITY = {
 } as const
 ```
 
-### `DEFAULT_EMOTIONAL_STATE`
+### `DEFAULT_EMOTIONAL_STATE` (internal)
+
+Used by the `FieldManager` to initialize state. Not exported from `@/lib/capacity` -- documented here for reference.
 
 ```typescript
 const DEFAULT_EMOTIONAL_STATE = {
@@ -488,21 +492,6 @@ function getModeBadgeColor(label: InterfaceModeLabel): string
 // "Focused"     -> "oklch(0.68 0.16 45)"
 // "Exploratory" -> "oklch(0.65 0.2 135)"
 // "Minimal"     -> "oklch(0.55 0.1 280)"
-```
-
-### `getToneMessage(label, valence)`
-
-Get the appropriate tone message for current state.
-
-```typescript
-function getToneMessage(label: InterfaceModeLabel, valence: number): string
-
-// Returns:
-// label === "Minimal" && valence < 0  -> "Take your time."
-// label === "Calm"                    -> "Take it easy."
-// label === "Focused"                 -> "Here's how it works:"
-// label === "Exploratory" && valence > 0.25 -> "You're doing great!"
-// default -> "Here's how it works:"
 ```
 
 ### Typography Utilities

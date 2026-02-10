@@ -142,7 +142,7 @@ Four human-readable labels derived from raw inputs:
 | `lib/capacity/types.ts` | All TypeScript interfaces (CapacityField, InterfaceMode, AmbientContext, etc.) |
 | `lib/capacity/provider.tsx` | CapacityProvider, context hooks (useCapacityContext, useEnergyField, etc.) |
 | `lib/capacity/fields/field-manager.ts` | FieldManager singleton -- computes derived fields from raw inputs |
-| `lib/capacity/mode.ts` | deriveMode(), deriveModeLabel(), getModeBadgeColor(), getToneMessage() |
+| `lib/capacity/mode.ts` | deriveMode(), deriveModeLabel(), getModeBadgeColor() |
 | `lib/capacity/constants.ts` | Default values, motion tokens, golden ratio constants, presets |
 | `lib/capacity/signals/signal-bus.ts` | Type-safe pub/sub for inter-component communication |
 | `lib/capacity/utils/typography.ts` | Modular scale, fluid font sizing, typography role utilities |
@@ -213,7 +213,7 @@ return "normal"
 | motion | subtle or off | No surprises |
 | contrast | boosted | Higher accessibility |
 
-**Tone message:** "Take your time."
+**Suggested tone:** "Take your time."
 
 ### Calm Mode
 
@@ -225,7 +225,7 @@ return "normal"
 | motion | subtle | Grounded transitions |
 | contrast | standard | Normal contrast |
 
-**Tone message:** "Take it easy."
+**Suggested tone:** "Take it easy."
 
 ### Focused Mode
 
@@ -237,7 +237,7 @@ return "normal"
 | motion | subtle to expressive | Depends on emotional + valence |
 | contrast | standard | Normal contrast |
 
-**Tone message:** "Here's how it works:"
+**Suggested tone:** "Here's how it works:"
 
 ### Exploratory Mode
 
@@ -249,7 +249,7 @@ return "normal"
 | motion | expressive | Playful micro-interactions |
 | contrast | standard | Normal contrast |
 
-**Tone message:** "You're doing great!"
+**Suggested tone:** "You're doing great!"
 
 ---
 
