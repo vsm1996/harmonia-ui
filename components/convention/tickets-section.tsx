@@ -109,9 +109,10 @@ export function TicketsSection() {
   const temporalCapacity = context.userCapacity.temporal
   const valence = context.emotionalState.valence
 
-  // Capacity-aware entrance animation (emotional -> motion restraint)
-  const entranceClass =
-    mode.motion === "expressive"
+  // Capacity-aware entrance animation (only used during initial scroll-in, not after)
+  const entranceClass = hasPlayed
+    ? ""
+    : mode.motion === "expressive"
       ? "spiral-in"
       : mode.motion === "subtle"
         ? "bloom"
@@ -161,8 +162,8 @@ export function TicketsSection() {
           {visibleTiers.map((tier, index) => (
             <div
               key={tier.id}
-              className={`${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
-              style={{ animationDelay: `${100 + index * 100}ms` }}
+              className={entranceClass || fadeClass(isInView, hasPlayed)}
+              style={!hasPlayed ? { animationDelay: `${100 + index * 100}ms` } : undefined}
             >
               <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${
                 tier.highlight 
@@ -222,8 +223,8 @@ export function TicketsSection() {
         {/* Footer */}
         {header.footer && (
           <p 
-            className={`mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${hasPlayed ? (mode.motion === "subtle" ? "sacred-fade" : "") : fadeClass(isInView, hasPlayed)}`}
-            style={{ animationDelay: "350ms" }}
+            className={`mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${fadeClass(isInView, hasPlayed)}`}
+            style={!hasPlayed ? { animationDelay: "350ms" } : undefined}
           >
             {header.footer}
           </p>

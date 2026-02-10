@@ -30,9 +30,10 @@ export function Footer() {
   const valence = context.emotionalState.valence
   const warmthShift = valence * 15
 
-  // Capacity-aware entrance animation
-  const entranceClass =
-    mode.motion === "expressive"
+  // Capacity-aware entrance animation (only used during initial scroll-in, not after)
+  const entranceClass = hasPlayed
+    ? ""
+    : mode.motion === "expressive"
       ? "morph-fade-in"
       : mode.motion === "subtle"
         ? "sacred-fade"
@@ -48,7 +49,7 @@ export function Footer() {
     <footer ref={footerRef} className="bg-card/50 border-t border-border py-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         <div
-          className={`grid md:grid-cols-4 gap-8 md:gap-12 ${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
+          className={`grid md:grid-cols-4 gap-8 md:gap-12 ${entranceClass || fadeClass(isInView, hasPlayed)}`}
         >
           {/* Brand column */}
           <div className="md:col-span-2">
@@ -118,7 +119,7 @@ export function Footer() {
         </div>
 
         {/* Back to Homepage */}
-        <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "200ms" }}>
+        <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "200ms" } : undefined}>
           <Button asChild variant="outline" size="lg" className={`bg-transparent ${mode.motion === "expressive" ? "hover-pulse" : mode.motion === "subtle" ? "hover-lift" : ""}`}>
             <Link href="/">
               <HomeIcon className="w-4 h-4 mr-2" />
@@ -128,7 +129,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className={`mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "300ms" }}>
+        <div className={`mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "300ms" } : undefined}>
           <p>© 2026 Abyss Con. Nothing is truly discarded.</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-foreground transition-colors">

@@ -122,9 +122,10 @@ export function EventsSection() {
     ? "grid-cols-1 md:grid-cols-2"
     : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
 
-  // Capacity-aware entrance animation (emotional -> motion restraint)
-  const entranceClass =
-    mode.motion === "expressive"
+  // Capacity-aware entrance animation (only used during initial scroll-in, not after)
+  const entranceClass = hasPlayed
+    ? ""
+    : mode.motion === "expressive"
       ? "vortex-reveal"
       : mode.motion === "subtle"
         ? "sacred-fade"
@@ -173,8 +174,8 @@ export function EventsSection() {
           {EVENTS.map((event, index) => (
             <div
               key={event.id}
-              className={`${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
-              style={{ animationDelay: `${index * 80}ms` }}
+              className={entranceClass || fadeClass(isInView, hasPlayed)}
+              style={!hasPlayed ? { animationDelay: `${index * 80}ms` } : undefined}
             >
               <EventCard
                 event={event}
@@ -189,7 +190,7 @@ export function EventsSection() {
         </div>
 
         {/* View all link */}
-        <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "400ms" }}>
+        <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "400ms" } : undefined}>
           <a
             href="#schedule"
             className={`font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${

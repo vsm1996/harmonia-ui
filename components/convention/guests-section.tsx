@@ -195,9 +195,10 @@ export function GuestsSection() {
   // Adaptive color shift based on valence
   const warmthShift = valence * 15
 
-  // Capacity-aware entrance animation
-  const entranceClass =
-    motionMode === "expressive"
+  // Capacity-aware entrance animation (only used during initial scroll-in, not after)
+  const entranceClass = hasPlayed
+    ? ""
+    : motionMode === "expressive"
       ? "morph-fade-in"
       : motionMode === "subtle"
         ? "sacred-fade"
@@ -255,10 +256,8 @@ export function GuestsSection() {
           {visibleGuests.map((guest, index) => (
             <div
               key={guest.id}
-              className={`${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
-              style={{
-                animationDelay: `${150 + index * 50}ms`,
-              }}
+              className={entranceClass || fadeClass(isInView, hasPlayed)}
+              style={!hasPlayed ? { animationDelay: `${150 + index * 50}ms` } : undefined}
             >
               <GuestCard
                 guest={guest}
