@@ -138,24 +138,35 @@ export function EventsSection() {
         ? "hover-lift"
         : ""
 
-  // Adaptive color based on valence
-  const baseHue = 45
-  const hueShift = valence * 15
-  const infectedColor = `oklch(0.65 0.18 ${baseHue + hueShift})`
-  const warmthShift = valence * 15
-
-  // Fade-to-green: capacity-aware toxic abyss tint on section bg
-  // Expressive: vivid toxic green, Subtle: muted moss, Off: none
-  const greenOpacity =
+  // Toxic contamination: orange accents progressively shift to green on scroll
+  // The infection intensity scales with motion mode:
+  //   expressive -> full contamination (90deg hue shift, orange -> green)
+  //   subtle -> partial contamination (45deg, orange -> yellow-green)
+  //   off -> no contamination, stays orange
+  const contaminationDeg =
     mode.motion === "expressive"
-      ? 0.15
+      ? 90
       : mode.motion === "subtle"
-        ? 0.07
+        ? 45
         : 0
-  const greenColor =
+
+  // Valence still influences the base warmth
+  const valenceShift = valence * 15
+
+  // When in view, rotate hue from orange toward green; otherwise stay at baseline
+  const activeHueRotation = isInView ? contaminationDeg + valenceShift : valenceShift
+
+  // infectedColor shifts in sync: base hue 45 (rust) rotated toward green
+  const infectedHue = 45 + (isInView ? contaminationDeg : 0) + valenceShift
+  const infectedColor = `oklch(0.65 0.18 ${infectedHue})`
+
+  // Background green tint opacity (the ambient glow behind the cards)
+  const greenGlowOpacity =
     mode.motion === "expressive"
-      ? "oklch(0.65 0.2 145)"   // toxic green
-      : "oklch(0.55 0.1 140)"   // muted moss
+      ? 0.12
+      : mode.motion === "subtle"
+        ? 0.06
+        : 0
 
   return (
     <section
@@ -163,25 +174,20 @@ export function EventsSection() {
       className="py-24 px-4 md:px-8 border-y border-border/30 relative overflow-hidden"
       aria-labelledby="events-title"
     >
-      {/* Fade-to-green background layer */}
+      {/* Toxic green ambient glow behind content */}
       <div
-        className="absolute inset-0 transition-opacity duration-1000 ease-out pointer-events-none"
+        className="absolute inset-0 pointer-events-none transition-opacity duration-[2000ms] ease-out"
         style={{
-          background: `linear-gradient(to bottom, transparent 0%, ${greenColor} 50%, transparent 100%)`,
-          opacity: isInView ? greenOpacity : 0,
-        }}
-        aria-hidden="true"
-      />
-      {/* Subtle top/bottom vignette for depth */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "linear-gradient(to bottom, var(--background) 0%, transparent 15%, transparent 85%, var(--background) 100%)",
+          background: "radial-gradient(ellipse at 50% 50%, oklch(0.55 0.2 145 / 0.3) 0%, transparent 70%)",
+          opacity: isInView ? greenGlowOpacity / 0.3 : 0,
         }}
         aria-hidden="true"
       />
 
-      <div className="relative max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
+      <div
+        className="relative max-w-7xl mx-auto transition-[filter] duration-[2500ms] ease-out"
+        style={{ filter: `hue-rotate(${activeHueRotation}deg)` }}
+      >
         {/* Header */}
         <header className={`mb-16 text-center ${fadeClass(isInView, hasPlayed)}`}>
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
