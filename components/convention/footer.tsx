@@ -5,34 +5,54 @@
  * - Simple, functional footer with essential info
  * - Maintains the dark, industrial aesthetic
  * - Social links and legal information
+ * - Capacity-aware animations matching events/tickets/guests
  */
 
 "use client"
 
 import React from "react"
 import Link from "next/link"
-import { motion } from "motion/react"
 import { Button } from "@/components/ui/button"
-import { useCapacityContext } from "@/lib/capacity"
+import { useCapacityContext, deriveMode } from "@/lib/capacity"
+import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
 export function Footer() {
   const { context } = useCapacityContext()
+  const { ref: footerRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
+
+  const mode = deriveMode({
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  })
+
   const valence = context.emotionalState.valence
   const warmthShift = valence * 15
 
+  // Capacity-aware entrance animation
+  const entranceClass =
+    mode.motion === "expressive"
+      ? "morph-fade-in"
+      : mode.motion === "subtle"
+        ? "sacred-fade"
+        : ""
+
+  // Capacity-aware hover for links
+  const linkHoverClass =
+    mode.motion === "expressive"
+      ? "hover-pulse"
+      : ""
+
   return (
-    <footer className="bg-card/50 border-t border-border py-16 px-4 md:px-8">
+    <footer ref={footerRef} className="bg-card/50 border-t border-border py-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
-        <motion.div
-          className="grid md:grid-cols-4 gap-8 md:gap-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+        <div
+          className={`grid md:grid-cols-4 gap-8 md:gap-12 ${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
         >
           {/* Brand column */}
           <div className="md:col-span-2">
-            <h3 className="font-black text-2xl tracking-tighter mb-4">
+            <h3 className={`font-black text-2xl tracking-tighter mb-4 ${mode.motion === "expressive" ? "float" : ""}`}>
               <span className="text-primary">ABYSS</span>
               <span className="text-foreground/80"> CON</span>
             </h3>
@@ -41,13 +61,13 @@ export function Footer() {
               See you in the Abyss. August 15-17, 2026.
             </p>
             <div className="flex gap-4">
-              <SocialLink href="#" label="Twitter">
+              <SocialLink href="#" label="Twitter" motionMode={mode.motion}>
                 <TwitterIcon />
               </SocialLink>
-              <SocialLink href="#" label="Instagram">
+              <SocialLink href="#" label="Instagram" motionMode={mode.motion}>
                 <InstagramIcon />
               </SocialLink>
-              <SocialLink href="#" label="Discord">
+              <SocialLink href="#" label="Discord" motionMode={mode.motion}>
                 <DiscordIcon />
               </SocialLink>
             </div>
@@ -60,11 +80,15 @@ export function Footer() {
             </h4>
             <ul className="space-y-2">
               {["Schedule", "Guests", "Tickets", "Vendors", "FAQ", "Contact"].map(
-                (link) => (
-                  <li key={link}>
+                (link, i) => (
+                  <li
+                    key={link}
+                    className={mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "sacred-fade" : ""}
+                    style={{ animationDelay: `${i * 0.08}s` }}
+                  >
                     <a
                       href={`#${link.toLowerCase()}`}
-                      className="text-foreground/70 hover:text-foreground transition-colors"
+                      className={`text-foreground/70 hover:text-foreground transition-colors ${linkHoverClass}`}
                     >
                       {link}
                     </a>
@@ -86,16 +110,16 @@ export function Footer() {
             </address>
             <a
               href="#"
-              className="inline-block mt-4 text-primary hover:text-primary/80 transition-colors text-sm"
+              className={`inline-block mt-4 text-primary hover:text-primary/80 transition-colors text-sm ${linkHoverClass}`}
             >
               Get Directions →
             </a>
           </div>
-        </motion.div>
+        </div>
 
         {/* Back to Homepage */}
-        <div className="mt-12 pt-8 border-t border-border flex justify-center">
-          <Button asChild variant="outline" size="lg" className="bg-transparent">
+        <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "200ms" }}>
+          <Button asChild variant="outline" size="lg" className={`bg-transparent ${mode.motion === "expressive" ? "hover-pulse" : mode.motion === "subtle" ? "hover-lift" : ""}`}>
             <Link href="/">
               <HomeIcon className="w-4 h-4 mr-2" />
               Back to Harmonia Homepage
@@ -104,7 +128,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+        <div className={`mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "300ms" }}>
           <p>© 2026 Abyss Con. Nothing is truly discarded.</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-foreground transition-colors">
@@ -126,16 +150,25 @@ export function Footer() {
 function SocialLink({
   href,
   label,
+  motionMode,
   children,
 }: {
   href: string
   label: string
+  motionMode: "off" | "subtle" | "expressive"
   children: React.ReactNode
 }) {
+  const hoverClass =
+    motionMode === "expressive"
+      ? "hover-expand"
+      : motionMode === "subtle"
+        ? "hover-lift"
+        : ""
+
   return (
     <a
       href={href}
-      className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+      className={`w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all duration-300 ${hoverClass}`}
       aria-label={label}
     >
       {children}

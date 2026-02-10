@@ -195,13 +195,28 @@ export function GuestsSection() {
   // Adaptive color shift based on valence
   const warmthShift = valence * 15
 
+  // Capacity-aware entrance animation
+  const entranceClass =
+    motionMode === "expressive"
+      ? "morph-fade-in"
+      : motionMode === "subtle"
+        ? "sacred-fade"
+        : ""
+
+  // Capacity-aware hover animation for cards
+  const hoverClass =
+    motionMode === "expressive"
+      ? "hover-expand"
+      : motionMode === "subtle"
+        ? "hover-lift"
+        : ""
+
   const visibleGuests = mode.density === "low" ? GUESTS.filter((g) => g.featured) : GUESTS
   const gridClass = mode.density === "low" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2 lg:grid-cols-4"
   const bioLength = context.userCapacity.temporal > 0.5 ? "full" : "short"
   const headerContent = context.userCapacity.temporal > 0.5 ? HEADERS.full
     : context.userCapacity.temporal > 0.3 ? HEADERS.reduced : HEADERS.minimal
   const showViewAll = context.userCapacity.temporal > 0.4
-  const animateClass = motionMode !== "off" ? fadeClass(isInView, hasPlayed) : ""
 
   return (
     <section
@@ -212,14 +227,14 @@ export function GuestsSection() {
       <div className="max-w-7xl mx-auto relative" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Section header */}
         <header className="mb-16 text-center">
-          <div className={animateClass} style={{ animationDelay: "0ms" }}>
+          <div className={fadeClass(isInView, hasPlayed)} style={{ animationDelay: "0ms" }}>
             <Badge variant="outline" className="mb-4 tracking-widest">
               GUESTS
             </Badge>
           </div>
           <h2
             id="guests-title"
-            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${animateClass}`}
+            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${fadeClass(isInView, hasPlayed)} ${motionMode === "expressive" ? "float" : ""}`}
             style={{ animationDelay: "50ms" }}
           >
             {headerContent.title.split(" ").slice(0, -1).join(" ")}
@@ -227,7 +242,7 @@ export function GuestsSection() {
           </h2>
           {headerContent.description && (
             <p
-              className={`text-muted-foreground text-lg max-w-2xl mx-auto text-balance ${animateClass}`}
+              className={`text-muted-foreground text-lg max-w-2xl mx-auto text-balance ${fadeClass(isInView, hasPlayed)}`}
               style={{ animationDelay: "100ms" }}
             >
               {headerContent.description}
@@ -240,14 +255,15 @@ export function GuestsSection() {
           {visibleGuests.map((guest, index) => (
             <div
               key={guest.id}
-              className={motionMode !== "off" ? fadeClass(isInView, hasPlayed) : ""}
+              className={`${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
               style={{
-                animationDelay: `${150 + index * 30}ms`,
+                animationDelay: `${150 + index * 50}ms`,
               }}
             >
               <GuestCard
                 guest={guest}
                 motionMode={motionMode}
+                hoverClass={hoverClass}
                 bioLength={bioLength}
                 index={index}
               />
@@ -258,12 +274,14 @@ export function GuestsSection() {
         {/* More guests link */}
         {showViewAll && (
           <div
-            className={`mt-12 text-center ${animateClass}`}
+            className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`}
             style={{ animationDelay: "400ms" }}
           >
             <a
               href="#guests"
-              className="text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors hover:translate-x-1"
+              className={`text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors ${
+                motionMode === "expressive" ? "hover-pulse" : ""
+              }`}
             >
               Full guest list coming soon.
             </a>
@@ -284,24 +302,25 @@ const GUEST_GRADIENTS = [
 function GuestCard({
   guest,
   motionMode,
+  hoverClass,
   bioLength,
   index,
 }: {
   guest: (typeof GUESTS)[number]
   motionMode: "off" | "subtle" | "expressive"
+  hoverClass: string
   bioLength: "full" | "short"
   index: number
 }) {
   // Use index for consistent gradient assignment (no random)
   const gradientClass = GUEST_GRADIENTS[index % GUEST_GRADIENTS.length]
   const bio = guest.bio[bioLength]
-  const hoverClass = motionMode !== "off" ? "hover:-translate-y-2 hover:shadow-lg" : ""
 
   return (
-    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 transition-all duration-300 ${hoverClass}`}>
+    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-300 ${hoverClass} ${motionMode === "expressive" ? "breathe" : ""}`}>
       {/* Guest image */}
       <div className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}>
-        <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+        <div className={`absolute inset-0 transition-transform duration-500 ${motionMode !== "off" ? "group-hover:scale-105" : ""}`}>
           <Image
             src={guest.image || "/placeholder.svg"}
             alt={`${guest.name} - ${guest.role}`}
@@ -312,14 +331,14 @@ function GuestCard({
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
         {guest.featured && (
-          <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground z-10">
+          <Badge className={`absolute top-3 left-3 bg-accent text-accent-foreground z-10 ${motionMode === "expressive" ? "pulse" : ""}`}>
             Featured
           </Badge>
         )}
       </div>
 
       <CardContent className="p-4">
-        <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
+        <h3 className={`font-bold text-lg group-hover:text-primary transition-colors ${motionMode === "expressive" ? "float" : ""}`}>
           {guest.name}
         </h3>
         <p className="text-accent text-sm font-medium mb-2">

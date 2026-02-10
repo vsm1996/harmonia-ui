@@ -138,56 +138,19 @@ export function EventsSection() {
         ? "hover-lift"
         : ""
 
-  // Toxic contamination: orange accents progressively shift to green on scroll
-  // The infection intensity scales with motion mode:
-  //   expressive -> full contamination (90deg hue shift, orange -> green)
-  //   subtle -> partial contamination (45deg, orange -> yellow-green)
-  //   off -> no contamination, stays orange
-  const contaminationDeg =
-    mode.motion === "expressive"
-      ? 90
-      : mode.motion === "subtle"
-        ? 45
-        : 0
-
-  // Valence still influences the base warmth
-  const valenceShift = valence * 15
-
-  // When in view, rotate hue from orange toward green; otherwise stay at baseline
-  const activeHueRotation = isInView ? contaminationDeg + valenceShift : valenceShift
-
-  // infectedColor shifts in sync: base hue 45 (rust) rotated toward green
-  const infectedHue = 45 + (isInView ? contaminationDeg : 0) + valenceShift
-  const infectedColor = `oklch(0.65 0.18 ${infectedHue})`
-
-  // Background green tint opacity (the ambient glow behind the cards)
-  const greenGlowOpacity =
-    mode.motion === "expressive"
-      ? 0.12
-      : mode.motion === "subtle"
-        ? 0.06
-        : 0
+  // Adaptive color based on valence: warmer (orange) for positive, cooler (rust) for negative
+  const baseHue = 45
+  const hueShift = valence * 15
+  const infectedColor = `oklch(0.65 0.18 ${baseHue + hueShift})`
+  const warmthShift = valence * 15
 
   return (
     <section
       ref={sectionRef}
-      className="py-24 px-4 md:px-8 border-y border-border/30 relative overflow-hidden"
+      className="py-24 px-4 md:px-8 border-y border-border/30 bg-muted/20"
       aria-labelledby="events-title"
     >
-      {/* Toxic green ambient glow behind content */}
-      <div
-        className="absolute inset-0 pointer-events-none transition-opacity duration-[2000ms] ease-out"
-        style={{
-          background: "radial-gradient(ellipse at 50% 50%, oklch(0.55 0.2 145 / 0.3) 0%, transparent 70%)",
-          opacity: isInView ? greenGlowOpacity / 0.3 : 0,
-        }}
-        aria-hidden="true"
-      />
-
-      <div
-        className="relative max-w-7xl mx-auto transition-[filter] duration-[2500ms] ease-out"
-        style={{ filter: `hue-rotate(${activeHueRotation}deg)` }}
-      >
+      <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Header */}
         <header className={`mb-16 text-center ${fadeClass(isInView, hasPlayed)}`}>
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
