@@ -22,27 +22,29 @@ function useCapacity(): CapacityContextValue
 | `setCapacity` | `(capacity: CapacityField) => void` | Replace entire capacity state |
 | `updateCapacity` | `(partial: Partial<CapacityField>) => void` | Update specific fields |
 | `derivedFields` | `DerivedFields` | Computed aggregate values |
-| `mode` | `InterfaceMode` | Current interface mode |
+| `mode` | `InterfaceMode` | Current interface mode tokens (density, motion, contrast, etc.) |
+| `modeLabel` | `InterfaceModeLabel` | Human-readable label: Minimal, Calm, Focused, or Exploratory |
 | `tokens` | `InterfaceModeTokens` | Design tokens for components |
 
 #### Example
 
-\`\`\`tsx
+```tsx
 import { useCapacity } from '@/lib/capacity-context'
 
 function MyComponent() {
-  const { tokens, mode, updateCapacity } = useCapacity()
+  const { tokens, modeLabel, updateCapacity } = useCapacity()
   
   return (
     <div className={`density-${tokens.density}`}>
-      <p>Current mode: {mode}</p>
+      {/* modeLabel is one of: 'Minimal' | 'Calm' | 'Focused' | 'Exploratory' */}
+      <p>Current mode: {modeLabel}</p>
       <button onClick={() => updateCapacity({ cognitive: 0.5 })}>
         Set cognitive to 50%
       </button>
     </div>
   )
 }
-\`\`\`
+```
 
 ---
 
@@ -205,25 +207,45 @@ interface DerivedFields {
 
 ### `InterfaceModeLabel`
 
-Human-readable mode labels for UI display.
+Human-readable mode labels for UI display. Derived from **raw** `CapacityField` inputs (not from `InterfaceMode` tokens), because states like Neutral and Focused can produce the same token set but should have different labels.
 
-\`\`\`typescript
-function getToneMessage(mode: InterfaceModeLabel, valence: number): string
+```typescript
+type InterfaceModeLabel = 'Calm' | 'Focused' | 'Exploratory' | 'Minimal'
+```
 
-// Returns:
-// mode === 'Minimal' && valence < 0 → "Take your time."
-// mode === 'Calm'                   → "Take it easy."
-// mode === 'Focused'                → "Here's how it works:"
-// mode === 'Exploratory' && valence > 0.25 → "You're doing great!"
-// default → "Here's how it works:"
-\`\`\`
+#### Derivation Rules
+
+Labels are checked in this order -- the first match wins:
 
 | Label | Trigger | Description |
 |-------|---------|-------------|
-| Minimal | cognitive < 0.35 AND temporal < 0.35 | Very low capacity, protective mode |
-| Calm | Moderate capacity, not Focused or Exploratory | Gentle, balanced, no pressure |
-| Focused | cognitive >= 0.6 AND temporal >= 0.6 | Good capacity, task-oriented |
-| Exploratory | cognitive > 0.65 AND emotional > 0.65 | High capacity, full features |
+| **Exploratory** | `cognitive > 0.65` AND `emotional > 0.65` | High capacity, full features, playful |
+| **Minimal** | `cognitive < 0.35` AND `temporal < 0.35` | Very low capacity, protective mode |
+| **Focused** | `cognitive >= 0.6` AND `temporal >= 0.6` | Good capacity, task-oriented |
+| **Calm** | Fallthrough (none of the above match) | Gentle, balanced, no pressure |
+
+#### Preset-to-Label Mapping
+
+| Preset | Cognitive | Temporal | Emotional | Label |
+|--------|-----------|----------|-----------|-------|
+| Exhausted | 0.2 | 0.2 | 0.1 | Minimal |
+| Overwhelmed | 0.3 | 0.25 | 0.2 | Minimal |
+| Distracted | 0.4 | 0.3 | 0.6 | Calm |
+| Neutral | 0.5 | 0.5 | 0.5 | Calm |
+| Focused | 0.7 | 0.7 | 0.6 | Focused |
+| Energized | 0.9 | 0.8 | 0.9 | Exploratory |
+| Exploring | 0.85 | 0.7 | 0.8 | Exploratory |
+
+#### Badge Colors
+
+Each label has a distinct badge color for visual identification:
+
+| Label | Color | Value |
+|-------|-------|-------|
+| Calm | Soft blue | `oklch(0.65 0.15 220)` |
+| Focused | Primary rust | `oklch(0.68 0.16 45)` |
+| Exploratory | Toxic green | `oklch(0.65 0.2 135)` |
+| Minimal | Muted purple | `oklch(0.55 0.1 280)` |
 
 ### `InterfaceMode`
 
@@ -328,21 +350,35 @@ Compute derived fields from raw capacity.
 function deriveFields(capacity: CapacityField): DerivedFields
 \`\`\`
 
-### `deriveMode(fields, capacity)`
+### `deriveMode(field)`
 
-Compute interface mode from derived fields and capacity.
+Compute interface mode tokens from capacity field.
 
-\`\`\`typescript
-function deriveMode(fields: DerivedFields, capacity: CapacityField): InterfaceMode
-\`\`\`
+```typescript
+function deriveMode(field: CapacityField): InterfaceMode
+```
 
-### `deriveTokens(capacity, valence)`
+### `deriveModeLabel(inputs)`
 
-Compute design tokens from capacity and valence.
+Derive a human-readable mode label from raw capacity inputs. Uses raw values (not derived tokens) because states like Neutral and Focused can produce the same `InterfaceMode` but should have different labels.
 
-\`\`\`typescript
-function deriveTokens(capacity: CapacityField, valence: number): InterfaceModeTokens
-\`\`\`
+```typescript
+function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel
+```
+
+### `getModeBadgeColor(label)`
+
+Get the OKLCH color string for a mode label badge.
+
+```typescript
+function getModeBadgeColor(label: InterfaceModeLabel): string
+
+// Returns:
+// 'Calm'        → 'oklch(0.65 0.15 220)' (soft blue)
+// 'Focused'     → 'oklch(0.68 0.16 45)'  (primary rust)
+// 'Exploratory' → 'oklch(0.65 0.2 135)'  (toxic green)
+// 'Minimal'     → 'oklch(0.55 0.1 280)'  (muted purple)
+```
 
 ### `getToneMessage(mode, valence)`
 
