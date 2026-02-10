@@ -133,7 +133,7 @@ export const MOTION_TOKENS = {
     durationBase: 0,
     durationSlow: 0,
     easing: "linear",
-    // Essential transitions still allowed (opacity/visibility for usability)
+    // Essential transitions still allowed (opacity, focus rings)
     essentialDuration: 100,
     essentialEasing: "ease-out",
   },

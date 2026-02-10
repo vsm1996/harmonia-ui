@@ -131,33 +131,25 @@ export function TicketsSection() {
   const headerVariant = temporalCapacity < 0.3 ? "minimal" : temporalCapacity < 0.6 ? "reduced" : "full"
   const header = HEADERS[headerVariant]
 
-  // DENSITY → how many tiers to show (low = only highlighted, high = all)
-  const visibleTiers = mode.density === "low" ? TIERS.filter(t => t.highlight) : TIERS
+  const visibleTiers = cognitiveCapacity < 0.25 ? TIERS.filter(t => t.highlight) : TIERS
   const featureVariant = temporalCapacity < 0.4 ? "short" : "full"
 
-  // DENSITY → grid layout (extreme: single centered card vs full 3-col)
   const gridClass = visibleTiers.length === 1 
     ? "max-w-md mx-auto" 
-    : mode.density === "high"
-      ? "grid gap-6 md:grid-cols-3 max-w-5xl mx-auto"
-      : "grid gap-6 md:grid-cols-3 max-w-4xl mx-auto"
+    : "grid gap-6 md:grid-cols-3 max-w-5xl mx-auto"
 
   return (
     <section ref={sectionRef} className="py-24 px-4 md:px-8 bg-muted/30" aria-labelledby="tickets-title">
       <div className="max-w-6xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
-        {/* Header -- Minimal: tighter, no badge */}
-        <header className={`${mode.density === "low" ? "mb-8" : "mb-16"} text-center ${fadeClass(isInView, hasPlayed)}`}>
-          {mode.density !== "low" && (
-            <Badge variant="outline" className={`mb-4 tracking-widest text-primary border-primary/50 ${mode.motion === "expressive" ? "vibrate" : ""}`}>
-              PASSES
-            </Badge>
-          )}
-          <h2 id="tickets-title" className={`font-black tracking-tight mb-4 ${
-            mode.density === "low" ? "text-2xl md:text-4xl" : "text-4xl md:text-6xl"
-          } ${mode.motion === "expressive" ? "float" : ""}`}>
+        {/* Header */}
+        <header className={`mb-16 text-center ${fadeClass(isInView, hasPlayed)}`}>
+          <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
+            PASSES
+          </Badge>
+          <h2 id="tickets-title" className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${mode.motion === "expressive" ? "float" : ""}`}>
             {header.title}
           </h2>
-          {header.description && mode.density !== "low" && (
+          {header.description && (
             <p className="text-lg max-w-2xl mx-auto text-muted-foreground">
               {header.description}
             </p>
@@ -172,11 +164,7 @@ export function TicketsSection() {
               className={`${hasPlayed ? entranceClass : fadeClass(isInView, hasPlayed)}`}
               style={{ animationDelay: `${100 + index * 100}ms` }}
             >
-              <Card className={`h-full flex flex-col relative overflow-hidden group ${
-                mode.motion !== "off" ? "transition-all duration-300" : ""
-              } ${hoverClass} ${
-                mode.motion !== "off" ? "hover:border-primary/50 hover:shadow-lg" : ""
-              } ${
+              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${
                 tier.highlight 
                   ? "border-primary/50 shadow-lg" 
                   : "border-border/50"

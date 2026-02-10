@@ -212,12 +212,7 @@ export function GuestsSection() {
         : ""
 
   const visibleGuests = mode.density === "low" ? GUESTS.filter((g) => g.featured) : GUESTS
-  // DENSITY → grid (low = single col narrow, high = full 4-col)
-  const gridClass = mode.density === "low"
-    ? "grid-cols-1 max-w-sm mx-auto"
-    : mode.density === "high"
-      ? "grid-cols-2 lg:grid-cols-4"
-      : "grid-cols-2 lg:grid-cols-3"
+  const gridClass = mode.density === "low" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2 lg:grid-cols-4"
   const bioLength = context.userCapacity.temporal > 0.5 ? "full" : "short"
   const headerContent = context.userCapacity.temporal > 0.5 ? HEADERS.full
     : context.userCapacity.temporal > 0.3 ? HEADERS.reduced : HEADERS.minimal
@@ -230,26 +225,22 @@ export function GuestsSection() {
       aria-labelledby="guests-title"
     >
       <div className="max-w-7xl mx-auto relative" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
-        {/* Section header -- Minimal: tighter, no badge, no subtitle */}
-        <header className={`${mode.density === "low" ? "mb-8" : "mb-16"} text-center`}>
-          {mode.density !== "low" && (
-            <div className={fadeClass(isInView, hasPlayed)} style={{ animationDelay: "0ms" }}>
-              <Badge variant="outline" className={`mb-4 tracking-widest ${motionMode === "expressive" ? "vibrate" : ""}`}>
-                GUESTS
-              </Badge>
-            </div>
-          )}
+        {/* Section header */}
+        <header className="mb-16 text-center">
+          <div className={fadeClass(isInView, hasPlayed)} style={{ animationDelay: "0ms" }}>
+            <Badge variant="outline" className="mb-4 tracking-widest">
+              GUESTS
+            </Badge>
+          </div>
           <h2
             id="guests-title"
-            className={`font-black tracking-tight mb-4 ${fadeClass(isInView, hasPlayed)} ${
-              mode.density === "low" ? "text-2xl md:text-4xl" : "text-4xl md:text-6xl"
-            } ${motionMode === "expressive" ? "float" : ""}`}
+            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${fadeClass(isInView, hasPlayed)} ${motionMode === "expressive" ? "float" : ""}`}
             style={{ animationDelay: "50ms" }}
           >
             {headerContent.title.split(" ").slice(0, -1).join(" ")}
             <span className="text-primary"> {headerContent.title.split(" ").slice(-1)}</span>
           </h2>
-          {headerContent.description && mode.density !== "low" && (
+          {headerContent.description && (
             <p
               className={`text-muted-foreground text-lg max-w-2xl mx-auto text-balance ${fadeClass(isInView, hasPlayed)}`}
               style={{ animationDelay: "100ms" }}
@@ -326,12 +317,10 @@ function GuestCard({
   const bio = guest.bio[bioLength]
 
   return (
-    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 ${
-      motionMode !== "off" ? "hover:border-primary/50 hover:shadow-lg transition-all duration-300" : ""
-    } ${hoverClass} ${motionMode === "expressive" ? "breathe" : ""}`}>
+    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-300 ${hoverClass} ${motionMode === "expressive" ? "breathe" : ""}`}>
       {/* Guest image */}
       <div className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}>
-        <div className={`absolute inset-0 ${motionMode !== "off" ? "transition-transform duration-500 group-hover:scale-105" : ""}`}>
+        <div className={`absolute inset-0 transition-transform duration-500 ${motionMode !== "off" ? "group-hover:scale-105" : ""}`}>
           <Image
             src={guest.image || "/placeholder.svg"}
             alt={`${guest.name} - ${guest.role}`}

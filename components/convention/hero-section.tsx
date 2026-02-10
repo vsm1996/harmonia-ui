@@ -73,22 +73,11 @@ export function HeroSection() {
   const showSecondaryCTA = mode.choiceLoad === "normal"
   const warmthShift = context.emotionalState.valence * 10
 
-  // MOTION → animation class (off = no entrance animation at all)
-  const animateClass = motionMode === "expressive"
-    ? "animate-fade-in-immediate"
-    : motionMode === "subtle"
-      ? "animate-fade-in-immediate"
-      : ""
+  // Hero is above fold - use immediate animation (no scroll trigger needed)
+  const animateClass = motionMode !== "off" ? "animate-fade-in-immediate" : ""
   
-  // CON letter collision - only at peak expressiveness + good mood
-  const showConCollision = motionMode === "expressive" && context.emotionalState.valence > 0.2
-
-  // DENSITY → title size scaling (massive difference between low and high)
-  const titleSize = mode.density === "low"
-    ? "clamp(2.5rem, 12vw, 7rem)"
-    : mode.density === "high"
-      ? "clamp(3.5rem, 18vw, 14rem)"
-      : "clamp(3rem, 15vw, 12rem)"
+  // Fun CON letter collision animation - only at high expressiveness + positive valence
+  const showConCollision = motionMode === "expressive" && context.emotionalState.valence > 0.3
 
   return (
     <section
@@ -96,17 +85,17 @@ export function HeroSection() {
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4"
       aria-labelledby="hero-title"
     >
-      {/* Background gradient */}
+      {/* Background gradient only - removed heavy SVG filter */}
       <div
         className="absolute inset-0 bg-gradient-to-b from-background via-background to-card"
         aria-hidden="true"
       />
 
-      {/* Main content */}
+      {/* Main content - CSS animations only */}
       <div className="relative z-10 max-w-5xl mx-auto text-center">
         
-        {/* Date badge -- hidden in Minimal density */}
-        {mode.density !== "low" && context.userCapacity.temporal > 0.3 && (
+        {/* Date badge */}
+        {context.userCapacity.temporal > 0.3 && (
           <div className={animateClass} style={{ animationDelay: "0ms" }}>
             <Badge
               variant="outline"
@@ -119,24 +108,20 @@ export function HeroSection() {
           </div>
         )}
 
-        {/* Main title -- size scales dramatically with density */}
+        {/* Main title */}
         <h1
           id="hero-title"
           className={`font-sans font-black tracking-tighter leading-none mb-6 ${animateClass}`}
           style={{
-            fontSize: titleSize,
+            fontSize: "clamp(3rem, 15vw, 12rem)",
             filter: `hue-rotate(${warmthShift}deg)`,
             animationDelay: "100ms",
           }}
         >
-          <span className={`block text-primary ${
-            motionMode === "expressive" ? "breathe" : ""
-          }`}>
+          <span className={`block text-primary ${motionMode === "expressive" ? "breathe" : ""}`}>
             ABYSS
           </span>
-          <span className={`block text-foreground/90 ${
-            motionMode === "expressive" ? "swelling" : ""
-          }`}>
+          <span className="block text-foreground/90">
             {showConCollision ? (
               <>
                 <span className="letter-smash-c">C</span>
@@ -149,49 +134,45 @@ export function HeroSection() {
           </span>
         </h1>
 
-        {/* Tagline -- Minimal: only main line, no sub */}
+        {/* Tagline */}
         <p
           className={`text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance ${animateClass}`}
           style={{ animationDelay: "200ms" }}
         >
           {tagline.main}
-          {tagline.sub && mode.density !== "low" && (
+          {tagline.sub && (
             <span className="block text-foreground/60 mt-2">
               {tagline.sub}
             </span>
           )}
         </p>
 
-        {/* CTA buttons -- Minimal: single CTA only, no hover effects */}
+        {/* CTA buttons */}
         <div
           className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${animateClass}`}
           style={{ animationDelay: "300ms" }}
         >
           <Button 
             size="lg" 
-            className={`text-lg px-8 py-6 font-bold tracking-wide ${
-              motionMode !== "off" ? "transition-transform hover:scale-105 active:scale-95" : ""
-            } ${
+            className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 ${
               motionMode === "expressive" ? "hover-pulse" : ""
             }`}
           >
             {ctaText.cta}
           </Button>
-          {showSecondaryCTA && mode.density !== "low" && (
+          {showSecondaryCTA && (
             <Button
               size="lg"
               variant="outline"
-              className={`text-lg px-8 py-6 font-medium tracking-wide bg-transparent ${
-                motionMode !== "off" ? "transition-transform hover:scale-105 active:scale-95" : ""
-              }`}
+              className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent transition-transform hover:scale-105 active:scale-95"
             >
               {ctaText.secondary}
             </Button>
           )}
         </div>
 
-        {/* Location info -- hidden in Minimal */}
-        {mode.density !== "low" && context.userCapacity.cognitive > 0.4 && (
+        {/* Location info */}
+        {context.userCapacity.cognitive > 0.4 && (
           <p
             className={`mt-12 text-sm text-muted-foreground tracking-widest uppercase ${animateClass}`}
             style={{ animationDelay: "400ms" }}
@@ -201,15 +182,13 @@ export function HeroSection() {
         )}
       </div>
 
-      {/* Scroll indicator -- only when motion is on */}
+      {/* Scroll indicator */}
       {motionMode !== "off" && (
         <div
-          className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground/50 fall ${
-            motionMode !== "off" ? "hover:text-primary/70 transition-colors" : ""
-          } cursor-pointer`}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground/50 fall hover:text-primary/70 transition-colors cursor-pointer"
           aria-hidden="true"
         >
-          <AnimatedDumpster size={motionMode === "expressive" ? 72 : 56} />
+          <AnimatedDumpster size={56} />
         </div>
       )}
     </section>

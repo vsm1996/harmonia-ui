@@ -306,22 +306,22 @@ Labels are checked in this order -- the first match wins:
 
 | Label | Trigger | Description |
 |-------|---------|-------------|
-| **Exploratory** | `cognitive > 0.65` AND `emotional > 0.65` | High capacity, full features, playful |
-| **Minimal** | `cognitive < 0.35` AND `temporal < 0.35` | Very low capacity, protective mode |
-| **Focused** | `cognitive >= 0.6` AND `temporal >= 0.6` | Good capacity, task-oriented |
+| **Exploratory** | `cognitive > 0.6` AND `emotional > 0.6` | High capacity, full features, playful |
+| **Minimal** | `cognitive < 0.4` AND `temporal < 0.4` | Low capacity, protective mode |
+| **Focused** | `cognitive >= 0.55` AND `temporal >= 0.55` | Good capacity, task-oriented |
 | **Calm** | Fallthrough (none of the above match) | Gentle, balanced, no pressure |
 
 #### Preset-to-Label Mapping
 
-| Preset | Cognitive | Temporal | Emotional | Label |
-|--------|-----------|----------|-----------|-------|
-| Exhausted | 0.2 | 0.2 | 0.1 | Minimal |
-| Overwhelmed | 0.3 | 0.25 | 0.2 | Minimal |
-| Distracted | 0.4 | 0.3 | 0.6 | Calm |
-| Neutral | 0.5 | 0.5 | 0.5 | Calm |
-| Focused | 0.7 | 0.7 | 0.6 | Focused |
-| Energized | 0.9 | 0.8 | 0.9 | Exploratory |
-| Exploring | 0.85 | 0.7 | 0.8 | Exploratory |
+| Preset | Cognitive | Temporal | Emotional | Valence | Motion | Label |
+|--------|-----------|----------|-----------|---------|--------|-------|
+| Exhausted | 0.1 | 0.1 | 0.1 | -0.6 | off | Minimal |
+| Overwhelmed | 0.2 | 0.15 | 0.2 | -0.5 | off | Minimal |
+| Distracted | 0.35 | 0.25 | 0.5 | 0.0 | subtle | Minimal |
+| Neutral | 0.5 | 0.5 | 0.5 | 0.0 | subtle | Calm |
+| Focused | 0.75 | 0.75 | 0.55 | 0.1 | subtle | Focused |
+| Energized | 0.9 | 0.85 | 0.85 | 0.6 | expressive | Exploratory |
+| Exploring | 1.0 | 1.0 | 1.0 | 0.8 | expressive | Exploratory |
 
 #### Badge Colors
 

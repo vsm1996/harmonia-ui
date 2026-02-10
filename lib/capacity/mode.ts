@@ -31,12 +31,10 @@ import type { CapacityField, InterfaceMode, InterfaceModeLabel } from "./types"
  * - Valence → tone/expressiveness (emotional color, not information volume)
  */
 export function deriveMode(field: CapacityField): InterfaceMode {
-  const veryLowCognitive = field.cognitive < 0.3
-  const lowCognitive = field.cognitive < 0.45
+  const lowCognitive = field.cognitive < 0.4
   const highCognitive = field.cognitive > 0.7
-  const veryLowEmotional = field.emotional < 0.3
-  const lowEmotional = field.emotional < 0.45
-  const highEmotional = field.emotional > 0.65
+  const lowEmotional = field.emotional < 0.4
+  const highEmotional = field.emotional > 0.6
   const lowTemporal = field.temporal < 0.4
   const highValence = field.valence > 0.15
   const negValence = field.valence < -0.15
@@ -44,10 +42,9 @@ export function deriveMode(field: CapacityField): InterfaceMode {
   // ═══════════════════════════════════════════════════════════════════════════
   // COGNITIVE → Density, Hierarchy, Concurrency
   // Controls how many things compete for attention at once
-  // Low: aggressive simplification (single-column, hide secondary elements)
-  // High: full-density grid, show everything, more concurrent info
+  // Wider thresholds → clearer visual jumps between modes
   // ═══════════════════════════════════════════════════════════════════════════
-  const density: InterfaceMode["density"] = veryLowCognitive
+  const density: InterfaceMode["density"] = lowCognitive
     ? "low"
     : highCognitive
       ? "high"
@@ -61,7 +58,7 @@ export function deriveMode(field: CapacityField): InterfaceMode {
 
   // Guidance increases when temporal is low (provide shortcuts/defaults)
   // Also increases when cognitive is low (need more explanation)
-  const guidance: InterfaceMode["guidance"] = veryLowCognitive
+  const guidance: InterfaceMode["guidance"] = lowCognitive
     ? "high"
     : lowTemporal
       ? "medium"
@@ -70,15 +67,14 @@ export function deriveMode(field: CapacityField): InterfaceMode {
   // ═══════════════════════════════════════════════════════════════════════════
   // EMOTIONAL → Motion Restraint, Friction
   // Controls nervous-system-safe UI (no surprises when capacity is low)
-  //
-  // THREE TIERS with real gaps:
-  //   "off"        → very low emotional: ZERO decorative motion, static UI
-  //   "subtle"     → low/mid emotional: gentle fades, small lifts, no loops
-  //   "expressive" → high emotional + positive valence: full animation suite
+  // Three distinct tiers with clear separation:
+  //   off: emotional < 0.4 → protective, static UI
+  //   subtle: emotional 0.4-0.6 or low valence → grounded, minimal motion
+  //   expressive: emotional > 0.6 AND positive valence → full animation suite
   // ═══════════════════════════════════════════════════════════════════════════
-  const motion: InterfaceMode["motion"] = veryLowEmotional
+  const motion: InterfaceMode["motion"] = lowEmotional
     ? "off"
-    : (highEmotional && highValence)
+    : highEmotional && highValence
       ? "expressive"
       : "subtle"
 
@@ -86,6 +82,8 @@ export function deriveMode(field: CapacityField): InterfaceMode {
   // VALENCE → Tone, Expressiveness (NOT information volume)
   // Controls emotional color: warmth, playfulness, accent frequency
   // ═══════════════════════════════════════════════════════════════════════════
+  // Boosted contrast when mood is low helps with visual accessibility
+  // This is a subtle visual adjustment, not information density
   const contrast: InterfaceMode["contrast"] = negValence ? "boosted" : "standard"
 
   return { density, guidance, motion, contrast, choiceLoad }
@@ -116,19 +114,20 @@ export function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
   const { cognitive, temporal, emotional } = inputs
 
   // Exploratory: High cognitive AND high emotional capacity (energetic, engaged)
-  // Must clearly exceed "Focused" territory
-  if (cognitive > 0.7 && emotional > 0.7) {
+  // Threshold: both > 0.6 (lowered to capture Energized preset)
+  if (cognitive > 0.6 && emotional > 0.6) {
     return "Exploratory"
   }
 
-  // Minimal: Very low capacity (cognitive AND temporal both low)
-  // Aggressive threshold -- catches Exhausted and Overwhelmed
+  // Minimal: Low capacity (cognitive AND temporal both below midpoint)
+  // Threshold: both < 0.4 (raised to capture Overwhelmed + Exhausted distinctly)
   if (cognitive < 0.4 && temporal < 0.4) {
     return "Minimal"
   }
 
   // Focused: Good cognitive AND good temporal capacity (ready to work)
-  if (cognitive >= 0.6 && temporal >= 0.6) {
+  // Threshold: both >= 0.55 (lowered slightly to capture Focused preset cleanly)
+  if (cognitive >= 0.55 && temporal >= 0.55) {
     return "Focused"
   }
 
