@@ -11,7 +11,7 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
-import { useScrollAnimation, fadeClass } from "@/lib/use-scroll-animation"
+import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
 const GUESTS = [
   // Creator
@@ -180,7 +180,7 @@ const HEADERS = {
 export function GuestsSection() {
   const { context } = useCapacityContext()
   const { mode: effectiveMotion } = useEffectiveMotion()
-  const { ref: sectionRef, isInView } = useScrollAnimation<HTMLElement>()
+  const { ref: sectionRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
 
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
@@ -201,7 +201,7 @@ export function GuestsSection() {
   const headerContent = context.userCapacity.temporal > 0.5 ? HEADERS.full
     : context.userCapacity.temporal > 0.3 ? HEADERS.reduced : HEADERS.minimal
   const showViewAll = context.userCapacity.temporal > 0.4
-  const animateClass = motionMode !== "off" ? fadeClass(isInView) : ""
+  const animateClass = motionMode !== "off" ? fadeClass(isInView, hasPlayed) : ""
 
   return (
     <section
@@ -240,7 +240,7 @@ export function GuestsSection() {
           {visibleGuests.map((guest, index) => (
             <div
               key={guest.id}
-              className={motionMode !== "off" ? fadeClass(isInView) : ""}
+              className={motionMode !== "off" ? fadeClass(isInView, hasPlayed) : ""}
               style={{
                 animationDelay: `${150 + index * 30}ms`,
               }}

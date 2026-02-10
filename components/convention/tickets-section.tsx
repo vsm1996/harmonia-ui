@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check } from "lucide-react"
-import { useScrollAnimation, fadeClass } from "@/lib/use-scroll-animation"
+import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
 /**
  * Tickets Section - Simplified for scroll performance
@@ -95,7 +95,8 @@ const HEADERS = {
 
 export function TicketsSection() {
   const { context } = useCapacityContext()
-  const { ref: sectionRef, isInView } = useScrollAnimation<HTMLElement>()
+  const { ref: sectionRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
+  console.log("[v0] TicketsSection isInView:", isInView, "hasPlayed:", hasPlayed)
   
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
@@ -125,7 +126,7 @@ export function TicketsSection() {
     <section ref={sectionRef} className="py-24 px-4 md:px-8 bg-muted/30" aria-labelledby="tickets-title">
       <div className="max-w-6xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Header */}
-        <header className={`mb-16 text-center ${fadeClass(isInView)}`}>
+        <header className={`mb-16 text-center ${fadeClass(isInView, hasPlayed)}`}>
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
             PASSES
           </Badge>
@@ -144,10 +145,10 @@ export function TicketsSection() {
           {visibleTiers.map((tier, index) => (
             <div
               key={tier.id}
-              className={fadeClass(isInView)}
+              className={fadeClass(isInView, hasPlayed)}
               style={{ animationDelay: `${100 + index * 80}ms` }}
             >
-              <Card className={`h-full flex flex-col relative overflow-hidden ${
+              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/50 ${
                 tier.highlight 
                   ? "border-primary/50 shadow-lg" 
                   : "border-border/50"
@@ -159,7 +160,7 @@ export function TicketsSection() {
                 )}
 
                 <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
+                  <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors">{tier.name}</CardTitle>
                   <CardDescription>
                     {tier.description[featureVariant === "full" ? "full" : "short"]}
                   </CardDescription>
@@ -195,7 +196,7 @@ export function TicketsSection() {
         {/* Footer */}
         {header.footer && (
           <p 
-            className={`mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${fadeClass(isInView)}`}
+            className={`mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${fadeClass(isInView, hasPlayed)}`}
             style={{ animationDelay: "350ms" }}
           >
             {header.footer}

@@ -5,7 +5,7 @@ import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capaci
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
-import { useScrollAnimation, fadeClass } from "@/lib/use-scroll-animation"
+import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
 /**
  * Events Section - Simplified for scroll performance
@@ -104,7 +104,8 @@ const CATEGORY_STYLES: Record<string, string> = {
 
 export function EventsSection() {
   const { context } = useCapacityContext()
-  const { ref: sectionRef, isInView } = useScrollAnimation<HTMLElement>()
+  const { ref: sectionRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
+  console.log("[v0] EventsSection isInView:", isInView, "hasPlayed:", hasPlayed)
   
   const mode = deriveMode({
     cognitive: context.userCapacity.cognitive,
@@ -135,7 +136,7 @@ export function EventsSection() {
     >
       <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Header */}
-        <header className={`mb-16 text-center ${fadeClass(isInView)}`}>
+        <header className={`mb-16 text-center ${fadeClass(isInView, hasPlayed)}`}>
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
             SCHEDULE
           </Badge>
@@ -153,7 +154,7 @@ export function EventsSection() {
           {EVENTS.map((event, index) => (
             <div
               key={event.id}
-              className={fadeClass(isInView)}
+              className={fadeClass(isInView, hasPlayed)}
               style={{ animationDelay: `${index * 60}ms` }}
             >
               <EventCard
@@ -167,7 +168,7 @@ export function EventsSection() {
         </div>
 
         {/* View all link */}
-        <div className={`mt-12 text-center ${fadeClass(isInView)}`} style={{ animationDelay: "400ms" }}>
+        <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={{ animationDelay: "400ms" }}>
           <a
             href="#schedule"
             className="font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
@@ -215,8 +216,8 @@ function EventCard({
 
   return (
     <Card
-      className={`h-full flex flex-col overflow-hidden transition-colors duration-200 ${
-        !shouldAutoShowDescription ? "cursor-pointer hover:border-primary/50" : ""
+      className={`h-full flex flex-col overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/50 ${
+        !shouldAutoShowDescription ? "cursor-pointer" : ""
       }`}
       onClick={handleCardClick}
       role={!shouldAutoShowDescription ? "button" : undefined}
@@ -233,7 +234,7 @@ function EventCard({
 
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-3">
-          <CardTitle className={`font-bold leading-tight ${isLowCognitive ? "text-base" : "text-lg"}`}>
+          <CardTitle className={`font-bold leading-tight group-hover:text-primary transition-colors ${isLowCognitive ? "text-base" : "text-lg"}`}>
             {title}
           </CardTitle>
           <Badge className={`shrink-0 text-xs font-semibold ${categoryStyle}`}>
