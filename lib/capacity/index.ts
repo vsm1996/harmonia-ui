@@ -8,6 +8,7 @@
 export {
   CapacityProvider,
   useCapacityContext,
+  useDerivedMode,
   useEnergyField,
   useAttentionField,
   useEmotionalValenceField,
@@ -15,6 +16,9 @@ export {
   usePrefersReducedMotion,
   useEffectiveMotion,
 } from "./provider"
+
+// Animation Utilities
+export { entranceClass, hoverClass, ambientClass, listItemClass } from "./animation"
 
 // Types
 export type {

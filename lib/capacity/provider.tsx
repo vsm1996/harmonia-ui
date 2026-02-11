@@ -131,6 +131,32 @@ export function usePrefersReducedMotion(): boolean {
 }
 
 /**
+ * Derive the full mode from current capacity context.
+ * This is the primary hook for section-level components that need
+ * the field values AND the derived mode together.
+ * 
+ * Eliminates the repeated { cognitive: context.userCapacity.cognitive, ... }
+ * construction that was duplicated across every section component.
+ */
+export function useDerivedMode(): {
+  field: CapacityField
+  mode: InterfaceMode
+} {
+  const { context } = useCapacityContext()
+
+  const field: CapacityField = {
+    cognitive: context.userCapacity.cognitive,
+    temporal: context.userCapacity.temporal,
+    emotional: context.userCapacity.emotional,
+    valence: context.emotionalState.valence,
+  }
+
+  const mode = deriveMode(field)
+
+  return { field, mode }
+}
+
+/**
  * Get effective motion mode with system preference override
  * 
  * System prefers-reduced-motion is a HARD OVERRIDE - non-negotiable on safety.
@@ -141,21 +167,10 @@ export function useEffectiveMotion(): {
   tokens: typeof MOTION_TOKENS.off
   prefersReducedMotion: boolean
 } {
-  const { context } = useCapacityContext()
+  const { field } = useDerivedMode()
   const prefersReducedMotion = usePrefersReducedMotion()
 
-  // Build CapacityField from context
-  const field: CapacityField = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
-
-  // Derive mode from field
   const derivedMode = deriveMode(field)
-
-  // System preference is a HARD OVERRIDE
   const effectiveMode: MotionMode = prefersReducedMotion ? "off" : derivedMode.motion
 
   return {

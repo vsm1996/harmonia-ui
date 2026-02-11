@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
+import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
@@ -103,47 +103,19 @@ const CATEGORY_STYLES: Record<string, string> = {
 }
 
 export function EventsSection() {
-  const { context } = useCapacityContext()
+  const { field, mode } = useDerivedMode()
   const { ref: sectionRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
-  
-  const field = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
-  const mode = deriveMode(field)
-
-  const cognitiveCapacity = context.userCapacity.cognitive
-  const temporalCapacity = context.userCapacity.temporal
-  const valence = context.emotionalState.valence
 
   const gridClass = mode.density === "low"
     ? "grid-cols-1 md:grid-cols-2"
     : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
 
-  // Capacity-aware entrance animation (only used during initial scroll-in, not after)
-  const entranceClass = hasPlayed
-    ? ""
-    : mode.motion === "expressive"
-      ? "vortex-reveal"
-      : mode.motion === "subtle"
-        ? "sacred-fade"
-        : ""
-
-  // Capacity-aware hover animation
-  const hoverClass =
-    mode.motion === "expressive"
-      ? "hover-expand"
-      : mode.motion === "subtle"
-        ? "hover-lift"
-        : ""
+  const entrance = getEntranceClass(mode.motion, "vortex", hasPlayed)
+  const hover = getHoverClass(mode.motion)
 
   // Adaptive color based on valence: warmer (orange) for positive, cooler (rust) for negative
-  const baseHue = 45
-  const hueShift = valence * 15
-  const infectedColor = `oklch(0.65 0.18 ${baseHue + hueShift})`
-  const warmthShift = valence * 15
+  const hueShift = field.valence * 15
+  const infectedColor = `oklch(0.65 0.18 ${45 + hueShift})`
 
   return (
     <section
@@ -151,7 +123,7 @@ export function EventsSection() {
       className="py-24 px-4 md:px-8 border-y border-border/30 bg-muted/20"
       aria-labelledby="events-title"
     >
-      <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
+      <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${hueShift}deg)` }}>
         {/* Header */}
         <header className={`mb-16 text-center ${fadeClass(isInView, hasPlayed)}`}>
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
@@ -159,7 +131,7 @@ export function EventsSection() {
           </Badge>
           <h2
             id="events-title"
-            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${mode.motion === "expressive" ? "float" : ""}`}
+            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${ambientClass(mode.motion, "float")}`}
           >
             <InfectedText text="What We" infectColor={infectedColor} />
             <span style={{ color: infectedColor }}> Salvaged</span>
@@ -174,16 +146,16 @@ export function EventsSection() {
           {EVENTS.map((event, index) => (
             <div
               key={event.id}
-              className={entranceClass || fadeClass(isInView, hasPlayed)}
+              className={entrance || fadeClass(isInView, hasPlayed)}
               style={!hasPlayed ? { animationDelay: `${index * 80}ms` } : undefined}
             >
               <EventCard
                 event={event}
-                cognitiveCapacity={cognitiveCapacity}
-                temporalCapacity={temporalCapacity}
+                cognitiveCapacity={field.cognitive}
+                temporalCapacity={field.temporal}
                 guidance={mode.guidance}
                 motionMode={mode.motion}
-                hoverClass={hoverClass}
+                hoverClass={hover}
               />
             </div>
           ))}
@@ -194,7 +166,7 @@ export function EventsSection() {
           <a
             href="#schedule"
             className={`font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${
-              mode.motion === "expressive" ? "hover-pulse" : ""
+              ambientClass(mode.motion, "pulse") ? "hover-pulse" : ""
             }`}
           >
             View Full Schedule
