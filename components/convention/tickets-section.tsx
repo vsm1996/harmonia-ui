@@ -1,6 +1,6 @@
 "use client"
 
-import { useCapacityContext, deriveMode } from "@/lib/capacity"
+import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -94,46 +94,18 @@ const HEADERS = {
 }
 
 export function TicketsSection() {
-  const { context } = useCapacityContext()
+  const { field, mode } = useDerivedMode()
   const { ref: sectionRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
-  
-  const field = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
-  const mode = deriveMode(field)
 
-  const cognitiveCapacity = context.userCapacity.cognitive
-  const temporalCapacity = context.userCapacity.temporal
-  const valence = context.emotionalState.valence
+  const entrance = getEntranceClass(mode.motion, "spiral", hasPlayed)
+  const hover = getHoverClass(mode.motion)
+  const warmthShift = field.valence * 15
 
-  // Capacity-aware entrance animation (only used during initial scroll-in, not after)
-  const entranceClass = hasPlayed
-    ? ""
-    : mode.motion === "expressive"
-      ? "spiral-in"
-      : mode.motion === "subtle"
-        ? "bloom"
-        : ""
-
-  // Capacity-aware hover animation
-  const hoverClass =
-    mode.motion === "expressive"
-      ? "hover-expand"
-      : mode.motion === "subtle"
-        ? "hover-lift"
-        : ""
-
-  // Adaptive color shift based on valence
-  const warmthShift = valence * 15
-
-  const headerVariant = temporalCapacity < 0.3 ? "minimal" : temporalCapacity < 0.6 ? "reduced" : "full"
+  const headerVariant = field.temporal < 0.3 ? "minimal" : field.temporal < 0.6 ? "reduced" : "full"
   const header = HEADERS[headerVariant]
 
-  const visibleTiers = cognitiveCapacity < 0.25 ? TIERS.filter(t => t.highlight) : TIERS
-  const featureVariant = temporalCapacity < 0.4 ? "short" : "full"
+  const visibleTiers = field.cognitive < 0.25 ? TIERS.filter(t => t.highlight) : TIERS
+  const featureVariant = field.temporal < 0.4 ? "short" : "full"
 
   const gridClass = visibleTiers.length === 1 
     ? "max-w-md mx-auto" 
@@ -147,7 +119,7 @@ export function TicketsSection() {
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
             PASSES
           </Badge>
-          <h2 id="tickets-title" className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${mode.motion === "expressive" ? "float" : ""}`}>
+          <h2 id="tickets-title" className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${ambientClass(mode.motion, "float")}`}>
             {header.title}
           </h2>
           {header.description && (
@@ -162,14 +134,14 @@ export function TicketsSection() {
           {visibleTiers.map((tier, index) => (
             <div
               key={tier.id}
-              className={entranceClass || fadeClass(isInView, hasPlayed)}
+              className={entrance || fadeClass(isInView, hasPlayed)}
               style={!hasPlayed ? { animationDelay: `${100 + index * 100}ms` } : undefined}
             >
-              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${
+              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 ${hover} hover:border-primary/50 hover:shadow-lg ${
                 tier.highlight 
                   ? "border-primary/50 shadow-lg" 
                   : "border-border/50"
-              } ${mode.motion === "expressive" ? "breathe" : ""}`}>
+              } ${ambientClass(mode.motion, "breathe")}`}>
                 {tier.highlight && (
                   <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
                     Popular
@@ -177,14 +149,14 @@ export function TicketsSection() {
                 )}
 
                 <CardHeader className="text-center pb-4">
-                  <CardTitle className={`text-2xl font-bold group-hover:text-primary transition-colors ${mode.motion === "expressive" ? "float" : ""}`}>
+                  <CardTitle className={`text-2xl font-bold group-hover:text-primary transition-colors ${ambientClass(mode.motion, "float")}`}>
                     {tier.name}
                   </CardTitle>
                   <CardDescription>
                     {tier.description[featureVariant === "full" ? "full" : "short"]}
                   </CardDescription>
                   <div className="mt-4">
-                    <span className={`text-4xl font-black ${mode.motion === "expressive" ? "pulse" : ""}`}>${tier.price}</span>
+                    <span className={`text-4xl font-black ${ambientClass(mode.motion, "pulse")}`}>${tier.price}</span>
                     <span className="text-muted-foreground ml-1">/pass</span>
                   </div>
                 </CardHeader>
@@ -194,9 +166,7 @@ export function TicketsSection() {
                     {tier.features[featureVariant].map((feature, i) => (
                       <li
                         key={i}
-                        className={`flex items-start gap-2 text-sm ${
-                          mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "sacred-fade" : ""
-                        }`}
+                        className={`flex items-start gap-2 text-sm ${listItemClass(mode.motion)}`}
                         style={{ animationDelay: `${i * 0.12}s` }}
                       >
                         <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
@@ -206,9 +176,7 @@ export function TicketsSection() {
                   </ul>
 
                   <Button 
-                    className={`w-full ${tier.highlight ? "" : "bg-transparent"} ${
-                      mode.motion === "expressive" ? "hover-pulse" : mode.motion === "subtle" ? "hover-lift" : ""
-                    }`}
+                    className={`w-full ${tier.highlight ? "" : "bg-transparent"} ${getHoverClass(mode.motion)}`}
                     variant={tier.highlight ? "default" : "outline"}
                     size="lg"
                   >

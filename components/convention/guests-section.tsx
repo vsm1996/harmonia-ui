@@ -10,7 +10,7 @@
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
+import { useDerivedMode, useEffectiveMotion, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass } from "@/lib/capacity"
 import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
 const GUESTS = [
@@ -178,46 +178,20 @@ const HEADERS = {
 }
 
 export function GuestsSection() {
-  const { context } = useCapacityContext()
-  const { mode: effectiveMotion } = useEffectiveMotion()
+  const { field, mode } = useDerivedMode()
+  const { mode: motionMode } = useEffectiveMotion()
   const { ref: sectionRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
 
-  const mode = deriveMode({
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  })
-
-  const motionMode = effectiveMotion
-  const valence = context.emotionalState.valence
-
-  // Adaptive color shift based on valence
-  const warmthShift = valence * 15
-
-  // Capacity-aware entrance animation (only used during initial scroll-in, not after)
-  const entranceClass = hasPlayed
-    ? ""
-    : motionMode === "expressive"
-      ? "morph-fade-in"
-      : motionMode === "subtle"
-        ? "sacred-fade"
-        : ""
-
-  // Capacity-aware hover animation for cards
-  const hoverClass =
-    motionMode === "expressive"
-      ? "hover-expand"
-      : motionMode === "subtle"
-        ? "hover-lift"
-        : ""
+  const warmthShift = field.valence * 15
+  const entrance = getEntranceClass(motionMode, "morph", hasPlayed)
+  const hover = getHoverClass(motionMode)
 
   const visibleGuests = mode.density === "low" ? GUESTS.filter((g) => g.featured) : GUESTS
   const gridClass = mode.density === "low" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2 lg:grid-cols-4"
-  const bioLength = context.userCapacity.temporal > 0.5 ? "full" : "short"
-  const headerContent = context.userCapacity.temporal > 0.5 ? HEADERS.full
-    : context.userCapacity.temporal > 0.3 ? HEADERS.reduced : HEADERS.minimal
-  const showViewAll = context.userCapacity.temporal > 0.4
+  const bioLength = field.temporal > 0.5 ? "full" : "short"
+  const headerContent = field.temporal > 0.5 ? HEADERS.full
+    : field.temporal > 0.3 ? HEADERS.reduced : HEADERS.minimal
+  const showViewAll = field.temporal > 0.4
 
   return (
     <section
@@ -235,7 +209,7 @@ export function GuestsSection() {
           </div>
           <h2
             id="guests-title"
-            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${fadeClass(isInView, hasPlayed)} ${motionMode === "expressive" ? "float" : ""}`}
+            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${fadeClass(isInView, hasPlayed)} ${ambientClass(motionMode, "float")}`}
             style={{ animationDelay: "50ms" }}
           >
             {headerContent.title.split(" ").slice(0, -1).join(" ")}
@@ -256,13 +230,13 @@ export function GuestsSection() {
           {visibleGuests.map((guest, index) => (
             <div
               key={guest.id}
-              className={entranceClass || fadeClass(isInView, hasPlayed)}
+              className={entrance || fadeClass(isInView, hasPlayed)}
               style={!hasPlayed ? { animationDelay: `${150 + index * 50}ms` } : undefined}
             >
               <GuestCard
                 guest={guest}
                 motionMode={motionMode}
-                hoverClass={hoverClass}
+                hoverClass={hover}
                 bioLength={bioLength}
                 index={index}
               />
@@ -278,9 +252,7 @@ export function GuestsSection() {
           >
             <a
               href="#guests"
-              className={`text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors ${
-                motionMode === "expressive" ? "hover-pulse" : ""
-              }`}
+              className={`text-primary hover:text-primary/80 font-medium tracking-wide inline-flex items-center gap-2 transition-colors ${getHoverClass(motionMode)}`}
             >
               Full guest list coming soon.
             </a>
@@ -316,7 +288,7 @@ function GuestCard({
   const bio = guest.bio[bioLength]
 
   return (
-    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-300 ${hoverClass} ${motionMode === "expressive" ? "breathe" : ""}`}>
+    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-300 ${hoverClass} ${ambientClass(motionMode, "breathe")}`}>
       {/* Guest image */}
       <div className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}>
         <div className={`absolute inset-0 transition-transform duration-500 ${motionMode !== "off" ? "group-hover:scale-105" : ""}`}>

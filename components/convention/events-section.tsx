@@ -165,9 +165,7 @@ export function EventsSection() {
         <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "400ms" } : undefined}>
           <a
             href="#schedule"
-            className={`font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${
-              ambientClass(mode.motion, "pulse") ? "hover-pulse" : ""
-            }`}
+            className={`font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${getHoverClass(mode.motion)}`}
           >
             View Full Schedule
             <span aria-hidden="true">→</span>
@@ -218,7 +216,7 @@ function EventCard({
     <Card
       className={`h-full flex flex-col overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${
         !shouldAutoShowDescription ? "cursor-pointer" : ""
-      } ${motionMode === "expressive" ? "breathe" : ""}`}
+      } ${ambientClass(motionMode, "breathe")}`}
       onClick={handleCardClick}
       role={!shouldAutoShowDescription ? "button" : undefined}
       tabIndex={!shouldAutoShowDescription ? 0 : undefined}
@@ -230,11 +228,11 @@ function EventCard({
       } : undefined}
     >
       {/* Category color bar - pulses in expressive mode */}
-      <div className={`h-1.5 w-full ${categoryStyle.split(" ")[0]} ${motionMode === "expressive" ? "pulse" : ""}`} />
+      <div className={`h-1.5 w-full ${categoryStyle.split(" ")[0]} ${ambientClass(motionMode, "pulse")}`} />
 
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-3">
-          <CardTitle className={`font-bold leading-tight group-hover:text-primary transition-colors ${isLowCognitive ? "text-base" : "text-lg"} ${motionMode === "expressive" ? "float" : ""}`}>
+          <CardTitle className={`font-bold leading-tight group-hover:text-primary transition-colors ${isLowCognitive ? "text-base" : "text-lg"} ${ambientClass(motionMode, "float")}`}>
             {title}
           </CardTitle>
           <Badge className={`shrink-0 text-xs font-semibold ${categoryStyle}`}>
