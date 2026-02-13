@@ -13,47 +13,26 @@
 import React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useCapacityContext, deriveMode } from "@/lib/capacity"
+import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass } from "@/lib/capacity"
 import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
 export function Footer() {
-  const { context } = useCapacityContext()
+  const { field, mode } = useDerivedMode()
   const { ref: footerRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
 
-  const mode = deriveMode({
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  })
-
-  const valence = context.emotionalState.valence
-  const warmthShift = valence * 15
-
-  // Capacity-aware entrance animation (only used during initial scroll-in, not after)
-  const entranceClass = hasPlayed
-    ? ""
-    : mode.motion === "expressive"
-      ? "morph-fade-in"
-      : mode.motion === "subtle"
-        ? "sacred-fade"
-        : ""
-
-  // Capacity-aware hover for links
-  const linkHoverClass =
-    mode.motion === "expressive"
-      ? "hover-pulse"
-      : ""
+  const warmthShift = field.valence * 15
+  const entrance = getEntranceClass(mode.motion, "morph", hasPlayed)
+  const hover = getHoverClass(mode.motion)
 
   return (
     <footer ref={footerRef} className="bg-card/50 border-t border-border py-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         <div
-          className={`grid md:grid-cols-4 gap-8 md:gap-12 ${entranceClass || fadeClass(isInView, hasPlayed)}`}
+          className={`grid md:grid-cols-4 gap-8 md:gap-12 ${entrance || fadeClass(isInView, hasPlayed)}`}
         >
           {/* Brand column */}
           <div className="md:col-span-2">
-            <h3 className={`font-black text-2xl tracking-tighter mb-4 ${mode.motion === "expressive" ? "float" : ""}`}>
+            <h3 className={`font-black text-2xl tracking-tighter mb-4 ${ambientClass(mode.motion, "float")}`}>
               <span className="text-primary">ABYSS</span>
               <span className="text-foreground/80"> CON</span>
             </h3>
@@ -84,12 +63,12 @@ export function Footer() {
                 (link, i) => (
                   <li
                     key={link}
-                    className={mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "sacred-fade" : ""}
+                    className={listItemClass(mode.motion)}
                     style={{ animationDelay: `${i * 0.08}s` }}
                   >
                     <a
                       href={`#${link.toLowerCase()}`}
-                      className={`text-foreground/70 hover:text-foreground transition-colors ${linkHoverClass}`}
+                      className={`text-foreground/70 hover:text-foreground transition-colors ${hover}`}
                     >
                       {link}
                     </a>
@@ -111,7 +90,7 @@ export function Footer() {
             </address>
             <a
               href="#"
-              className={`inline-block mt-4 text-primary hover:text-primary/80 transition-colors text-sm ${linkHoverClass}`}
+              className={`inline-block mt-4 text-primary hover:text-primary/80 transition-colors text-sm ${hover}`}
             >
               Get Directions →
             </a>
@@ -120,7 +99,7 @@ export function Footer() {
 
         {/* Back to Homepage */}
         <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "200ms" } : undefined}>
-          <Button asChild variant="outline" size="lg" className={`bg-transparent ${mode.motion === "expressive" ? "hover-pulse" : mode.motion === "subtle" ? "hover-lift" : ""}`}>
+          <Button asChild variant="outline" size="lg" className={`bg-transparent ${hover}`}>
             <Link href="/">
               <HomeIcon className="w-4 h-4 mr-2" />
               Back to Harmonia Homepage
@@ -159,17 +138,10 @@ function SocialLink({
   motionMode: "off" | "subtle" | "expressive"
   children: React.ReactNode
 }) {
-  const hoverClass =
-    motionMode === "expressive"
-      ? "hover-expand"
-      : motionMode === "subtle"
-        ? "hover-lift"
-        : ""
-
   return (
     <a
       href={href}
-      className={`w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all duration-300 ${hoverClass}`}
+      className={`w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all duration-300 ${getHoverClass(motionMode)}`}
       aria-label={label}
     >
       {children}

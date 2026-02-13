@@ -302,14 +302,14 @@ function GuestCard({
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
         {guest.featured && (
-          <Badge className={`absolute top-3 left-3 bg-accent text-accent-foreground z-10 ${motionMode === "expressive" ? "pulse" : ""}`}>
+          <Badge className={`absolute top-3 left-3 bg-accent text-accent-foreground z-10 ${ambientClass(motionMode, "pulse")}`}>
             Featured
           </Badge>
         )}
       </div>
 
       <CardContent className="p-4">
-        <h3 className={`font-bold text-lg group-hover:text-primary transition-colors ${motionMode === "expressive" ? "float" : ""}`}>
+        <h3 className={`font-bold text-lg group-hover:text-primary transition-colors ${ambientClass(motionMode, "float")}`}>
           {guest.name}
         </h3>
         <p className="text-accent text-sm font-medium mb-2">
