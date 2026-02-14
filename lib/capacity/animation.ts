@@ -64,7 +64,7 @@ export function hoverClass(motion: MotionMode): string {
  * Returns a class for continuous ambient animation (breathing, floating, etc.)
  * Only active in expressive mode to avoid overwhelming lower-capacity users.
  */
-export function ambientClass(motion: MotionMode, type: "breathe" | "float" | "pulse"): string {
+export function ambientClass(motion: MotionMode, type: "breathe" | "float" | "pulse" | "vibrate"): string {
   return motion === "expressive" ? type : ""
 }
 

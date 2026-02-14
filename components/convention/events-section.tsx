@@ -194,10 +194,10 @@ function EventCard({
   const [isExpanded, setIsExpanded] = useState(false)
   const categoryStyle = CATEGORY_STYLES[event.category] || "bg-secondary text-secondary-foreground"
 
-  const isLowCognitive = cognitiveCapacity < 0.35
-  const isLowTemporal = temporalCapacity < 0.35
+  const isLowCognitive = cognitiveCapacity < 0.4
+  const isLowTemporal = temporalCapacity < 0.4
 
-  const shouldAutoShowDescription = cognitiveCapacity > 0.25
+  const shouldAutoShowDescription = cognitiveCapacity > 0.3
   const showDescription = shouldAutoShowDescription || isExpanded
   const showTapHint = guidance === "high" && !shouldAutoShowDescription && !isExpanded
 
