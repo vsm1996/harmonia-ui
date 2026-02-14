@@ -25,27 +25,52 @@ function useCapacityContext(): CapacityContextValue
 #### Example
 
 ```tsx
-import { useCapacityContext, deriveMode, deriveModeLabel } from "@/lib/capacity"
+import { useCapacityContext } from "@/lib/capacity"
 
 function MyComponent() {
-  const { context, updateCapacity } = useCapacityContext()
+  const { updateCapacity } = useCapacityContext()
 
-  // Build a CapacityField from context to derive mode
-  const field = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
-  const mode = deriveMode(field)
+  return (
+    <button onClick={() => updateCapacity({ cognitive: 0.5 })}>
+      Set cognitive to 50%
+    </button>
+  )
+}
+```
+
+> **Note:** Most components should use `useDerivedMode()` instead of `useCapacityContext()` directly. Only use `useCapacityContext()` when you need the mutation functions (`updateCapacity`, `updateEmotionalState`).
+
+### `useDerivedMode()`
+
+The primary hook for section-level components. Builds a `CapacityField` from context and derives the full `InterfaceMode` in one call, eliminating the repeated manual field construction.
+
+```typescript
+function useDerivedMode(): {
+  field: CapacityField
+  mode: InterfaceMode
+}
+```
+
+#### Returns
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `field` | `CapacityField` | The 4-input field (cognitive, temporal, emotional, valence) |
+| `mode` | `InterfaceMode` | The derived mode tokens (density, motion, contrast, etc.) |
+
+#### Example
+
+```tsx
+import { useDerivedMode, deriveModeLabel } from "@/lib/capacity"
+
+function MySection() {
+  const { field, mode } = useDerivedMode()
   const label = deriveModeLabel(field)
 
   return (
     <div>
-      <p>Mode: {label} | Density: {mode.density}</p>
-      <button onClick={() => updateCapacity({ cognitive: 0.5 })}>
-        Set cognitive to 50%
-      </button>
+      <p>Mode: {label} | Density: {mode.density} | Motion: {mode.motion}</p>
+      {mode.density !== "low" && <DetailedContent />}
     </div>
   )
 }
@@ -187,9 +212,9 @@ An example adaptive card demonstrating token consumption. Takes no props -- it r
 | Source | Token / Value | Effect | Status |
 |--------|--------------|--------|--------|
 | Cognitive | `mode.density` | Controls title complexity and visible feature count | Active |
-| Temporal | `context.userCapacity.temporal` | Controls description length (full vs abbreviated) | Active |
-| Emotional | `mode.motion` | Controls animation class (`morph-fade-in`, `sacred-fade`, or none) | Active |
-| Valence | `context.emotionalState.valence` | Controls tone/greeting text and accent color | Active |
+| Temporal | `field.temporal` | Controls description length (full vs abbreviated) | Active |
+| Emotional | `mode.motion` | Controls animation class via `entranceClass()` and `ambientClass()` | Active |
+| Valence | `field.valence` | Controls tone/greeting text and accent color | Active |
 | Mode label | `deriveModeLabel(field)` | Badge color and label text | Active |
 
 ---
@@ -387,7 +412,7 @@ Used by the `FieldManager` to initialize state. Not exported from `@/lib/capacit
 
 ```typescript
 const DEFAULT_EMOTIONAL_STATE = {
-  valence: 0.3,   // > 0.25 triggers expressive motion mode
+  valence: 0.3,   // > 0.15 (with emotional > 0.6) triggers expressive motion mode
   arousal: 0.5,
 } as const
 ```
@@ -403,22 +428,22 @@ const MOTION_TOKENS = {
     durationBase: 0,
     durationSlow: 0,
     easing: "linear",
-    essentialDuration: 150,
+    essentialDuration: 100,
     essentialEasing: "ease-out",
   },
   subtle: {
-    durationFast: 120,
-    durationBase: 220,
-    durationSlow: 420,
+    durationFast: 100,
+    durationBase: 200,
+    durationSlow: 350,
     easing: "ease-out",
     essentialDuration: 150,
     essentialEasing: "ease-out",
   },
   expressive: {
-    durationFast: 140,
-    durationBase: 280,
-    durationSlow: 520,
-    easing: "cubic-bezier(0.34, 1.56, 0.64, 1)", // Spring-like
+    durationFast: 200,
+    durationBase: 400,
+    durationSlow: 700,
+    easing: "cubic-bezier(0.34, 1.56, 0.64, 1)", // Spring-like overshoot
     essentialDuration: 150,
     essentialEasing: "ease-out",
   },
@@ -459,17 +484,13 @@ Compute the full `InterfaceMode` token set from a `CapacityField`.
 function deriveMode(field: CapacityField): InterfaceMode
 ```
 
-Components build a `CapacityField` from context, then call this inline:
+Most components should use `useDerivedMode()` which calls this internally. Direct usage is for advanced cases or non-React contexts:
 
 ```tsx
-const field = {
-  cognitive: context.userCapacity.cognitive,
-  temporal: context.userCapacity.temporal,
-  emotional: context.userCapacity.emotional,
-  valence: context.emotionalState.valence,
-}
-const mode = deriveMode(field)
-// mode.density, mode.motion, mode.contrast, etc.
+import { deriveMode } from "@/lib/capacity"
+
+const mode = deriveMode({ cognitive: 0.8, temporal: 0.5, emotional: 0.7, valence: 0.3 })
+// mode.density === "high", mode.motion === "expressive", etc.
 ```
 
 ### `deriveModeLabel(inputs)`
@@ -494,18 +515,52 @@ function getModeBadgeColor(label: InterfaceModeLabel): string
 // "Minimal"     -> "oklch(0.55 0.1 280)"
 ```
 
-### Typography Utilities
+### Animation Utilities
 
-Exported from `lib/capacity/utils/typography.ts`:
+Exported from `lib/capacity/animation.ts`. These replace the inline ternary chains that were previously duplicated across every section component.
+
+#### `entranceClass(motion, preset, hasPlayed)`
+
+Returns the appropriate CSS entrance animation class. Returns `""` after `hasPlayed` to prevent re-render flicker.
 
 ```typescript
-function modularScale(step: number, base?: number): number
-function getFontSize(role: TypographyRole, energy?: EnergyLevel): number
-function getFontWeight(attention?: AttentionLevel): number
-function getLetterSpacing(attention?: AttentionLevel): number
-function getLineHeight(role: TypographyRole): number
-function getTypographyStyles(role: TypographyRole, energy?: EnergyLevel, attention?: AttentionLevel): object
-function getFluidFontSize(role: TypographyRole, energy?: EnergyLevel): string
+function entranceClass(motion: MotionMode, preset: "morph" | "vortex" | "spiral", hasPlayed: boolean): string
+
+// Examples:
+entranceClass("expressive", "morph", false)  // "morph-fade-in"
+entranceClass("subtle", "vortex", false)     // "sacred-fade"
+entranceClass("off", "spiral", false)        // ""
+entranceClass("expressive", "morph", true)   // "" (already played)
+```
+
+#### `hoverClass(motion)`
+
+Returns the hover animation class.
+
+```typescript
+function hoverClass(motion: MotionMode): string
+
+// "expressive" -> "hover-expand", "subtle" -> "hover-lift", "off" -> ""
+```
+
+#### `ambientClass(motion, type)`
+
+Returns a class for continuous ambient animation. Only active in expressive mode.
+
+```typescript
+function ambientClass(motion: MotionMode, type: "breathe" | "float" | "pulse" | "vibrate"): string
+
+// "expressive" -> type string, "subtle"/"off" -> ""
+```
+
+#### `listItemClass(motion)`
+
+Returns the staggered list item entrance class.
+
+```typescript
+function listItemClass(motion: MotionMode): string
+
+// "expressive" -> "helix-rise", "subtle" -> "sacred-fade", "off" -> ""
 ```
 
 ---

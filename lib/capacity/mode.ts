@@ -102,13 +102,13 @@ export function deriveMode(field: CapacityField): InterfaceMode {
  * - The distinction is the RAW capacity level, not the derived mode
  *
  * Preset → Label mapping:
- * - Exhausted   (0.2, 0.2, 0.1)  → Minimal   (very low everything)
- * - Overwhelmed (0.3, 0.25, 0.2) → Minimal   (low cognitive + temporal)
- * - Distracted  (0.4, 0.3, 0.6)  → Calm      (ok cognitive, low temporal)
- * - Neutral     (0.5, 0.5, 0.5)  → Calm      (balanced, middle-ground)
- * - Focused     (0.7, 0.7, 0.6)  → Focused   (good capacity, ready to work)
- * - Energized   (0.9, 0.8, 0.9)  → Exploratory (high everything)
- * - Exploring   (0.85, 0.7, 0.8) → Exploratory (high cognitive + emotional)
+ * - Exhausted   (0.1, 0.1, 0.1)   → Minimal     (protective, static)
+ * - Overwhelmed (0.2, 0.15, 0.2)  → Minimal     (low cognitive + temporal)
+ * - Distracted  (0.35, 0.25, 0.5) → Minimal     (low cognitive + temporal)
+ * - Neutral     (0.5, 0.5, 0.5)   → Calm        (balanced, middle-ground)
+ * - Focused     (0.75, 0.75, 0.55) → Focused    (good capacity, task-ready)
+ * - Energized   (0.9, 0.85, 0.85) → Exploratory (full engagement)
+ * - Exploring   (1.0, 1.0, 1.0)   → Exploratory (maximum everything)
  */
 export function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
   const { cognitive, temporal, emotional } = inputs
