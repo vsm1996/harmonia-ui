@@ -14,7 +14,7 @@
 "use client"
 
 import { useRef } from "react"
-import { useCapacityContext, deriveMode, useEffectiveMotion } from "@/lib/capacity"
+import { useDerivedMode, useEffectiveMotion, ambientClass, hoverClass as getHoverClass } from "@/lib/capacity"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { AnimatedDumpster } from "./animated-dumpster"
@@ -52,32 +52,23 @@ const TONES = {
 }
 
 export function HeroSection() {
-  const { context } = useCapacityContext()
-  const { mode: effectiveMotion } = useEffectiveMotion()
+  const { field, mode } = useDerivedMode()
+  const { mode: motionMode } = useEffectiveMotion()
   const sectionRef = useRef<HTMLElement>(null)
-  
-  const mode = deriveMode({
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  })
-  
-  const motionMode = effectiveMotion
 
   // Content adaptations
-  const tagline = context.userCapacity.temporal > 0.4 ? TAGLINES.full : TAGLINES.abbreviated
-  const toneKey = context.emotionalState.valence > 0.2 ? "positive" 
-    : context.emotionalState.valence < -0.2 ? "negative" : "neutral"
+  const tagline = field.temporal > 0.4 ? TAGLINES.full : TAGLINES.abbreviated
+  const toneKey = field.valence > 0.2 ? "positive" 
+    : field.valence < -0.2 ? "negative" : "neutral"
   const ctaText = TONES[toneKey]
   const showSecondaryCTA = mode.choiceLoad === "normal"
-  const warmthShift = context.emotionalState.valence * 10
+  const warmthShift = field.valence * 10
 
   // Hero is above fold - use immediate animation (no scroll trigger needed)
   const animateClass = motionMode !== "off" ? "animate-fade-in-immediate" : ""
   
   // Fun CON letter collision animation - only at high expressiveness + positive valence
-  const showConCollision = motionMode === "expressive" && context.emotionalState.valence > 0.3
+  const showConCollision = motionMode === "expressive" && field.valence > 0.3
 
   return (
     <section
@@ -95,13 +86,11 @@ export function HeroSection() {
       <div className="relative z-10 max-w-5xl mx-auto text-center">
         
         {/* Date badge */}
-        {context.userCapacity.temporal > 0.3 && (
+        {field.temporal > 0.3 && (
           <div className={animateClass} style={{ animationDelay: "0ms" }}>
             <Badge
               variant="outline"
-              className={`mb-6 text-sm tracking-widest uppercase border-primary/50 ${
-                motionMode === "expressive" ? "vibrate" : ""
-              }`}
+              className={`mb-6 text-sm tracking-widest uppercase border-primary/50 ${ambientClass(motionMode, "vibrate")}`}
             >
               August 15-17, 2026
             </Badge>
@@ -118,7 +107,7 @@ export function HeroSection() {
             animationDelay: "100ms",
           }}
         >
-          <span className={`block text-primary ${motionMode === "expressive" ? "breathe" : ""}`}>
+          <span className={`block text-primary ${ambientClass(motionMode, "breathe")}`}>
             ABYSS
           </span>
           <span className="block text-foreground/90">
@@ -154,9 +143,7 @@ export function HeroSection() {
         >
           <Button 
             size="lg" 
-            className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 ${
-              motionMode === "expressive" ? "hover-pulse" : ""
-            }`}
+            className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 ${getHoverClass(motionMode)}`}
           >
             {ctaText.cta}
           </Button>
@@ -172,7 +159,7 @@ export function HeroSection() {
         </div>
 
         {/* Location info */}
-        {context.userCapacity.cognitive > 0.4 && (
+        {field.cognitive > 0.4 && (
           <p
             className={`mt-12 text-sm text-muted-foreground tracking-widest uppercase ${animateClass}`}
             style={{ animationDelay: "400ms" }}

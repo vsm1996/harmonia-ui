@@ -12,7 +12,7 @@
 
 "use client"
 
-import { useCapacityContext, deriveMode, deriveModeLabel, getModeBadgeColor } from "@/lib/capacity"
+import { useDerivedMode, deriveModeLabel, getModeBadgeColor, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -84,65 +84,32 @@ const TONE = {
 }
 
 export function CapacityDemoCard() {
-  const { context } = useCapacityContext()
-  const field = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
-  const mode = deriveMode(field)
+  const { field, mode } = useDerivedMode()
   const modeLabel = deriveModeLabel(field)
   const modeBadgeColor = getModeBadgeColor(modeLabel)
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // COGNITIVE → Density (derived via mode.density)
-  // ═══════════════════════════════════════════════════════════════════════════
+  // COGNITIVE -> Density
   const densityContent = DENSITY_CONTENT[mode.density]
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // TEMPORAL → Content Length (direct from temporal capacity)
-  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMPORAL -> Content Length
   const temporalContent =
-    context.userCapacity.temporal > 0.4 ? TEMPORAL_CONTENT.full : TEMPORAL_CONTENT.abbreviated
+    field.temporal > 0.4 ? TEMPORAL_CONTENT.full : TEMPORAL_CONTENT.abbreviated
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // VALENCE → Tone Only (does NOT affect information volume)
-  // ═══════════════════════════════════════════════════════════════════════════
+  // VALENCE -> Tone Only
   const toneKey =
-    context.emotionalState.valence > 0.2
-      ? "positive"
-      : context.emotionalState.valence < -0.2
-        ? "negative"
-        : "neutral"
+    field.valence > 0.2 ? "positive" : field.valence < -0.2 ? "negative" : "neutral"
   const tone = TONE[toneKey]
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // EMOTIONAL → Motion Restraint (derived via mode.motion)
-  // Low emotional = no surprises, no playful micro-interactions
-  // ═══════════════════════════════════════════════════════════════════════════
-  const cardAnimClass =
-    mode.motion === "expressive"
-      ? "morph-fade-in"
-      : mode.motion === "subtle"
-        ? "sacred-fade"
-        : ""
-
-  const hoverClass =
-    mode.motion === "expressive"
-      ? "hover-expand"
-      : mode.motion === "subtle"
-        ? "hover-lift"
-        : ""
-
-  const breatheClass = mode.motion === "expressive" ? "breathe" : ""
+  // EMOTIONAL -> Motion Restraint
+  const entrance = getEntranceClass(mode.motion, "morph", false)
+  const hover = getHoverClass(mode.motion)
 
   // Combine: features from temporal content, limited by density count
   const visibleFeatures = temporalContent.features.slice(0, densityContent.featureCount)
 
   return (
     <Card
-      className={`max-w-md border-2 transition-colors ${cardAnimClass} ${hoverClass}`}
+      className={`max-w-md border-2 transition-colors ${entrance} ${hover}`}
       style={{ borderColor: `color-mix(in oklch, ${modeBadgeColor} 40%, transparent)` }}
     >
       <CardHeader>
@@ -157,7 +124,7 @@ export function CapacityDemoCard() {
           <span className={`text-xs ${tone.accent}`}>{tone.greeting}</span>
         </div>
         {/* Cognitive controls title complexity */}
-        <CardTitle className={mode.motion === "expressive" ? "float" : ""}>
+        <CardTitle className={ambientClass(mode.motion, "float")}>
           {densityContent.title}
         </CardTitle>
         {/* Temporal controls description length, shown when density allows */}
@@ -173,9 +140,7 @@ export function CapacityDemoCard() {
             {visibleFeatures.map((feature, idx) => (
               <li
                 key={idx}
-                className={`flex items-start gap-2 text-sm text-muted-foreground ${
-                  mode.motion === "expressive" ? "helix-rise" : mode.motion === "subtle" ? "sacred-fade" : ""
-                }`}
+                className={`flex items-start gap-2 text-sm text-muted-foreground ${listItemClass(mode.motion)}`}
                 style={{ animationDelay: `${idx * 0.15}s` }}
               >
                 <CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
@@ -187,9 +152,7 @@ export function CapacityDemoCard() {
 
         {/* CTA button - motion restraint from emotional */}
         <button
-          className={`w-full py-2 px-4 rounded-md bg-primary text-primary-foreground font-medium text-sm transition-transform ${
-            mode.motion === "expressive" ? "hover-pulse" : "hover-lift"
-          } ${breatheClass}`}
+          className={`w-full py-2 px-4 rounded-md bg-primary text-primary-foreground font-medium text-sm transition-transform ${hover} ${ambientClass(mode.motion, "breathe")}`}
         >
           {densityContent.cta}
         </button>
@@ -198,15 +161,10 @@ export function CapacityDemoCard() {
         <div className="pt-4 border-t border-border">
           <p className="text-xs text-muted-foreground mb-2">Live State</p>
           <div className="grid grid-cols-4 gap-1 text-xs">
-            <StateChip label="Cog" value={context.userCapacity.cognitive} hint="density" />
-            <StateChip label="Temp" value={context.userCapacity.temporal} hint="length" />
-            <StateChip label="Emo" value={context.userCapacity.emotional} hint="motion" />
-            <StateChip
-              label="Val"
-              value={context.emotionalState.valence}
-              hint="tone"
-              signed
-            />
+            <StateChip label="Cog" value={field.cognitive} hint="density" />
+            <StateChip label="Temp" value={field.temporal} hint="length" />
+            <StateChip label="Emo" value={field.emotional} hint="motion" />
+            <StateChip label="Val" value={field.valence} hint="tone" signed />
           </div>
         </div>
       </CardContent>

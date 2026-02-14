@@ -24,10 +24,10 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import {
   useCapacityContext,
+  useDerivedMode,
   useEnergyField,
   useAttentionField,
   useEmotionalValenceField,
-  deriveMode,
   deriveModeLabel,
   getModeBadgeColor,
 } from "@/lib/capacity"
@@ -184,21 +184,12 @@ const DEFAULT_CALM_STATE = {
 
 export function CapacityControls() {
   const [isOpen, setIsOpen] = useState(false)
-  const { context, updateCapacity, updateEmotionalState } = useCapacityContext()
+  const { updateCapacity, updateEmotionalState } = useCapacityContext()
+  const { field, mode } = useDerivedMode()
   const energy = useEnergyField()
   const attention = useAttentionField()
   const valence = useEmotionalValenceField()
 
-  /**
-   * Derive the current interface mode from CapacityField
-   */
-  const field = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
-  const mode = deriveMode(field)
   const modeLabel = deriveModeLabel(field)
   const modeBadgeColor = getModeBadgeColor(modeLabel)
 
@@ -350,7 +341,7 @@ export function CapacityControls() {
                 <SliderControl
                   label="Cognitive Capacity"
                   description="Controls: density, hierarchy, concurrency"
-                  value={context.userCapacity.cognitive}
+                  value={field.cognitive}
                   onChange={(v) => updateCapacity({ cognitive: v })}
                   lowLabel="Fewer items"
                   highLabel="More items"
@@ -360,7 +351,7 @@ export function CapacityControls() {
                 <SliderControl
                   label="Temporal Capacity"
                   description="Controls: content length, shortcuts, defaults"
-                  value={context.userCapacity.temporal}
+                  value={field.temporal}
                   onChange={(v) => updateCapacity({ temporal: v })}
                   lowLabel="Abbreviated"
                   highLabel="Full detail"
@@ -370,7 +361,7 @@ export function CapacityControls() {
                 <SliderControl
                   label="Emotional Capacity"
                   description="Controls: motion restraint, friction"
-                  value={context.userCapacity.emotional}
+                  value={field.emotional}
                   onChange={(v) => updateCapacity({ emotional: v })}
                   lowLabel="Calm UI"
                   highLabel="Expressive"
@@ -381,7 +372,7 @@ export function CapacityControls() {
                   <ValenceSliderControl
                     label="Emotional Valence"
                     description="Controls: tone, expressiveness (not info volume)"
-                    value={context.emotionalState.valence}
+                    value={field.valence}
                     onChange={(v) => updateEmotionalState({ valence: v })}
                   />
                 </div>
