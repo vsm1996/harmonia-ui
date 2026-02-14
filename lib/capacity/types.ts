@@ -47,8 +47,13 @@ export type GuidanceMode = "low" | "medium" | "high"
 
 /**
  * Motion modes - Animation intensity
+ *
+ * off:        No decorative motion (protective, exhausted)
+ * soothing:   Slow rhythmic motion only (breathe, float, gentle-fade)
+ * subtle:     Grounded, low-amplitude (sacred-fade, hover-lift, bloom)
+ * expressive: Full animation suite (vortex, spiral, morph, helix, vibrate)
  */
-export type MotionMode = "off" | "subtle" | "expressive"
+export type MotionMode = "off" | "soothing" | "subtle" | "expressive"
 
 /**
  * Contrast modes - Visual contrast level

@@ -121,7 +121,7 @@ const CAPACITY_PRESETS = {
   },
   overwhelmed: {
     label: "Overwhelmed",
-    description: "High stress: minimal content, boosted contrast, static UI",
+    description: "High stress: minimal content, boosted contrast, soothing motion",
     cognitive: 0.2,
     temporal: 0.15,
     emotional: 0.2,

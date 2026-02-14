@@ -13,7 +13,7 @@
 import React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass } from "@/lib/capacity"
+import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass, type MotionMode } from "@/lib/capacity"
 import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
 export function Footer() {
@@ -135,7 +135,7 @@ function SocialLink({
 }: {
   href: string
   label: string
-  motionMode: "off" | "subtle" | "expressive"
+  motionMode: MotionMode
   children: React.ReactNode
 }) {
   return (

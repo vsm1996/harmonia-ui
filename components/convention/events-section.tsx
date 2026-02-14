@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass } from "@/lib/capacity"
+import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, type MotionMode } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
@@ -188,7 +188,7 @@ function EventCard({
   cognitiveCapacity: number
   temporalCapacity: number
   guidance: "low" | "medium" | "high"
-  motionMode: "off" | "subtle" | "expressive"
+  motionMode: MotionMode
   hoverClass: string
 }) {
   const [isExpanded, setIsExpanded] = useState(false)

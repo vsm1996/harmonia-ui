@@ -94,6 +94,7 @@ function InputsToModeFlow() {
             <EffectRow active={mode.guidance === "high"} text="More labels, helper text visible" />
             <EffectRow active={mode.choiceLoad === "minimal"} text="Reduced options, smart defaults" />
             <EffectRow active={mode.motion === "off"} text="No animations, fully static UI" />
+            <EffectRow active={mode.motion === "soothing"} text="Slow rhythmic motion: breathe, float" />
             <EffectRow active={mode.motion === "subtle"} text="Calm animations, no surprises" />
             <EffectRow active={mode.motion === "expressive"} text="Playful micro-interactions" />
             <EffectRow active={mode.contrast === "boosted"} text="Higher contrast for accessibility" />
@@ -207,7 +208,8 @@ function DerivationLogicExplainer() {
         <div className="space-y-2">
           <p className="font-medium text-foreground">Emotional controls motion:</p>
           <ul className="space-y-1 text-muted-foreground font-mono text-xs">
-            <li>{"emotional < 0.4              → motion: off"}</li>
+            <li>{"emotional < 0.15             → motion: off"}</li>
+            <li>{"emotional < 0.4              → motion: soothing"}</li>
             <li>{"emotional > 0.6 & val > 0.15 → motion: expressive"}</li>
             <li>{"else                         → motion: subtle"}</li>
           </ul>

@@ -19,12 +19,12 @@ import type { MotionMode } from "./types"
  * "off" always maps to "" (no animation).
  */
 const ENTRANCE_PRESETS = {
-  /** Liquid organic morph -> gentle scale fade */
-  morph: { expressive: "morph-fade-in", subtle: "sacred-fade", off: "" },
-  /** Spinning vortex -> gentle scale fade */
-  vortex: { expressive: "vortex-reveal", subtle: "sacred-fade", off: "" },
-  /** Spiral in from corner -> soft bloom */
-  spiral: { expressive: "spiral-in", subtle: "bloom", off: "" },
+  /** Liquid organic morph -> gentle scale fade -> soft bloom -> none */
+  morph: { expressive: "morph-fade-in", subtle: "sacred-fade", soothing: "bloom", off: "" },
+  /** Spinning vortex -> gentle scale fade -> soft bloom -> none */
+  vortex: { expressive: "vortex-reveal", subtle: "sacred-fade", soothing: "bloom", off: "" },
+  /** Spiral in from corner -> soft bloom -> soft bloom -> none */
+  spiral: { expressive: "spiral-in", subtle: "bloom", soothing: "bloom", off: "" },
 } as const
 
 type EntrancePreset = keyof typeof ENTRANCE_PRESETS
@@ -52,7 +52,7 @@ export function entranceClass(
  */
 export function hoverClass(motion: MotionMode): string {
   if (motion === "expressive") return "hover-expand"
-  if (motion === "subtle") return "hover-lift"
+  if (motion === "subtle" || motion === "soothing") return "hover-lift"
   return ""
 }
 
@@ -62,10 +62,15 @@ export function hoverClass(motion: MotionMode): string {
 
 /**
  * Returns a class for continuous ambient animation (breathing, floating, etc.)
- * Only active in expressive mode to avoid overwhelming lower-capacity users.
+ *
+ * - expressive: all ambient types active
+ * - soothing: only slow, rhythmic types (breathe, float) -- calms the nervous system
+ * - subtle / off: no ambient animation
  */
 export function ambientClass(motion: MotionMode, type: "breathe" | "float" | "pulse" | "vibrate"): string {
-  return motion === "expressive" ? type : ""
+  if (motion === "expressive") return type
+  if (motion === "soothing" && (type === "breathe" || type === "float")) return type
+  return ""
 }
 
 /**
@@ -74,6 +79,6 @@ export function ambientClass(motion: MotionMode, type: "breathe" | "float" | "pu
  */
 export function listItemClass(motion: MotionMode): string {
   if (motion === "expressive") return "helix-rise"
-  if (motion === "subtle") return "sacred-fade"
+  if (motion === "subtle" || motion === "soothing") return "sacred-fade"
   return ""
 }

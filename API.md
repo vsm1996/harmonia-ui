@@ -127,7 +127,7 @@ Get the effective motion mode after applying the system reduced-motion override.
 
 ```typescript
 function useEffectiveMotion(): {
-  mode: MotionMode              // "off" | "subtle" | "expressive"
+  mode: MotionMode              // "off" | "soothing" | "subtle" | "expressive"
   tokens: typeof MOTION_TOKENS  // Duration and easing values
   prefersReducedMotion: boolean
 }
@@ -306,7 +306,7 @@ The complete token set derived from `CapacityField`.
 interface InterfaceMode {
   // Active tokens -- consumed by components
   density: "low" | "medium" | "high"
-  motion: "off" | "subtle" | "expressive"
+  motion: "off" | "soothing" | "subtle" | "expressive"
   contrast: "standard" | "boosted"
 
   // Derived tokens -- computed but not yet consumed by components
@@ -341,7 +341,7 @@ Labels are checked in this order -- the first match wins:
 | Preset | Cognitive | Temporal | Emotional | Valence | Motion | Label |
 |--------|-----------|----------|-----------|---------|--------|-------|
 | Exhausted | 0.1 | 0.1 | 0.1 | -0.6 | off | Minimal |
-| Overwhelmed | 0.2 | 0.15 | 0.2 | -0.5 | off | Minimal |
+| Overwhelmed | 0.2 | 0.15 | 0.2 | -0.5 | soothing | Minimal |
 | Distracted | 0.35 | 0.25 | 0.5 | 0.0 | subtle | Minimal |
 | Neutral | 0.5 | 0.5 | 0.5 | 0.0 | subtle | Calm |
 | Focused | 0.75 | 0.75 | 0.55 | 0.1 | subtle | Focused |
@@ -360,8 +360,15 @@ Labels are checked in this order -- the first match wins:
 ### `MotionMode`
 
 ```typescript
-type MotionMode = "off" | "subtle" | "expressive"
+type MotionMode = "off" | "soothing" | "subtle" | "expressive"
 ```
+
+| Mode | Emotional Range | Allowed Animations | Purpose |
+|------|----------------|--------------------|---------|
+| `off` | < 0.15 | None (essential transitions only) | Protective, fully static |
+| `soothing` | 0.15 - 0.4 | breathe, float, bloom, sacred-fade, hover-lift | Nervous system regulation |
+| `subtle` | 0.4 - 0.6 (or low valence) | All of soothing + vortex-reveal, helix-rise, hover-expand | Grounded, low-amplitude |
+| `expressive` | > 0.6 + positive valence | Full suite incl. vibrate, morph, spiral | Playful, energetic |
 
 ### `ComponentResponse`
 
@@ -430,6 +437,14 @@ const MOTION_TOKENS = {
     easing: "linear",
     essentialDuration: 100,
     essentialEasing: "ease-out",
+  },
+  soothing: {
+    durationFast: 0,        // No fast motion -- everything slow and rhythmic
+    durationBase: 800,
+    durationSlow: 1200,
+    easing: "ease-in-out",  // Smooth, no sharp edges
+    essentialDuration: 200,
+    essentialEasing: "ease-in-out",
   },
   subtle: {
     durationFast: 100,
@@ -529,6 +544,7 @@ function entranceClass(motion: MotionMode, preset: "morph" | "vortex" | "spiral"
 // Examples:
 entranceClass("expressive", "morph", false)  // "morph-fade-in"
 entranceClass("subtle", "vortex", false)     // "sacred-fade"
+entranceClass("soothing", "spiral", false)   // "bloom"
 entranceClass("off", "spiral", false)        // ""
 entranceClass("expressive", "morph", true)   // "" (already played)
 ```
@@ -540,17 +556,24 @@ Returns the hover animation class.
 ```typescript
 function hoverClass(motion: MotionMode): string
 
-// "expressive" -> "hover-expand", "subtle" -> "hover-lift", "off" -> ""
+// "expressive" -> "hover-expand"
+// "subtle" / "soothing" -> "hover-lift"
+// "off" -> ""
 ```
 
 #### `ambientClass(motion, type)`
 
-Returns a class for continuous ambient animation. Only active in expressive mode.
+Returns a class for continuous ambient animation. Expressive allows all types. Soothing allows only `breathe` and `float` (slow, rhythmic, calming).
 
 ```typescript
 function ambientClass(motion: MotionMode, type: "breathe" | "float" | "pulse" | "vibrate"): string
 
-// "expressive" -> type string, "subtle"/"off" -> ""
+// "expressive"               -> type string (all allowed)
+// "soothing" + "breathe"     -> "breathe"
+// "soothing" + "float"       -> "float"
+// "soothing" + "pulse"       -> "" (too stimulating)
+// "soothing" + "vibrate"     -> "" (too stimulating)
+// "subtle" / "off"           -> ""
 ```
 
 #### `listItemClass(motion)`
@@ -560,7 +583,9 @@ Returns the staggered list item entrance class.
 ```typescript
 function listItemClass(motion: MotionMode): string
 
-// "expressive" -> "helix-rise", "subtle" -> "sacred-fade", "off" -> ""
+// "expressive" -> "helix-rise"
+// "subtle" / "soothing" -> "sacred-fade"
+// "off" -> ""
 ```
 
 ---
@@ -573,32 +598,33 @@ Animation effects are applied via CSS animation classes defined in `globals.css`
 
 ### Entrance Animations
 
-| Class | Effect | Used when |
-|-------|--------|-----------|
-| `morph-fade-in` | Scale + border-radius morph | `motion === "expressive"` |
-| `sacred-fade` | Gentle opacity + scale | `motion === "subtle"` |
-| `helix-rise` | Translate + rotate entrance | `motion === "expressive"` (list items) |
-| `vortex-reveal` | Scale + rotate reveal | `motion === "expressive"` |
-| `gentle-fade` | Soft opacity + scale | `motion === "subtle"` |
-| `spiral-in` | Translate + rotate + opacity | `motion === "expressive"` |
-| `bloom` | Scale bloom entrance | `motion === "expressive"` |
+| Class | Effect | Modes |
+|-------|--------|-------|
+| `morph-fade-in` | Scale + border-radius morph | expressive |
+| `vortex-reveal` | Scale + rotate reveal | expressive |
+| `spiral-in` | Translate + rotate + opacity | expressive |
+| `helix-rise` | Translate + rotate entrance | expressive (list items) |
+| `sacred-fade` | Gentle opacity + scale | subtle, soothing (list items) |
+| `gentle-fade` | Soft opacity + scale (alias of sacred-fade) | subtle, soothing |
+| `bloom` | Scale bloom entrance | soothing, subtle (spiral preset) |
 
-### Continuous Animations
+### Continuous / Ambient Animations
 
-| Class | Effect | Used when |
-|-------|--------|-----------|
-| `breathe` | Slow scale pulse (7.77s) | `motion === "expressive"` (CTA buttons) |
-| `float` | Vertical drift (4.44s) | `motion === "expressive"` (titles) |
-| `pulse` | Heartbeat rhythm (4.44s) | Decorative elements |
-| `wave` | Gentle rotation (4.44s) | Decorative elements |
+| Class | Effect | Modes |
+|-------|--------|-------|
+| `breathe` | Slow scale pulse (7.77s) | expressive, soothing |
+| `float` | Vertical drift (4.44s) | expressive, soothing |
+| `pulse` | Heartbeat rhythm (4.44s) | expressive only |
+| `vibrate` | Rapid micro-shake (1.11s) | expressive only |
+| `wave` | Gentle rotation (4.44s) | expressive only |
 
 ### Hover Effects
 
-| Class | Effect | Used when |
-|-------|--------|-----------|
-| `hover-pulse` | Scale pulse on hover | `motion === "expressive"` |
-| `hover-lift` | Translate up on hover | `motion === "subtle"` |
-| `hover-expand` | Scale up on hover | `motion === "expressive"` |
+| Class | Effect | Modes |
+|-------|--------|-------|
+| `hover-expand` | Scale up on hover | expressive |
+| `hover-lift` | Translate up on hover | subtle, soothing |
+| `hover-pulse` | Scale pulse on hover | expressive |
 
 ### Intersection Observer Animations
 

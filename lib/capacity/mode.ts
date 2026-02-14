@@ -67,16 +67,20 @@ export function deriveMode(field: CapacityField): InterfaceMode {
   // ═══════════════════════════════════════════════════════════════════════════
   // EMOTIONAL → Motion Restraint, Friction
   // Controls nervous-system-safe UI (no surprises when capacity is low)
-  // Three distinct tiers with clear separation:
-  //   off: emotional < 0.4 → protective, static UI
-  //   subtle: emotional 0.4-0.6 or low valence → grounded, minimal motion
+  // Four distinct tiers:
+  //   off:        emotional < 0.15 → fully protective, static UI
+  //   soothing:   emotional 0.15-0.4 → slow rhythmic motion only (breathe, float)
+  //   subtle:     emotional 0.4-0.6 or low valence → grounded, minimal motion
   //   expressive: emotional > 0.6 AND positive valence → full animation suite
   // ═══════════════════════════════════════════════════════════════════════════
-  const motion: InterfaceMode["motion"] = lowEmotional
+  const veryLowEmotional = field.emotional < 0.15
+  const motion: InterfaceMode["motion"] = veryLowEmotional
     ? "off"
-    : highEmotional && highValence
-      ? "expressive"
-      : "subtle"
+    : lowEmotional
+      ? "soothing"
+      : highEmotional && highValence
+        ? "expressive"
+        : "subtle"
 
   // ═══════════════════════════════════════════════════════════════════════════
   // VALENCE → Tone, Expressiveness (NOT information volume)
@@ -101,14 +105,14 @@ export function deriveMode(field: CapacityField): InterfaceMode {
  * - But they should have different labels (Calm vs Focused)
  * - The distinction is the RAW capacity level, not the derived mode
  *
- * Preset → Label mapping:
- * - Exhausted   (0.1, 0.1, 0.1)   → Minimal     (protective, static)
- * - Overwhelmed (0.2, 0.15, 0.2)  → Minimal     (low cognitive + temporal)
- * - Distracted  (0.35, 0.25, 0.5) → Minimal     (low cognitive + temporal)
- * - Neutral     (0.5, 0.5, 0.5)   → Calm        (balanced, middle-ground)
- * - Focused     (0.75, 0.75, 0.55) → Focused    (good capacity, task-ready)
- * - Energized   (0.9, 0.85, 0.85) → Exploratory (full engagement)
- * - Exploring   (1.0, 1.0, 1.0)   → Exploratory (maximum everything)
+ * Preset → Label / Motion mapping:
+ * - Exhausted   (0.1, 0.1, 0.1)   → Minimal     motion: off      (protective, static)
+ * - Overwhelmed (0.2, 0.15, 0.2)  → Minimal     motion: soothing (breathe, float only)
+ * - Distracted  (0.35, 0.25, 0.5) → Minimal     motion: subtle   (calm, grounded)
+ * - Neutral     (0.5, 0.5, 0.5)   → Calm        motion: subtle   (balanced)
+ * - Focused     (0.75, 0.75, 0.55) → Focused    motion: subtle   (task-ready)
+ * - Energized   (0.9, 0.85, 0.85) → Exploratory motion: expressive (full engagement)
+ * - Exploring   (1.0, 1.0, 1.0)   → Exploratory motion: expressive (maximum)
  */
 export function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
   const { cognitive, temporal, emotional } = inputs

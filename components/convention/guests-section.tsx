@@ -10,7 +10,7 @@
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useDerivedMode, useEffectiveMotion, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass } from "@/lib/capacity"
+import { useDerivedMode, useEffectiveMotion, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, type MotionMode } from "@/lib/capacity"
 import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
 const GUESTS = [
@@ -278,7 +278,7 @@ function GuestCard({
   index,
 }: {
   guest: (typeof GUESTS)[number]
-  motionMode: "off" | "subtle" | "expressive"
+  motionMode: MotionMode
   hoverClass: string
   bioLength: "full" | "short"
   index: number

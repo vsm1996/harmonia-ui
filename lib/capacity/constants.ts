@@ -137,6 +137,14 @@ export const MOTION_TOKENS = {
     essentialDuration: 100,
     essentialEasing: "ease-out",
   },
+  soothing: {
+    durationFast: 0, // No fast motion -- everything is slow and rhythmic
+    durationBase: 800,
+    durationSlow: 1200,
+    easing: "ease-in-out", // Smooth, no sharp edges
+    essentialDuration: 200,
+    essentialEasing: "ease-in-out",
+  },
   subtle: {
     durationFast: 100,
     durationBase: 200,
