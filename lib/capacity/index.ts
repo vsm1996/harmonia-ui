@@ -54,14 +54,3 @@ export { SignalBus, SIGNAL_TYPES } from "./signals/signal-bus"
 
 // Field Manager (for advanced usage)
 export { FieldManager } from "./fields/field-manager"
-
-// Typography Utilities
-export {
-  modularScale,
-  getFontSize,
-  getFontWeight,
-  getLetterSpacing,
-  getLineHeight,
-  getTypographyStyles,
-  getFluidFontSize,
-} from "./utils"

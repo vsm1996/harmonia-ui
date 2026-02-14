@@ -10,12 +10,10 @@
 "use client"
 
 import {
-  useCapacityContext,
-  deriveMode,
+  useDerivedMode,
   deriveModeLabel,
   getModeBadgeColor,
 } from "@/lib/capacity"
-import type { InterfaceMode, CapacityField } from "@/lib/capacity"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -33,16 +31,7 @@ export function AmbientFieldMonitor() {
  * Inputs to Mode Flow - Visual pipeline showing derivation
  */
 function InputsToModeFlow() {
-  const { context } = useCapacityContext()
-
-  const field: CapacityField = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
-
-  const mode = deriveMode(field)
+  const { field, mode } = useDerivedMode()
   const label = deriveModeLabel(field)
   const badgeColor = getModeBadgeColor(label)
 
@@ -104,6 +93,7 @@ function InputsToModeFlow() {
             <EffectRow active={mode.density === "high"} text="Full feature display, dense grids" />
             <EffectRow active={mode.guidance === "high"} text="More labels, helper text visible" />
             <EffectRow active={mode.choiceLoad === "minimal"} text="Reduced options, smart defaults" />
+            <EffectRow active={mode.motion === "off"} text="No animations, fully static UI" />
             <EffectRow active={mode.motion === "subtle"} text="Calm animations, no surprises" />
             <EffectRow active={mode.motion === "expressive"} text="Playful micro-interactions" />
             <EffectRow active={mode.contrast === "boosted"} text="Higher contrast for accessibility" />
@@ -131,15 +121,15 @@ function InputGauge({
   // For bipolar, remap -1..1 to 0..100
   const percentage = isBipolar ? ((value + 1) / 2) * 100 : value * 100
   
-  // Color based on value
+  // Color based on value -- thresholds match mode.ts derivation
   const getColor = () => {
     if (isBipolar) {
-      if (value < -0.25) return "bg-amber-500"
-      if (value > 0.25) return "bg-emerald-500"
+      if (value < -0.15) return "bg-amber-500"
+      if (value > 0.15) return "bg-emerald-500"
       return "bg-sky-500"
     }
-    if (value < 0.35) return "bg-amber-500"
-    if (value > 0.75) return "bg-emerald-500"
+    if (value < 0.4) return "bg-amber-500"
+    if (value > 0.7) return "bg-emerald-500"
     return "bg-sky-500"
   }
 
@@ -202,31 +192,31 @@ function DerivationLogicExplainer() {
         <div className="space-y-2">
           <p className="font-medium text-foreground">Cognitive controls density:</p>
           <ul className="space-y-1 text-muted-foreground font-mono text-xs">
-            <li>{"cognitive < 0.35 → density: low"}</li>
-            <li>{"cognitive > 0.75 → density: high"}</li>
-            <li>{"else → density: medium"}</li>
+            <li>{"cognitive < 0.4  → density: low"}</li>
+            <li>{"cognitive > 0.7  → density: high"}</li>
+            <li>{"else             → density: medium"}</li>
           </ul>
         </div>
         <div className="space-y-2">
           <p className="font-medium text-foreground">Temporal controls choices:</p>
           <ul className="space-y-1 text-muted-foreground font-mono text-xs">
-            <li>{"temporal < 0.35 → choiceLoad: minimal"}</li>
-            <li>{"else → choiceLoad: normal"}</li>
+            <li>{"temporal < 0.4  → choiceLoad: minimal"}</li>
+            <li>{"else            → choiceLoad: normal"}</li>
           </ul>
         </div>
         <div className="space-y-2">
           <p className="font-medium text-foreground">Emotional controls motion:</p>
           <ul className="space-y-1 text-muted-foreground font-mono text-xs">
-            <li>{"emotional < 0.35 → motion: subtle"}</li>
-            <li>{"else if valence > 0.25 → motion: expressive"}</li>
-            <li>{"else → motion: subtle"}</li>
+            <li>{"emotional < 0.4              → motion: off"}</li>
+            <li>{"emotional > 0.6 & val > 0.15 → motion: expressive"}</li>
+            <li>{"else                         → motion: subtle"}</li>
           </ul>
         </div>
         <div className="space-y-2">
           <p className="font-medium text-foreground">Valence controls tone:</p>
           <ul className="space-y-1 text-muted-foreground font-mono text-xs">
-            <li>{"valence < -0.25 → contrast: boosted"}</li>
-            <li>{"else → contrast: standard"}</li>
+            <li>{"valence < -0.15 → contrast: boosted"}</li>
+            <li>{"else            → contrast: standard"}</li>
           </ul>
         </div>
       </div>
