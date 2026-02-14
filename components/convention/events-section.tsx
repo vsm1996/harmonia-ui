@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, type MotionMode } from "@/lib/capacity"
+import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, focusBeaconClass, focusTextClass, type MotionMode, type FocusMode } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InfectedText } from "@/components/infected-text"
@@ -155,6 +155,7 @@ export function EventsSection() {
                 temporalCapacity={field.temporal}
                 guidance={mode.guidance}
                 motionMode={mode.motion}
+                focusMode={mode.focus}
                 hoverClass={hover}
               />
             </div>
@@ -182,6 +183,7 @@ function EventCard({
   temporalCapacity,
   guidance,
   motionMode,
+  focusMode,
   hoverClass,
 }: {
   event: (typeof EVENTS)[number]
@@ -189,6 +191,7 @@ function EventCard({
   temporalCapacity: number
   guidance: "low" | "medium" | "high"
   motionMode: MotionMode
+  focusMode: FocusMode
   hoverClass: string
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -216,7 +219,7 @@ function EventCard({
     <Card
       className={`h-full flex flex-col overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${
         !shouldAutoShowDescription ? "cursor-pointer" : ""
-      } ${ambientClass(motionMode, "breathe")}`}
+      } ${ambientClass(motionMode, "breathe")} ${(event.category === "Panel" || event.category === "Workshop") ? focusBeaconClass(focusMode) : ""}`}
       onClick={handleCardClick}
       role={!shouldAutoShowDescription ? "button" : undefined}
       tabIndex={!shouldAutoShowDescription ? 0 : undefined}
@@ -232,7 +235,7 @@ function EventCard({
 
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-3">
-          <CardTitle className={`font-bold leading-tight group-hover:text-primary transition-colors ${isLowCognitive ? "text-base" : "text-lg"} ${ambientClass(motionMode, "float")}`}>
+          <CardTitle className={`font-bold leading-tight group-hover:text-primary transition-colors ${isLowCognitive ? "text-base" : "text-lg"} ${ambientClass(motionMode, "float")} ${(event.category === "Panel" || event.category === "Workshop") ? focusTextClass(focusMode) : ""}`}>
             {title}
           </CardTitle>
           <Badge className={`shrink-0 text-xs font-semibold ${categoryStyle}`}>

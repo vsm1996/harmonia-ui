@@ -90,7 +90,18 @@ export function deriveMode(field: CapacityField): InterfaceMode {
   // This is a subtle visual adjustment, not information density
   const contrast: InterfaceMode["contrast"] = negValence ? "boosted" : "standard"
 
-  return { density, guidance, motion, contrast, choiceLoad }
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COGNITIVE → Focus Guidance
+  // Low cognitive users are distracted -- important elements need to draw
+  // attention via animation + contrast to compete with scattered focus.
+  // Only activates when there IS some motion available (not "off") and
+  // cognitive is low, so the beacons don't overwhelm an already-static UI.
+  // ═══════════════════════════════════════════════════════════════════════════
+  const focus: InterfaceMode["focus"] = lowCognitive && motion !== "off"
+    ? "guided"
+    : "default"
+
+  return { density, guidance, motion, contrast, choiceLoad, focus }
 }
 
 // ============================================================================
@@ -105,14 +116,14 @@ export function deriveMode(field: CapacityField): InterfaceMode {
  * - But they should have different labels (Calm vs Focused)
  * - The distinction is the RAW capacity level, not the derived mode
  *
- * Preset → Label / Motion mapping:
- * - Exhausted   (0.1, 0.1, 0.1)   → Minimal     motion: off      (protective, static)
- * - Overwhelmed (0.2, 0.15, 0.2)  → Minimal     motion: soothing (breathe, float only)
- * - Distracted  (0.35, 0.25, 0.5) → Minimal     motion: subtle   (calm, grounded)
- * - Neutral     (0.5, 0.5, 0.5)   → Calm        motion: subtle   (balanced)
- * - Focused     (0.75, 0.75, 0.55) → Focused    motion: subtle   (task-ready)
- * - Energized   (0.9, 0.85, 0.85) → Exploratory motion: expressive (full engagement)
- * - Exploring   (1.0, 1.0, 1.0)   → Exploratory motion: expressive (maximum)
+ * Preset → Label / Motion / Focus mapping:
+ * - Exhausted   (0.1, 0.1, 0.1)   → Minimal     motion: off        focus: default (static, no beacons)
+ * - Overwhelmed (0.2, 0.15, 0.2)  → Minimal     motion: soothing   focus: guided  (breathe + beacons)
+ * - Distracted  (0.35, 0.25, 0.5) → Minimal     motion: subtle     focus: guided  (beacons on key items)
+ * - Neutral     (0.5, 0.5, 0.5)   → Calm        motion: subtle     focus: default
+ * - Focused     (0.75, 0.75, 0.55) → Focused    motion: subtle     focus: default
+ * - Energized   (0.9, 0.85, 0.85) → Exploratory motion: expressive focus: default
+ * - Exploring   (1.0, 1.0, 1.0)   → Exploratory motion: expressive focus: default
  */
 export function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
   const { cognitive, temporal, emotional } = inputs

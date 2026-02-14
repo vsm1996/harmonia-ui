@@ -129,7 +129,7 @@ const CAPACITY_PRESETS = {
   },
   distracted: {
     label: "Distracted",
-    description: "Short attention: fewer items, abbreviated text, calm motion",
+    description: "Short attention: fewer items, guided focus on key elements",
     cognitive: 0.35,
     temporal: 0.25,
     emotional: 0.5,
@@ -418,6 +418,8 @@ export function CapacityControls() {
                     <span className="font-medium">{mode.contrast}</span>
                     <span className="text-muted-foreground">Choices:</span>
                     <span className="font-medium">{mode.choiceLoad}</span>
+                    <span className="text-muted-foreground">Focus:</span>
+                    <span className="font-medium">{mode.focus}</span>
                   </div>
                 </div>
               </CardContent>

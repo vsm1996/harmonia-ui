@@ -1,6 +1,6 @@
 "use client"
 
-import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass } from "@/lib/capacity"
+import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass, focusBeaconClass, focusTextClass } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -141,7 +141,7 @@ export function TicketsSection() {
                 tier.highlight 
                   ? "border-primary/50 shadow-lg" 
                   : "border-border/50"
-              } ${ambientClass(mode.motion, "breathe")}`}>
+              } ${ambientClass(mode.motion, "breathe")} ${tier.highlight ? focusBeaconClass(mode.focus) : ""}`}>
                 {tier.highlight && (
                   <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
                     Popular
@@ -149,7 +149,7 @@ export function TicketsSection() {
                 )}
 
                 <CardHeader className="text-center pb-4">
-                  <CardTitle className={`text-2xl font-bold group-hover:text-primary transition-colors ${ambientClass(mode.motion, "float")}`}>
+                  <CardTitle className={`text-2xl font-bold group-hover:text-primary transition-colors ${ambientClass(mode.motion, "float")} ${tier.highlight ? focusTextClass(mode.focus) : ""}`}>
                     {tier.name}
                   </CardTitle>
                   <CardDescription>
@@ -176,7 +176,7 @@ export function TicketsSection() {
                   </ul>
 
                   <Button 
-                    className={`w-full ${tier.highlight ? "" : "bg-transparent"} ${getHoverClass(mode.motion)}`}
+                    className={`w-full ${tier.highlight ? "" : "bg-transparent"} ${getHoverClass(mode.motion)} ${tier.highlight ? focusBeaconClass(mode.focus) : ""}`}
                     variant={tier.highlight ? "default" : "outline"}
                     size="lg"
                   >

@@ -10,7 +10,7 @@
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useDerivedMode, useEffectiveMotion, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, type MotionMode } from "@/lib/capacity"
+import { useDerivedMode, useEffectiveMotion, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, focusBeaconClass, focusTextClass, type MotionMode, type FocusMode } from "@/lib/capacity"
 import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
 const GUESTS = [
@@ -236,6 +236,7 @@ export function GuestsSection() {
               <GuestCard
                 guest={guest}
                 motionMode={motionMode}
+                focusMode={mode.focus}
                 hoverClass={hover}
                 bioLength={bioLength}
                 index={index}
@@ -273,12 +274,14 @@ const GUEST_GRADIENTS = [
 function GuestCard({
   guest,
   motionMode,
+  focusMode,
   hoverClass,
   bioLength,
   index,
 }: {
   guest: (typeof GUESTS)[number]
   motionMode: MotionMode
+  focusMode: FocusMode
   hoverClass: string
   bioLength: "full" | "short"
   index: number
@@ -288,7 +291,7 @@ function GuestCard({
   const bio = guest.bio[bioLength]
 
   return (
-    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-300 ${hoverClass} ${ambientClass(motionMode, "breathe")}`}>
+    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-300 ${hoverClass} ${ambientClass(motionMode, "breathe")} ${guest.featured ? focusBeaconClass(focusMode) : ""}`}>
       {/* Guest image */}
       <div className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}>
         <div className={`absolute inset-0 transition-transform duration-500 ${motionMode !== "off" ? "group-hover:scale-105" : ""}`}>
@@ -309,7 +312,7 @@ function GuestCard({
       </div>
 
       <CardContent className="p-4">
-        <h3 className={`font-bold text-lg group-hover:text-primary transition-colors ${ambientClass(motionMode, "float")}`}>
+        <h3 className={`font-bold text-lg group-hover:text-primary transition-colors ${ambientClass(motionMode, "float")} ${guest.featured ? focusTextClass(focusMode) : ""}`}>
           {guest.name}
         </h3>
         <p className="text-accent text-sm font-medium mb-2">

@@ -18,7 +18,7 @@ export {
 } from "./provider"
 
 // Animation Utilities
-export { entranceClass, hoverClass, ambientClass, listItemClass } from "./animation"
+export { entranceClass, hoverClass, ambientClass, listItemClass, focusBeaconClass, focusTextClass } from "./animation"
 
 // Types
 export type {
@@ -28,6 +28,7 @@ export type {
   DensityMode,
   GuidanceMode,
   MotionMode,
+  FocusMode,
   ContrastMode,
   ChoiceLoadMode,
   UserCapacity,

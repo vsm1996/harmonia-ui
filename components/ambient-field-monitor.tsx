@@ -78,6 +78,7 @@ function InputsToModeFlow() {
             <ModePill label="choices" value={mode.choiceLoad} />
             <ModePill label="motion" value={mode.motion} />
             <ModePill label="contrast" value={mode.contrast} />
+            <ModePill label="focus" value={mode.focus} />
           </div>
         </div>
 
@@ -98,6 +99,7 @@ function InputsToModeFlow() {
             <EffectRow active={mode.motion === "subtle"} text="Calm animations, no surprises" />
             <EffectRow active={mode.motion === "expressive"} text="Playful micro-interactions" />
             <EffectRow active={mode.contrast === "boosted"} text="Higher contrast for accessibility" />
+            <EffectRow active={mode.focus === "guided"} text="Key elements glow to draw attention" />
           </div>
         </div>
       </div>
@@ -219,6 +221,13 @@ function DerivationLogicExplainer() {
           <ul className="space-y-1 text-muted-foreground font-mono text-xs">
             <li>{"valence < -0.15 → contrast: boosted"}</li>
             <li>{"else            → contrast: standard"}</li>
+          </ul>
+        </div>
+        <div className="space-y-2">
+          <p className="font-medium text-foreground">Cognitive controls focus:</p>
+          <ul className="space-y-1 text-muted-foreground font-mono text-xs">
+            <li>{"cognitive < 0.4 & motion != off → focus: guided"}</li>
+            <li>{"else                           → focus: default"}</li>
           </ul>
         </div>
       </div>

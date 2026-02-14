@@ -14,7 +14,7 @@
 "use client"
 
 import { useRef } from "react"
-import { useDerivedMode, useEffectiveMotion, ambientClass, hoverClass as getHoverClass } from "@/lib/capacity"
+import { useDerivedMode, useEffectiveMotion, ambientClass, hoverClass as getHoverClass, focusBeaconClass, focusTextClass } from "@/lib/capacity"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { AnimatedDumpster } from "./animated-dumpster"
@@ -143,7 +143,7 @@ export function HeroSection() {
         >
           <Button 
             size="lg" 
-            className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 ${getHoverClass(motionMode)}`}
+            className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 ${getHoverClass(motionMode)} ${focusBeaconClass(mode.focus)}`}
           >
             {ctaText.cta}
           </Button>

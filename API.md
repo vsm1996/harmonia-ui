@@ -304,18 +304,14 @@ The complete token set derived from `CapacityField`.
 
 ```typescript
 interface InterfaceMode {
-  // Active tokens -- consumed by components
   density: "low" | "medium" | "high"
   motion: "off" | "soothing" | "subtle" | "expressive"
   contrast: "standard" | "boosted"
-
-  // Derived tokens -- computed but not yet consumed by components
+  focus: "default" | "guided"
   guidance: "low" | "medium" | "high"
   choiceLoad: "minimal" | "normal"
 }
 ```
-
-> **Note:** `guidance` and `choiceLoad` are derived in `mode.ts` and included in the TypeScript interface, but no built-in component currently reads them. They are available for custom component development.
 
 ### `InterfaceModeLabel`
 

@@ -7,7 +7,7 @@
  * ambientClass -- this module makes it a single source of truth.
  */
 
-import type { MotionMode } from "./types"
+import type { MotionMode, FocusMode } from "./types"
 
 // ============================================================================
 // Entrance animations (one-shot, runs once when section scrolls into view)
@@ -81,4 +81,26 @@ export function listItemClass(motion: MotionMode): string {
   if (motion === "expressive") return "helix-rise"
   if (motion === "subtle" || motion === "soothing") return "sacred-fade"
   return ""
+}
+
+// ============================================================================
+// Focus / attention-drawing classes (activated by FocusMode "guided")
+// ============================================================================
+
+/**
+ * Returns attention-beacon class for important container elements (cards, CTAs).
+ * Adds a slow glowing box-shadow pulse + stronger border to draw the eye.
+ * Only active in "guided" focus mode (low cognitive / distracted users).
+ */
+export function focusBeaconClass(focus: FocusMode): string {
+  return focus === "guided" ? "attention-beacon focus-highlight" : ""
+}
+
+/**
+ * Returns attention-text class for important headings / labels.
+ * Adds a subtle text-shadow pulse.
+ * Only active in "guided" focus mode.
+ */
+export function focusTextClass(focus: FocusMode): string {
+  return focus === "guided" ? "attention-text" : ""
 }

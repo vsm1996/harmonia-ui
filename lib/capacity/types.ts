@@ -66,6 +66,15 @@ export type ContrastMode = "standard" | "boosted"
 export type ChoiceLoadMode = "minimal" | "normal"
 
 /**
+ * Focus modes - Attention guidance for important elements
+ *
+ * default:  No special treatment for important elements
+ * guided:   Important elements get attention-drawing animation + contrast boost
+ *           Activated when cognitive capacity is low (distracted users)
+ */
+export type FocusMode = "default" | "guided"
+
+/**
  * InterfaceMode - The coherent UI state derived from CapacityField
  *
  * This prevents "sliders controlling random stuff" and instead gives
@@ -77,6 +86,7 @@ export interface InterfaceMode {
   motion: MotionMode
   contrast: ContrastMode
   choiceLoad: ChoiceLoadMode
+  focus: FocusMode
 }
 
 /**

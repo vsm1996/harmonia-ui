@@ -455,7 +455,7 @@
 
     /* Breathing (Slow and steady, like the earth's breath) */
     .breathe {
-      animation: breatheAnim 7.77s ease-in-out infinite; /* Slow, natural breath */
+      animation: breatheAnim 7.77s ease-in-out infinite !important;
     }
     @keyframes breatheAnim {
       0%, 100% { transform: scale(1); }
@@ -474,7 +474,7 @@
 
     /* Floating (Gentle, like a cloud drifting) */
     .float {
-      animation: floatAnim 4.44s ease-in-out infinite; /* Flowing, slow rise and fall */
+      animation: floatAnim 4.44s ease-in-out infinite !important;
     }
     @keyframes floatAnim {
       0% { transform: translateY(0); }
@@ -494,10 +494,10 @@
 
     /* Blooming (Slow, like the opening of a flower) */
     .bloom {
-      animation: bloomAnim 1.2s ease-in-out both;
+      animation: bloomAnim 1.4s ease-in-out both !important;
     }
     @keyframes bloomAnim {
-      0% { transform: scale(0.9); opacity: 0; }
+      0% { transform: scale(0.92); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
 
@@ -558,4 +558,38 @@
     @keyframes hoverExpandAnim {
       0% { transform: scale(1); }
       100% { transform: scale(1.05); }
+    }
+
+    /* ================================================================
+       Attention Beacon - Draws distracted users to important elements
+       Slow, rhythmic box-shadow pulse that makes key elements glow
+       without moving them (no transform, so it stacks with any motion)
+       ================================================================ */
+    .attention-beacon {
+      animation: beaconGlow 3s ease-in-out infinite !important;
+    }
+    @keyframes beaconGlow {
+      0%, 100% {
+        box-shadow: 0 0 0 0 oklch(0.65 0.18 45 / 0),
+                    0 0 0 0 oklch(0.65 0.18 45 / 0);
+      }
+      50% {
+        box-shadow: 0 0 16px 2px oklch(0.65 0.18 45 / 0.25),
+                    0 0 32px 4px oklch(0.65 0.18 45 / 0.08);
+      }
+    }
+
+    /* Text-level attention: subtle color pulse for headings / labels */
+    .attention-text {
+      animation: beaconText 3s ease-in-out infinite !important;
+    }
+    @keyframes beaconText {
+      0%, 100% { text-shadow: 0 0 0 oklch(0.65 0.18 45 / 0); }
+      50%      { text-shadow: 0 0 12px oklch(0.65 0.18 45 / 0.35); }
+    }
+
+    /* Contrast boost ring - static, no animation, just stronger border */
+    .focus-highlight {
+      border-color: oklch(0.65 0.18 45 / 0.5) !important;
+      box-shadow: 0 0 0 1px oklch(0.65 0.18 45 / 0.15);
     }
