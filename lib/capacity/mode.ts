@@ -92,14 +92,21 @@ export function deriveMode(field: CapacityField): InterfaceMode {
 
   // ═══════════════════════════════════════════════════════════════════════════
   // COGNITIVE → Focus Guidance
-  // Low cognitive users are distracted -- important elements need to draw
-  // attention via animation + contrast to compete with scattered focus.
-  // Only activates when there IS some motion available (not "off") and
-  // cognitive is low, so the beacons don't overwhelm an already-static UI.
+  // Draws attention to important elements proportional to cognitive load.
+  // Three tiers:
+  //   guided:  cognitive < 0.4 → strong beacon glow + border (distracted)
+  //   gentle:  cognitive < 0.7 → soft highlight + muted glow (calm/moderate)
+  //   default: cognitive >= 0.7 → no special treatment (focused/sharp)
+  // Only activates when there IS some motion available (not "off"),
+  // so the beacons don't appear on an already-static UI.
   // ═══════════════════════════════════════════════════════════════════════════
-  const focus: InterfaceMode["focus"] = lowCognitive && motion !== "off"
-    ? "guided"
-    : "default"
+  const focus: InterfaceMode["focus"] = motion === "off"
+    ? "default"
+    : lowCognitive
+      ? "guided"
+      : !highCognitive
+        ? "gentle"
+        : "default"
 
   return { density, guidance, motion, contrast, choiceLoad, focus }
 }
@@ -117,10 +124,10 @@ export function deriveMode(field: CapacityField): InterfaceMode {
  * - The distinction is the RAW capacity level, not the derived mode
  *
  * Preset → Label / Motion / Focus mapping:
- * - Exhausted   (0.1, 0.1, 0.1)   → Minimal     motion: off        focus: default (static, no beacons)
- * - Overwhelmed (0.2, 0.15, 0.2)  → Minimal     motion: soothing   focus: guided  (breathe + beacons)
- * - Distracted  (0.35, 0.25, 0.5) → Minimal     motion: subtle     focus: guided  (beacons on key items)
- * - Neutral     (0.5, 0.5, 0.5)   → Calm        motion: subtle     focus: default
+ * - Exhausted   (0.1, 0.1, 0.1)   → Minimal     motion: off        focus: default (static)
+ * - Overwhelmed (0.2, 0.15, 0.2)  → Minimal     motion: soothing   focus: guided  (warm beacon)
+ * - Distracted  (0.35, 0.25, 0.5) → Minimal     motion: subtle     focus: guided  (warm beacon)
+ * - Neutral     (0.5, 0.5, 0.5)   → Calm        motion: subtle     focus: gentle  (cool glow)
  * - Focused     (0.75, 0.75, 0.55) → Focused    motion: subtle     focus: default
  * - Energized   (0.9, 0.85, 0.85) → Exploratory motion: expressive focus: default
  * - Exploring   (1.0, 1.0, 1.0)   → Exploratory motion: expressive focus: default

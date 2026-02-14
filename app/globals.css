@@ -588,8 +588,39 @@
       50%      { text-shadow: 0 0 12px oklch(0.65 0.18 45 / 0.35); }
     }
 
-    /* Contrast boost ring - static, no animation, just stronger border */
+    /* Contrast boost ring - static, stronger border for guided focus */
     .focus-highlight {
       border-color: oklch(0.65 0.18 45 / 0.5) !important;
       box-shadow: 0 0 0 1px oklch(0.65 0.18 45 / 0.15);
+    }
+
+    /* ================================================================
+       Gentle Focus - Softer attention cues for calm/moderate capacity
+       Slower cycle, lower opacity, muted glow vs. the guided beacon
+       ================================================================ */
+    .gentle-beacon {
+      animation: gentleGlow 5s ease-in-out infinite !important;
+    }
+    @keyframes gentleGlow {
+      0%, 100% {
+        box-shadow: 0 0 0 0 oklch(0.65 0.15 220 / 0),
+                    0 0 0 0 oklch(0.65 0.15 220 / 0);
+      }
+      50% {
+        box-shadow: 0 0 10px 1px oklch(0.65 0.15 220 / 0.15),
+                    0 0 20px 2px oklch(0.65 0.15 220 / 0.05);
+      }
+    }
+
+    .gentle-text {
+      animation: gentleTextGlow 5s ease-in-out infinite !important;
+    }
+    @keyframes gentleTextGlow {
+      0%, 100% { text-shadow: 0 0 0 oklch(0.65 0.15 220 / 0); }
+      50%      { text-shadow: 0 0 8px oklch(0.65 0.15 220 / 0.2); }
+    }
+
+    /* Softer border accent for gentle focus */
+    .gentle-highlight {
+      border-color: oklch(0.65 0.15 220 / 0.35) !important;
     }

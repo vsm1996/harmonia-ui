@@ -99,7 +99,8 @@ function InputsToModeFlow() {
             <EffectRow active={mode.motion === "subtle"} text="Calm animations, no surprises" />
             <EffectRow active={mode.motion === "expressive"} text="Playful micro-interactions" />
             <EffectRow active={mode.contrast === "boosted"} text="Higher contrast for accessibility" />
-            <EffectRow active={mode.focus === "guided"} text="Key elements glow to draw attention" />
+            <EffectRow active={mode.focus === "gentle"} text="Soft highlight on important elements" />
+            <EffectRow active={mode.focus === "guided"} text="Strong beacon glow on key elements" />
           </div>
         </div>
       </div>
@@ -226,7 +227,9 @@ function DerivationLogicExplainer() {
         <div className="space-y-2">
           <p className="font-medium text-foreground">Cognitive controls focus:</p>
           <ul className="space-y-1 text-muted-foreground font-mono text-xs">
-            <li>{"cognitive < 0.4 & motion != off → focus: guided"}</li>
+            <li>{"motion == off                  → focus: default"}</li>
+            <li>{"cognitive < 0.4                → focus: guided"}</li>
+            <li>{"cognitive < 0.7                → focus: gentle"}</li>
             <li>{"else                           → focus: default"}</li>
           </ul>
         </div>

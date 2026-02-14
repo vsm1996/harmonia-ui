@@ -307,7 +307,7 @@ interface InterfaceMode {
   density: "low" | "medium" | "high"
   motion: "off" | "soothing" | "subtle" | "expressive"
   contrast: "standard" | "boosted"
-  focus: "default" | "guided"
+  focus: "default" | "gentle" | "guided"
   guidance: "low" | "medium" | "high"
   choiceLoad: "minimal" | "normal"
 }
@@ -334,15 +334,15 @@ Labels are checked in this order -- the first match wins:
 
 #### Preset-to-Label Mapping
 
-| Preset | Cognitive | Temporal | Emotional | Valence | Motion | Label |
-|--------|-----------|----------|-----------|---------|--------|-------|
-| Exhausted | 0.1 | 0.1 | 0.1 | -0.6 | off | Minimal |
-| Overwhelmed | 0.2 | 0.15 | 0.2 | -0.5 | soothing | Minimal |
-| Distracted | 0.35 | 0.25 | 0.5 | 0.0 | subtle | Minimal |
-| Neutral | 0.5 | 0.5 | 0.5 | 0.0 | subtle | Calm |
-| Focused | 0.75 | 0.75 | 0.55 | 0.1 | subtle | Focused |
-| Energized | 0.9 | 0.85 | 0.85 | 0.6 | expressive | Exploratory |
-| Exploring | 1.0 | 1.0 | 1.0 | 0.8 | expressive | Exploratory |
+| Preset | Cognitive | Temporal | Emotional | Valence | Motion | Focus | Label |
+|--------|-----------|----------|-----------|---------|--------|-------|-------|
+| Exhausted | 0.1 | 0.1 | 0.1 | -0.6 | off | default | Minimal |
+| Overwhelmed | 0.2 | 0.15 | 0.2 | -0.5 | soothing | guided | Minimal |
+| Distracted | 0.35 | 0.25 | 0.5 | 0.0 | subtle | guided | Minimal |
+| Neutral | 0.5 | 0.5 | 0.5 | 0.0 | subtle | gentle | Calm |
+| Focused | 0.75 | 0.75 | 0.55 | 0.1 | subtle | default | Focused |
+| Energized | 0.9 | 0.85 | 0.85 | 0.6 | expressive | default | Exploratory |
+| Exploring | 1.0 | 1.0 | 1.0 | 0.8 | expressive | default | Exploratory |
 
 #### Badge Colors
 
@@ -365,6 +365,18 @@ type MotionMode = "off" | "soothing" | "subtle" | "expressive"
 | `soothing` | 0.15 - 0.4 | breathe, float, bloom, sacred-fade, hover-lift | Nervous system regulation |
 | `subtle` | 0.4 - 0.6 (or low valence) | All of soothing + vortex-reveal, helix-rise, hover-expand | Grounded, low-amplitude |
 | `expressive` | > 0.6 + positive valence | Full suite incl. vibrate, morph, spiral | Playful, energetic |
+
+### `FocusMode`
+
+```typescript
+type FocusMode = "default" | "gentle" | "guided"
+```
+
+| Mode | Cognitive Range | Visual Treatment | Purpose |
+|------|----------------|-----------------|---------|
+| `default` | >= 0.7 (or motion off) | None | User is sharp, no guidance needed |
+| `gentle` | 0.4 - 0.7 | Slow cool glow (5s), soft border accent | Calm nudge toward key elements |
+| `guided` | < 0.4 | Strong warm beacon (3s), border highlight | Compete with scattered attention |
 
 ### `ComponentResponse`
 
@@ -582,6 +594,30 @@ function listItemClass(motion: MotionMode): string
 // "expressive" -> "helix-rise"
 // "subtle" / "soothing" -> "sacred-fade"
 // "off" -> ""
+```
+
+#### `focusBeaconClass(focus)`
+
+Returns attention-drawing classes for important container elements (highlighted cards, CTA buttons).
+
+```typescript
+function focusBeaconClass(focus: FocusMode): string
+
+// "guided" -> "attention-beacon focus-highlight" (warm 3s glow + border)
+// "gentle" -> "gentle-beacon gentle-highlight"   (cool 5s glow + border)
+// "default" -> ""
+```
+
+#### `focusTextClass(focus)`
+
+Returns attention-drawing classes for important headings / labels.
+
+```typescript
+function focusTextClass(focus: FocusMode): string
+
+// "guided" -> "attention-text"  (warm text-shadow 3s pulse)
+// "gentle" -> "gentle-text"     (cool text-shadow 5s pulse)
+// "default" -> ""
 ```
 
 ---

@@ -69,10 +69,12 @@ export type ChoiceLoadMode = "minimal" | "normal"
  * Focus modes - Attention guidance for important elements
  *
  * default:  No special treatment for important elements
- * guided:   Important elements get attention-drawing animation + contrast boost
- *           Activated when cognitive capacity is low (distracted users)
+ * gentle:   Soft highlight on important elements (muted glow, border accent)
+ *           Activated at medium cognitive capacity (calm users)
+ * guided:   Strong attention-drawing animation + contrast boost
+ *           Activated at low cognitive capacity (distracted users)
  */
-export type FocusMode = "default" | "guided"
+export type FocusMode = "default" | "gentle" | "guided"
 
 /**
  * InterfaceMode - The coherent UI state derived from CapacityField

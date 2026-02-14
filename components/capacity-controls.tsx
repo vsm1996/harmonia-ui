@@ -137,7 +137,7 @@ const CAPACITY_PRESETS = {
   },
   neutral: {
     label: "Neutral",
-    description: "Balanced: medium density, subtle motion, standard contrast",
+    description: "Balanced: medium density, subtle motion, gentle focus on key items",
     cognitive: 0.5,
     temporal: 0.5,
     emotional: 0.5,

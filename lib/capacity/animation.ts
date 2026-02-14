@@ -89,18 +89,24 @@ export function listItemClass(motion: MotionMode): string {
 
 /**
  * Returns attention-beacon class for important container elements (cards, CTAs).
- * Adds a slow glowing box-shadow pulse + stronger border to draw the eye.
- * Only active in "guided" focus mode (low cognitive / distracted users).
+ * - guided: strong warm glow (3s cycle) + border accent
+ * - gentle: muted cool glow (5s cycle) + softer border
+ * - default: no treatment
  */
 export function focusBeaconClass(focus: FocusMode): string {
-  return focus === "guided" ? "attention-beacon focus-highlight" : ""
+  if (focus === "guided") return "attention-beacon focus-highlight"
+  if (focus === "gentle") return "gentle-beacon gentle-highlight"
+  return ""
 }
 
 /**
  * Returns attention-text class for important headings / labels.
- * Adds a subtle text-shadow pulse.
- * Only active in "guided" focus mode.
+ * - guided: warm text-shadow pulse (3s)
+ * - gentle: cool text-shadow pulse (5s)
+ * - default: no treatment
  */
 export function focusTextClass(focus: FocusMode): string {
-  return focus === "guided" ? "attention-text" : ""
+  if (focus === "guided") return "attention-text"
+  if (focus === "gentle") return "gentle-text"
+  return ""
 }
