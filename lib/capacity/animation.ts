@@ -84,7 +84,7 @@ export function listItemClass(motion: MotionMode): string {
 }
 
 // ============================================================================
-// Focus / attention-drawing classes (activated by FocusMode "guided")
+// Focus / attention-drawing classes (activated by FocusMode "guided" or "gentle")
 // ============================================================================
 
 /**

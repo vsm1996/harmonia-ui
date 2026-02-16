@@ -658,6 +658,17 @@ Animation effects are applied via CSS animation classes defined in `globals.css`
 | `hover-lift` | Translate up on hover | subtle, soothing |
 | `hover-pulse` | Scale pulse on hover | expressive |
 
+### Focus / Attention Animations
+
+| Class | Effect | Focus Mode |
+|-------|--------|------------|
+| `attention-beacon` | Warm box-shadow pulse (3s) | guided |
+| `attention-text` | Warm text-shadow pulse (3s) | guided |
+| `focus-highlight` | Strong border accent (static) | guided |
+| `gentle-beacon` | Cool box-shadow pulse (5s) | gentle |
+| `gentle-text` | Cool text-shadow pulse (5s) | gentle |
+| `gentle-highlight` | Soft border accent (static) | gentle |
+
 ### Intersection Observer Animations
 
 | Class | Effect | Trigger |
