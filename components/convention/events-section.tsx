@@ -57,7 +57,7 @@ const EVENTS = [
     title: "Words From The Creator",
     shortTitle: "Urana Q&A",
     description: {
-      full: "Kei Urana. The one who built this world. The Abyss. Rudo. The Cleaners. He's here. He's talking.",
+      full: "Kei Urana. The one who built this world. The Abyss. Rudo. The Cleaners. They're here. They're talking.",
       short: "Kei Urana. In person.",
     },
     category: "Panel",
@@ -217,9 +217,8 @@ function EventCard({
 
   return (
     <Card
-      className={`h-full flex flex-col overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${
-        !shouldAutoShowDescription ? "cursor-pointer" : ""
-      } ${ambientClass(motionMode, "breathe")} ${(event.category === "Panel" || event.category === "Workshop") ? focusBeaconClass(focusMode) : ""}`}
+      className={`h-full flex flex-col overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${!shouldAutoShowDescription ? "cursor-pointer" : ""
+        } ${ambientClass(motionMode, "breathe")} ${(event.category === "Panel" || event.category === "Workshop") ? focusBeaconClass(focusMode) : ""}`}
       onClick={handleCardClick}
       role={!shouldAutoShowDescription ? "button" : undefined}
       tabIndex={!shouldAutoShowDescription ? 0 : undefined}
