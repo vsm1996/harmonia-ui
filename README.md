@@ -13,10 +13,6 @@
 
 ## See It In Action
 
-<!-- TODO: Replace with actual screen recording GIF -->
-<!-- Recommended: Use a tool like Kap (macOS), ScreenToGif (Windows), or peek (Linux) -->
-<!-- Show: Adjusting capacity sliders and watching the UI adapt in real-time -->
-
 ![Harmonia UI Demo](public/demo.gif)
 
 *The interface adapts as you adjust cognitive, temporal, and emotional capacity. From Minimal mode (stripped to essentials) to Exploratory mode (full features with expressive motion).*
@@ -30,7 +26,7 @@ Harmonia UI is a framework for building interfaces that adapt to a user's curren
 **The core insight:** Users don't always have the same capacity. Sometimes you're focused and energized; sometimes you're exhausted and overwhelmed. Interfaces should respond to this reality.
 
 ```
-UserCapacity + EmotionalState -> FieldManager -> AmbientContext -> deriveMode() -> Components
+UserCapacity + EmotionalState → FieldManager → AmbientContext → deriveMode() → Components
 ```
 
 Raw inputs are never mapped directly to styles. Inputs derive fields; fields inform modes; components consume mode tokens. This separation keeps adaptation consistent, predictable, and maintainable.
@@ -59,20 +55,20 @@ Raw inputs are never mapped directly to styles. Inputs derive fields; fields inf
 
 The user's state is captured by two structures:
 
-**UserCapacity** (three 0-1 dimensions):
+**UserCapacity** (three 0–1 dimensions):
 
 | Input | Range | Controls | Description |
 |-------|-------|----------|-------------|
-| **Cognitive** | 0-1 | Density | Mental bandwidth available. Low = overwhelmed, high = sharp. |
-| **Temporal** | 0-1 | Content length | Time/effort budget. Low = rushed, high = leisurely. |
-| **Emotional** | 0-1 | Motion restraint | Load tolerance/resilience. Low = fragile, high = robust. |
+| **Cognitive** | 0–1 | Density, focus guidance | Mental bandwidth available. Low = overwhelmed, high = sharp. |
+| **Temporal** | 0–1 | Content length, guidance | Time/effort budget. Low = rushed, high = leisurely. |
+| **Emotional** | 0–1 | Motion restraint | Load tolerance/resilience. Low = fragile, high = robust. |
 
 **EmotionalState**:
 
 | Input | Range | Controls | Description |
 |-------|-------|----------|-------------|
-| **Valence** | -1 to +1 | Tone, expressiveness | Emotional direction. Negative = distressed, positive = upbeat. |
-| **Arousal** | 0-1 | (Phase 2+) | Energy/activation level. Reserved for future use. |
+| **Valence** | −1 to +1 | Tone, expressiveness, contrast | Emotional direction. Negative = distressed, positive = upbeat. |
+| **Arousal** | 0–1 | (Phase 3+) | Energy/activation level. Reserved for future use. |
 
 ### Derived Fields (AmbientContext)
 
@@ -80,32 +76,33 @@ The `FieldManager` computes three derived fields from raw inputs, wrapped in `Fi
 
 | Field | Formula | Purpose |
 |-------|---------|---------|
-| **Energy** | Geometric mean of cognitive, temporal, emotional | Overall capacity level |
-| **Attention** | Inverse of temporal pressure | Focus demand on the system |
-| **Emotional Valence** | Pass-through from EmotionalState.valence | Emotional direction for tone |
+| **Energy** | Geometric mean of cognitive × temporal × emotional | Overall capacity level |
+| **Attention** | `1 − (temporal × 0.5)` — range 0.5–1.0 | Focus demand on the system |
+| **Emotional Valence** | Pass-through from `EmotionalState.valence` | Emotional direction for tone |
 
 ### InterfaceMode (Tokens)
 
-Components call `deriveMode(field)` to get discrete tokens. There are no CSS classes for tokens -- components read them in JavaScript and make rendering decisions in JSX.
+Components call `deriveMode(field)` to get discrete tokens. There are no CSS classes for tokens — components read them in JavaScript and make rendering decisions in JSX.
 
 | Token | Source | Values | Status |
 |-------|--------|--------|--------|
 | **density** | cognitive | `"low"` / `"medium"` / `"high"` | Active |
-| **motion** | emotional + valence | `"off"` / `"subtle"` / `"expressive"` | Active |
+| **motion** | emotional + valence | `"off"` / `"soothing"` / `"subtle"` / `"expressive"` | Active |
 | **contrast** | valence | `"standard"` / `"boosted"` | Active |
+| **focus** | cognitive + motion | `"default"` / `"gentle"` / `"guided"` | Active |
 | **guidance** | cognitive + temporal | `"low"` / `"medium"` / `"high"` | Derived, not yet consumed |
 | **choiceLoad** | temporal | `"minimal"` / `"normal"` | Derived, not yet consumed |
 
 ### Interface Mode Labels
 
-Four human-readable labels derived from raw inputs:
+Four human-readable labels derived from raw inputs (not from tokens), checked in order — first match wins:
 
 | Mode | Trigger | Characteristics |
 |------|---------|-----------------|
-| **Minimal** | cognitive < 0.35 AND temporal < 0.35 | Stripped to essentials, boosted contrast |
-| **Calm** | Fallthrough (moderate, uneven capacity) | Gentle density, subtle motion |
-| **Focused** | cognitive >= 0.6 AND temporal >= 0.6 | Balanced density, task-oriented |
-| **Exploratory** | cognitive > 0.65 AND emotional > 0.65 | Full features, expressive motion |
+| **Exploratory** | cognitive > 0.6 AND emotional > 0.6 | Full features, expressive motion |
+| **Minimal** | cognitive < 0.4 AND temporal < 0.4 | Stripped to essentials, protective |
+| **Focused** | cognitive ≥ 0.55 AND temporal ≥ 0.55 | Balanced density, task-oriented |
+| **Calm** | Fallthrough (none of the above match) | Gentle density, subtle motion |
 
 ---
 
@@ -120,18 +117,21 @@ Four human-readable labels derived from raw inputs:
 |  | State         |    |  fields)      |    |  attention,    |   |
 |  +---------------+    +---------------+    |  valence,      |   |
 |                                            |  raw inputs)   |   |
-|                                            +----------------+   |
+|  SignalAggregator  ----(auto-mode)-------> | (updates)      |   |
+|  (detectors: time,                         +----------------+   |
+|   session, scroll,                                              |
+|   interaction, input,                                           |
+|   environment)                                                  |
 +-----------------------------------------------------------------+
                                 |
                                 v
 +-----------------------------------------------------------------+
 |                         Components                               |
 |  Each component:                                                 |
-|    1. Calls useCapacityContext() to get AmbientContext            |
-|    2. Builds a CapacityField from context                        |
-|    3. Calls deriveMode(field) inline for tokens                  |
-|    4. Reads raw values from context for content decisions         |
-|    5. Applies CSS animation classes based on mode.motion          |
+|    1. Calls useDerivedMode() to get CapacityField + InterfaceMode|
+|    2. Reads mode tokens for layout/motion decisions in JSX      |
+|    3. Reads raw context values for content length and tone      |
+|    4. Applies CSS animation classes based on mode.motion        |
 +-----------------------------------------------------------------+
 ```
 
@@ -140,11 +140,17 @@ Four human-readable labels derived from raw inputs:
 | File | Purpose |
 |------|---------|
 | `lib/capacity/types.ts` | All TypeScript interfaces (CapacityField, InterfaceMode, AmbientContext, etc.) |
-| `lib/capacity/provider.tsx` | CapacityProvider, context hooks (useCapacityContext, useEnergyField, etc.) |
-| `lib/capacity/fields/field-manager.ts` | FieldManager singleton -- computes derived fields from raw inputs |
-| `lib/capacity/mode.ts` | deriveMode(), deriveModeLabel(), getModeBadgeColor() |
-| `lib/capacity/constants.ts` | Default values, motion tokens, golden ratio constants, presets |
+| `lib/capacity/provider.tsx` | CapacityProvider, context hooks (useCapacityContext, useDerivedMode, useEffectiveMotion, etc.) |
+| `lib/capacity/fields/field-manager.ts` | FieldManager singleton — computes derived fields from raw inputs |
+| `lib/capacity/mode.ts` | `deriveMode()`, `deriveModeLabel()`, `getModeBadgeColor()` |
+| `lib/capacity/constants.ts` | Default values, motion tokens, golden ratio constants |
 | `lib/capacity/signals/signal-bus.ts` | Type-safe pub/sub for inter-component communication |
+| `lib/capacity/signals/aggregator.ts` | SignalAggregator — collects readings from all detectors |
+| `lib/capacity/signals/detectors/` | TimeDetector, SessionDetector, ScrollDetector, InteractionDetector, InputDetector, EnvironmentDetector |
+| `lib/capacity/prediction/pattern-store.ts` | localStorage persistence of capacity history |
+| `lib/capacity/prediction/pattern-extractor.ts` | Pattern analysis over historical data |
+| `lib/capacity/prediction/prediction-engine.ts` | Matches current context to stored patterns |
+| `lib/capacity/prediction/hooks.ts` | `usePredictedCapacity()` React hook |
 | `lib/capacity/utils/typography.ts` | Modular scale, fluid font sizing, typography role utilities |
 | `lib/capacity/index.ts` | Barrel exports for the capacity system |
 | `components/capacity-controls.tsx` | UI panel for manual capacity adjustment (sliders + presets) |
@@ -155,20 +161,25 @@ Four human-readable labels derived from raw inputs:
 
 ## Derivation Rules
 
+These match the implementation in `lib/capacity/mode.ts` exactly.
+
 ### Density (from Cognitive)
 
 ```typescript
-if (cognitive < 0.35) return "low"
-if (cognitive > 0.75) return "high"
+if (cognitive < 0.4) return "low"
+if (cognitive > 0.7) return "high"
 return "medium"
 ```
 
 ### Motion (from Emotional + Valence)
 
+Four tiers, in order of priority:
+
 ```typescript
-if (emotional < 0.35) return "subtle"
-if (valence > 0.25) return "expressive"
-return "subtle"
+if (emotional < 0.15) return "off"       // Protective — fully static
+if (emotional < 0.4)  return "soothing"  // Slow, rhythmic only
+if (emotional > 0.6 && valence > 0.15) return "expressive"  // Full animation suite
+return "subtle"                           // Grounded, low-amplitude
 ```
 
 System `prefers-reduced-motion` is a hard override that forces `"off"` regardless of derived value.
@@ -176,8 +187,17 @@ System `prefers-reduced-motion` is a hard override that forces `"off"` regardles
 ### Contrast (from Valence)
 
 ```typescript
-if (valence < -0.25) return "boosted"
+if (valence < -0.15) return "boosted"
 return "standard"
+```
+
+### Focus (from Cognitive + Motion)
+
+```typescript
+if (motion === "off") return "default"  // Static UI — no beacons
+if (cognitive < 0.4)  return "guided"  // Strong warm beacon (distracted)
+if (cognitive <= 0.7) return "gentle"  // Soft cool glow (moderate)
+return "default"                        // Sharp — no guidance needed
 ```
 
 ### Guidance (from Cognitive + Temporal)
@@ -185,8 +205,8 @@ return "standard"
 > Not yet consumed by any component. Available for future use.
 
 ```typescript
-if (cognitive < 0.35) return "high"
-if (temporal < 0.35) return "medium"
+if (cognitive < 0.4) return "high"
+if (temporal < 0.4)  return "medium"
 return "low"
 ```
 
@@ -195,7 +215,7 @@ return "low"
 > Not yet consumed by any component. Available for future use.
 
 ```typescript
-if (temporal < 0.35) return "minimal"
+if (temporal < 0.4) return "minimal"
 return "normal"
 ```
 
@@ -205,49 +225,53 @@ return "normal"
 
 ### Minimal Mode
 
-**When:** User is overwhelmed, exhausted, or in distress.
+**When:** cognitive < 0.4 AND temporal < 0.4 — user is overwhelmed, exhausted, or rushed.
 
 | Token | Value | Effect |
 |-------|-------|--------|
 | density | low | Fewer items visible, single-column layout |
-| motion | subtle or off | No surprises |
-| contrast | boosted | Higher accessibility |
+| motion | off or soothing | No surprises; slow rhythmic motion if emotional ≥ 0.15 |
+| contrast | boosted (if valence negative) | Higher accessibility |
+| focus | guided (if motion not off) | Strong attention beacon on key elements |
 
 **Suggested tone:** "Take your time."
 
 ### Calm Mode
 
-**When:** User has moderate but uneven capacity. Includes neutral states, distracted states, and other in-between conditions that don't meet the thresholds for Focused or Exploratory.
+**When:** Fallthrough — moderate or uneven capacity that doesn't meet Focused or Exploratory thresholds.
 
 | Token | Value | Effect |
 |-------|-------|--------|
-| density | low to medium | Gentle information load |
+| density | medium | Gentle information load |
 | motion | subtle | Grounded transitions |
 | contrast | standard | Normal contrast |
+| focus | gentle | Soft cool glow on key elements |
 
 **Suggested tone:** "Take it easy."
 
 ### Focused Mode
 
-**When:** User has good cognitive and temporal capacity -- ready to work.
+**When:** cognitive ≥ 0.55 AND temporal ≥ 0.55 — user is ready to work.
 
 | Token | Value | Effect |
 |-------|-------|--------|
-| density | medium | Balanced information |
-| motion | subtle to expressive | Depends on emotional + valence |
+| density | medium to high | Balanced to full information |
+| motion | subtle (or expressive if emotional and valence are high) | Depends on emotional + valence |
 | contrast | standard | Normal contrast |
+| focus | default | User is capable — no guidance needed |
 
 **Suggested tone:** "Here's how it works:"
 
 ### Exploratory Mode
 
-**When:** User is energized, curious, and emotionally robust.
+**When:** cognitive > 0.6 AND emotional > 0.6 — user is energized and emotionally robust.
 
 | Token | Value | Effect |
 |-------|-------|--------|
-| density | medium to high | Full feature display |
-| motion | expressive | Playful micro-interactions |
+| density | high | Full feature display |
+| motion | expressive (if valence > 0.15) | Playful micro-interactions |
 | contrast | standard | Normal contrast |
+| focus | default | No guidance needed |
 
 **Suggested tone:** "You're doing great!"
 
@@ -258,7 +282,7 @@ return "normal"
 ### Prerequisites
 
 - Node.js 18+
-- pnpm (recommended) or npm
+- npm or pnpm
 
 ### Installation
 
@@ -268,19 +292,25 @@ git clone https://github.com/vsm1996/harmonia-ui.git
 cd harmonia-ui
 
 # Install dependencies
-pnpm install
+npm install
 
 # Start development server
-pnpm dev
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see the demo.
 
+### Run Tests
+
+```bash
+npm test
+```
+
 ### Build for Production
 
 ```bash
-pnpm build
-pnpm start
+npm run build
+npm start
 ```
 
 ---
@@ -289,51 +319,58 @@ pnpm start
 
 ```
 harmonia-ui/
-+-- app/
-|   +-- page.tsx                            # Homepage with live demo
-|   +-- convention/
-|   |   +-- layout.tsx                      # Convention layout with CapacityProvider
-|   |   +-- page.tsx                        # AbyssCon example page
-|   +-- accessibility/page.tsx              # Accessibility statement
-|   +-- privacy/page.tsx                    # Privacy policy
-|   +-- terms/page.tsx                      # Terms of service
-|   +-- layout.tsx                          # Root layout
-|   +-- globals.css                         # Global styles + animation classes
-+-- components/
-|   +-- capacity-controls.tsx               # Slider panel for adjusting inputs
-|   +-- capacity-demo-card.tsx              # Example adaptive card
-|   +-- ambient-field-monitor.tsx           # Debug overlay for field values
-|   +-- providers.tsx                       # Theme + capacity provider wrapper
-|   +-- infected-text.tsx                   # Capacity-adaptive text component
-|   +-- convention/
-|   |   +-- hero-section.tsx                # Adaptive convention hero
-|   |   +-- events-section.tsx              # Adaptive events grid
-|   |   +-- guests-section.tsx              # Adaptive guest cards
-|   |   +-- tickets-section.tsx             # Adaptive ticket tiers
-|   |   +-- convention-nav.tsx              # Convention navigation
-|   |   +-- footer.tsx                      # Convention footer
-|   |   +-- animated-dumpster.tsx           # SVG animation component
-|   |   +-- gachiakuta-svgs.tsx             # Themed SVG illustrations
-+-- lib/
-|   +-- capacity/
-|   |   +-- types.ts                        # All TypeScript interfaces
-|   |   +-- constants.ts                    # Defaults, thresholds, motion tokens
-|   |   +-- provider.tsx                    # CapacityProvider + context hooks
-|   |   +-- mode.ts                         # deriveMode, deriveModeLabel, badge colors
-|   |   +-- index.ts                        # Barrel exports
-|   |   +-- fields/
-|   |   |   +-- field-manager.ts            # FieldManager singleton
-|   |   +-- signals/
-|   |   |   +-- signal-bus.ts               # Type-safe event bus
-|   |   +-- utils/
-|   |       +-- index.ts                    # General utilities
-|   |       +-- typography.ts               # Modular scale + fluid fonts
-|   +-- use-scroll-animation.ts             # IntersectionObserver scroll hook
-|   +-- utils.ts                            # cn() class utility
-+-- styles/
-|   +-- globals.css                         # Additional global styles
-+-- public/
-    +-- images/                             # Static assets
+├── app/
+│   ├── page.tsx                            # Homepage with live demo
+│   ├── convention/
+│   │   ├── layout.tsx                      # Convention layout with CapacityProvider
+│   │   └── page.tsx                        # AbyssCon example page
+│   ├── accessibility/page.tsx              # Accessibility statement
+│   ├── privacy/page.tsx                    # Privacy policy
+│   ├── terms/page.tsx                      # Terms of service
+│   ├── layout.tsx                          # Root layout
+│   └── globals.css                         # Global styles + animation classes
+├── components/
+│   ├── capacity-controls.tsx               # Slider panel for adjusting inputs
+│   ├── capacity-demo-card.tsx              # Example adaptive card
+│   ├── ambient-field-monitor.tsx           # Debug overlay for field values
+│   ├── providers.tsx                       # Theme + capacity provider wrapper
+│   ├── infected-text.tsx                   # Capacity-adaptive text component
+│   └── convention/
+│       ├── hero-section.tsx                # Adaptive convention hero
+│       ├── events-section.tsx              # Adaptive events grid
+│       ├── guests-section.tsx              # Adaptive guest cards
+│       ├── tickets-section.tsx             # Adaptive ticket tiers
+│       ├── convention-nav.tsx              # Convention navigation
+│       ├── footer.tsx                      # Convention footer
+│       ├── animated-dumpster.tsx           # SVG animation component
+│       └── gachiakuta-svgs.tsx             # Themed SVG illustrations
+├── lib/
+│   ├── capacity/
+│   │   ├── types.ts                        # All TypeScript interfaces
+│   │   ├── constants.ts                    # Defaults, thresholds, motion tokens
+│   │   ├── provider.tsx                    # CapacityProvider + context hooks
+│   │   ├── mode.ts                         # deriveMode, deriveModeLabel, badge colors
+│   │   ├── index.ts                        # Barrel exports
+│   │   ├── fields/
+│   │   │   └── field-manager.ts            # FieldManager singleton
+│   │   ├── signals/
+│   │   │   ├── signal-bus.ts               # Type-safe event bus
+│   │   │   ├── aggregator.ts               # Weighted signal aggregation
+│   │   │   └── detectors/                  # Time, Session, Scroll, Interaction, Input, Environment
+│   │   ├── prediction/
+│   │   │   ├── pattern-store.ts            # localStorage capacity history
+│   │   │   ├── pattern-extractor.ts        # Pattern analysis
+│   │   │   ├── prediction-engine.ts        # Context → pattern matching
+│   │   │   ├── hooks.ts                    # usePredictedCapacity()
+│   │   │   └── types.ts                    # CapacityPattern, PatternTrigger
+│   │   └── utils/
+│   │       ├── index.ts                    # General utilities
+│   │       └── typography.ts               # Modular scale + fluid fonts
+│   ├── use-scroll-animation.ts             # IntersectionObserver scroll hook
+│   └── utils.ts                            # cn() class utility
+├── public/
+│   └── images/                             # Static assets
+└── vitest.config.ts                        # Test configuration
 ```
 
 ---
@@ -357,20 +394,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ### Consuming Capacity in a Component
 
+Prefer `useDerivedMode()` — it builds the `CapacityField` and runs `deriveMode()` for you:
+
 ```tsx
-import { useCapacityContext, deriveMode, deriveModeLabel } from "@/lib/capacity"
+import { useDerivedMode, deriveModeLabel } from "@/lib/capacity"
 
 function AdaptiveCard() {
-  const { context } = useCapacityContext()
-
-  // Build CapacityField from context
-  const field = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
-  const mode = deriveMode(field)
+  const { field, mode } = useDerivedMode()
   const label = deriveModeLabel(field)
 
   return (
@@ -388,16 +418,16 @@ function AdaptiveCard() {
         Animated content
       </div>
 
-      {/* Temporal controls content length (read raw value) */}
-      <p>{context.userCapacity.temporal > 0.4
+      {/* Temporal controls content length (read raw field value) */}
+      <p>{field.temporal > 0.4
         ? "Full description with details and context."
         : "Short summary."
       }</p>
 
-      {/* Valence controls tone (read raw value) */}
-      <p>{context.emotionalState.valence > 0.2
+      {/* Valence controls tone (read raw field value) */}
+      <p>{field.valence > 0.2
         ? "You're doing great!"
-        : context.emotionalState.valence < -0.2
+        : field.valence < -0.2
           ? "Take your time."
           : "Here's how it works:"
       }</p>
@@ -409,26 +439,13 @@ function AdaptiveCard() {
 ### Adjusting Grid Layout by Density
 
 ```tsx
-import { useCapacityContext, deriveMode } from "@/lib/capacity"
+import { useDerivedMode } from "@/lib/capacity"
 
 function EventGrid({ events }) {
-  const { context } = useCapacityContext()
+  const { mode } = useDerivedMode()
 
-  const field = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
-  const mode = deriveMode(field)
-
-  // Density drives column count
   const columns = { low: 1, medium: 2, high: 3 }[mode.density]
-
-  // Density drives visible item count
-  const visibleEvents = mode.density === "low"
-    ? events.slice(0, 3)
-    : events
+  const visibleEvents = mode.density === "low" ? events.slice(0, 3) : events
 
   return (
     <div style={{
@@ -455,10 +472,9 @@ import { useEffectiveMotion } from "@/lib/capacity"
 function AnimatedButton({ children }) {
   const { mode, tokens } = useEffectiveMotion()
 
-  // Animation class based on effective motion (respects prefers-reduced-motion)
   const animClass = mode === "expressive" ? "breathe"
-                  : mode === "subtle" ? "gentle-fade"
-                  : ""
+                  : mode === "subtle"     ? "gentle-fade"
+                  : ""  // off or soothing: no class
 
   return (
     <button
@@ -485,17 +501,17 @@ Human state is provided explicitly, not guessed or extracted. No biometrics, no 
 
 The system adapts to what a user *can handle*, not what they "like." This is about cognitive ergonomics, not personalization.
 
-### 3. Inputs -> Fields -> Tokens -> Components
+### 3. Inputs → Fields → Tokens → Components
 
 Raw inputs are never mapped directly to styles. The abstraction layers ensure consistency:
 - **Inputs** are raw user state (UserCapacity + EmotionalState)
-- **Fields** are derived aggregates (energy, attention, valence)
+- **Fields** are derived aggregates (energy, attention, valence) with temporal tracking
 - **Tokens** are discrete design primitives (density: low/medium/high)
 - **Components** consume tokens in JavaScript, never via CSS classes
 
 ### 4. Distributed, Local Adaptation
 
-Components respond to shared context without relying on global god-state. Each component calls `deriveMode()` inline and makes local decisions based on tokens.
+Components respond to shared context without relying on global god-state. Each component calls `useDerivedMode()` and makes local decisions based on tokens.
 
 ### 5. Accessibility as a Constraint
 
@@ -503,7 +519,7 @@ Semantic structure, keyboard navigation, contrast, and motion preferences are ne
 
 ### 6. Identity is Stable, Expression Adapts
 
-Font families, semantics, and meaning remain fixed. Only density, spacing, motion, and emphasis change. The content is the same -- the presentation adapts.
+Font families, semantics, and meaning remain fixed. Only density, spacing, motion, and emphasis change. The content is the same — the presentation adapts.
 
 ---
 
@@ -533,35 +549,43 @@ Harmonia UI is built with accessibility as a core constraint:
 - [x] Four-input capacity controls (cognitive, temporal, emotional, valence)
 - [x] FieldManager with derived fields (energy, attention, valence) and temporal tracking
 - [x] Mode derivation (Minimal, Calm, Focused, Exploratory)
-- [x] Active token system (density, motion, contrast)
-- [x] Future token foundations (guidance, choiceLoad -- derived, not yet consumed)
-- [x] Motion tokens with system reduced-motion override
+- [x] Active token system (density, motion, contrast, focus)
+- [x] Future token foundations (guidance, choiceLoad — derived, not yet consumed)
+- [x] Four-tier motion system (off, soothing, subtle, expressive)
+- [x] System `prefers-reduced-motion` hard override
 - [x] Demo components with real-time adaptation
 - [x] Convention page example (AbyssCon)
 - [x] SignalBus for inter-component communication
 - [x] Typography utilities with modular scale
 
-### Phase 2: Automatic Signals (Next)
+### Phase 2: Automatic Signals (Complete)
 
-- [ ] Scroll velocity detection
-- [ ] Time-on-page tracking
-- [ ] Interaction pattern analysis
-- [ ] Passive capacity modulation without manual controls
+- [x] SignalAggregator with weighted multi-detector averaging
+- [x] TimeDetector — cognitive/temporal inference from time of day and day of week
+- [x] SessionDetector — temporal inference from session duration
+- [x] ScrollDetector — cognitive inference from scroll velocity
+- [x] InteractionDetector — cognitive inference from click patterns and idle time
+- [x] InputDetector — cognitive inference from typing speed and error rate
+- [x] EnvironmentDetector — emotional/temporal inference from system preferences
+- [x] Auto-mode in CapacityProvider (passive modulation with manual override)
+- [x] PatternStore — localStorage persistence of capacity history
+- [x] PatternExtractor — time-of-day and day-of-week pattern analysis
+- [x] PredictionEngine — context-matched capacity prediction
+- [x] `usePredictedCapacity()` hook
 
 ### Phase 3: Extended Dimensions (Future)
 
 - [ ] Arousal dimension (calm to activated)
 - [ ] Multimodal feedback (haptics, sound)
 - [ ] Proportional scaling systems (golden ratio integration)
-- [ ] guidance and choiceLoad token consumption in components
+- [ ] `guidance` and `choiceLoad` token consumption in components
 
 ---
 
 ## Intentionally Not Included
 
 - No biometric or wearable integrations
-- No emotional inference or profiling
-- No AI-driven prediction systems
+- No emotional inference from text or behavior
 - No opinionated component library
 - No universal claims about "natural law" or harmony
 
@@ -581,4 +605,4 @@ MIT License. See [LICENSE.md](LICENSE.md) for details.
 
 ---
 
-**Harmonia UI** -- Interfaces that breathe with the user.
+**Harmonia UI** — Interfaces that breathe with the user.

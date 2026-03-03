@@ -7,8 +7,12 @@ This document describes the technical architecture of Harmonia UI. Every code sn
 Harmonia UI follows a unidirectional data flow pattern:
 
 ```
-Sliders → UserCapacity + EmotionalState → FieldManager → AmbientContext → deriveMode() → Components
+Signals (auto) ─────────────────┐
+                                 ▼
+Sliders (manual) → UserCapacity + EmotionalState → FieldManager → AmbientContext → deriveMode() → Components
 ```
+
+In auto mode, the `SignalAggregator` collects readings from 6 passive detectors every 2 seconds and updates capacity without user intervention. In manual mode, sliders drive state directly. Both paths write to `FieldManager`; everything downstream is identical.
 
 Each layer transforms data for the next, maintaining clear boundaries and predictable behavior.
 
@@ -74,7 +78,7 @@ const DEFAULT_USER_CAPACITY = {
 } as const
 
 const DEFAULT_EMOTIONAL_STATE = {
-  valence: 0.3,   // > 0.25 triggers expressive motion
+  valence: 0.3,   // > 0.15 (with emotional > 0.6) triggers expressive motion mode
   arousal: 0.5,
 } as const
 ```
@@ -132,36 +136,50 @@ The `InterfaceMode` is a set of discrete tokens derived from a `CapacityField`. 
 
 ```typescript
 function deriveMode(field: CapacityField): InterfaceMode {
-  return {
-    // ACTIVE TOKENS (consumed by components)
+  const lowCognitive  = field.cognitive < 0.4
+  const highCognitive = field.cognitive > 0.7
+  const lowEmotional  = field.emotional < 0.4    // emotional 0.15–0.4
+  const highEmotional = field.emotional > 0.6
+  const veryLowEmotional = field.emotional < 0.15
+  const lowTemporal   = field.temporal < 0.4
+  const highValence   = field.valence > 0.15
+  const negValence    = field.valence < -0.15
 
-    // Cognitive -> Density
-    density: field.cognitive < 0.35 ? "low"
-           : field.cognitive > 0.75 ? "high"
-           : "medium",
+  // Cognitive → Density (how many things compete for attention at once)
+  const density = lowCognitive ? "low" : highCognitive ? "high" : "medium"
 
-    // Emotional -> Motion restraint (valence for expressiveness)
-    motion: field.emotional < 0.35 ? "subtle"
-          : field.valence > 0.25 ? "expressive"
-          : "subtle",
+  // Temporal → Guidance and Choice load
+  const choiceLoad = lowTemporal ? "minimal" : "normal"
+  const guidance   = lowCognitive ? "high" : lowTemporal ? "medium" : "low"
 
-    // Valence -> Contrast (boost when negative)
-    contrast: field.valence < -0.25 ? "boosted" : "standard",
+  // Emotional → Motion (4-tier nervous-system-safe system)
+  //   off:        emotional < 0.15 → fully static, protective
+  //   soothing:   emotional 0.15–0.4 → slow rhythmic only (breathe, float)
+  //   expressive: emotional > 0.6 AND valence > 0.15 → full animation suite
+  //   subtle:     everything else → grounded, minimal motion
+  const motion = veryLowEmotional ? "off"
+               : lowEmotional      ? "soothing"
+               : (highEmotional && highValence) ? "expressive"
+               : "subtle"
 
-    // DERIVED TOKENS (not yet consumed by components)
+  // Valence → Contrast (boost when mood is negative)
+  const contrast = negValence ? "boosted" : "standard"
 
-    // Cognitive + Temporal -> Guidance
-    guidance: field.cognitive < 0.35 ? "high"
-            : field.temporal < 0.35 ? "medium"
-            : "low",
+  // Cognitive → Focus guidance (attention beacons for key elements)
+  //   Only activates when motion is available (not "off")
+  //   guided:  cognitive < 0.4 → strong warm beacon
+  //   gentle:  cognitive < 0.7 → soft cool glow
+  //   default: cognitive >= 0.7 → no special treatment
+  const focus = motion === "off" ? "default"
+              : lowCognitive     ? "guided"
+              : !highCognitive   ? "gentle"
+              : "default"
 
-    // Temporal -> Choice load
-    choiceLoad: field.temporal < 0.35 ? "minimal" : "normal",
-  }
+  return { density, guidance, motion, contrast, choiceLoad, focus }
 }
 ```
 
-> **Implementation note:** `guidance` and `choiceLoad` are derived and included in the `InterfaceMode` TypeScript interface, but no component currently reads them. They exist as a foundation for future component development.
+> **Implementation note:** `guidance`, `choiceLoad`, and `focus` are all derived and included in the `InterfaceMode` TypeScript interface. Only `focus` is currently consumed by components (focus beacon animations). `guidance` and `choiceLoad` exist as a foundation for future component development.
 
 ### Mode Labels
 
@@ -171,9 +189,10 @@ Mode labels are derived separately from **raw inputs** (not from the token set),
 function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
   const { cognitive, temporal, emotional } = inputs
 
-  if (cognitive > 0.65 && emotional > 0.65) return "Exploratory"
-  if (cognitive < 0.35 && temporal < 0.35) return "Minimal"
-  if (cognitive >= 0.6 && temporal >= 0.6) return "Focused"
+  // Checked in order — first match wins
+  if (cognitive > 0.6 && emotional > 0.6) return "Exploratory"
+  if (cognitive < 0.4 && temporal < 0.4) return "Minimal"
+  if (cognitive >= 0.55 && temporal >= 0.55) return "Focused"
   return "Calm"
 }
 ```
@@ -182,22 +201,22 @@ function deriveModeLabel(inputs: CapacityField): InterfaceModeLabel {
 
 | Mode | Cognitive | Temporal | Emotional | Behavior |
 |------|-----------|----------|-----------|----------|
-| Minimal | < 0.35 | < 0.35 | any | Protective, essential only |
+| Minimal | < 0.4 | < 0.4 | any | Protective, essential only |
 | Calm | moderate | any | any | Gentle, balanced, no pressure |
-| Focused | >= 0.6 | >= 0.6 | any | Balanced, task-oriented |
-| Exploratory | > 0.65 | any | > 0.65 | Full features, playful |
+| Focused | >= 0.55 | >= 0.55 | any | Balanced, task-oriented |
+| Exploratory | > 0.6 | any | > 0.6 | Full features, playful |
 
 ### Preset-to-Mode Mapping
 
-| Preset | Cognitive | Temporal | Emotional | Label |
-|--------|-----------|----------|-----------|-------|
-| Exhausted | 0.2 | 0.2 | 0.1 | Minimal |
-| Overwhelmed | 0.3 | 0.25 | 0.2 | Minimal |
-| Distracted | 0.4 | 0.3 | 0.6 | Calm |
-| Neutral | 0.5 | 0.5 | 0.5 | Calm |
-| Focused | 0.7 | 0.7 | 0.6 | Focused |
-| Energized | 0.9 | 0.8 | 0.9 | Exploratory |
-| Exploring | 0.85 | 0.7 | 0.8 | Exploratory |
+| Preset | Cognitive | Temporal | Emotional | Valence | Motion | Focus | Label |
+|--------|-----------|----------|-----------|---------|--------|-------|-------|
+| Exhausted | 0.1 | 0.1 | 0.1 | -0.6 | off | default | Minimal |
+| Overwhelmed | 0.2 | 0.15 | 0.2 | -0.5 | soothing | guided | Minimal |
+| Distracted | 0.35 | 0.25 | 0.5 | 0.0 | subtle | guided | Minimal |
+| Neutral | 0.5 | 0.5 | 0.5 | 0.0 | subtle | gentle | Calm |
+| Focused | 0.75 | 0.75 | 0.55 | 0.1 | subtle | default | Focused |
+| Energized | 0.9 | 0.85 | 0.85 | 0.6 | expressive | default | Exploratory |
+| Exploring | 1.0 | 1.0 | 1.0 | 0.8 | expressive | default | Exploratory |
 
 ---
 
@@ -252,7 +271,8 @@ function AdaptiveComponent() {
 | Source | What Components Read | Effect | Status |
 |--------|---------------------|--------|--------|
 | `mode.density` | `"low"` / `"medium"` / `"high"` | Item count, grid columns, visible sections | Active |
-| `mode.motion` | `"off"` / `"subtle"` / `"expressive"` | Animation classes, hover effects | Active |
+| `mode.motion` | `"off"` / `"soothing"` / `"subtle"` / `"expressive"` | Animation classes, hover effects | Active |
+| `mode.focus` | `"default"` / `"gentle"` / `"guided"` | Focus beacon animations on key elements | Active |
 | `mode.contrast` | `"standard"` / `"boosted"` | Visual contrast, font weight | Active |
 | `context.userCapacity.temporal` | Raw 0-1 value | Content length (full vs abbreviated) | Active |
 | `context.emotionalState.valence` | Raw -1 to +1 value | Tone, greeting text, color warmth | Active |
@@ -296,14 +316,15 @@ AmbientContext updates:
     v
 Components re-render, build CapacityField from context, call deriveMode():
   deriveMode({ cognitive: 0.2, temporal: 0.7, emotional: 0.7, valence: 0.3 })
-  -> { density: "low", motion: "expressive", contrast: "standard", guidance: "high", choiceLoad: "normal" }
+  -> { density: "low", motion: "expressive", contrast: "standard", guidance: "high", choiceLoad: "normal", focus: "guided" }
     |
     v
 Components respond:
   - Grid shows 1 column (density: "low")
   - Descriptions hidden (density: "low")
-  - Animations still playful (motion: "expressive" because emotional 0.7 and valence 0.3)
-  - Content abbreviated (temporal 0.7 > 0.4, so actually full in this case)
+  - Animations still playful (motion: "expressive" because emotional 0.7 > 0.6 and valence 0.3 > 0.15)
+  - Focus beacons active on key elements (focus: "guided" because cognitive 0.2 < 0.4)
+  - Content full (temporal 0.7 > 0.4, so full detail shown)
 ```
 
 ---
@@ -317,34 +338,54 @@ interface CapacityContextValue {
   context: AmbientContext
   updateCapacity: (capacity: Partial<UserCapacity>) => void
   updateEmotionalState: (state: Partial<EmotionalState>) => void
+  isAutoMode: boolean
+  toggleAutoMode: () => void
+  updateCapacityField: (field: CapacityField) => void
 }
 ```
 
 ### Provider Implementation
 
-The provider wraps a `FieldManager` subscription in React state:
+The provider manages both auto mode (signal-driven) and manual mode (slider-driven):
 
 ```tsx
 function CapacityProvider({ children }: { children: React.ReactNode }) {
   const [context, setContext] = useState<AmbientContext>(() => FieldManager.getContext())
+  const [isAutoMode, setIsAutoMode] = useState(true) // Start in auto mode
+  const aggregatorRef = useRef<SignalAggregator | null>(null)
 
   useEffect(() => {
-    const unsubscribe = FieldManager.subscribe((newContext) => {
-      setContext(newContext)
-    })
-    return unsubscribe
+    aggregatorRef.current = new SignalAggregator()
+    const unsubscribe = FieldManager.subscribe(setContext)
+    return () => { unsubscribe(); aggregatorRef.current?.destroy() }
   }, [])
 
+  // Auto mode: aggregate signals every 2 seconds and apply to FieldManager
+  useEffect(() => {
+    if (!isAutoMode) return
+    const id = setInterval(async () => {
+      const suggested = await aggregatorRef.current!.aggregateSignals()
+      FieldManager.updateCapacity({ cognitive: suggested.cognitive, ... })
+    }, 2000)
+    return () => clearInterval(id)
+  }, [isAutoMode])
+
+  // Manual updates switch off auto mode
   const updateCapacity = useCallback((capacity: Partial<UserCapacity>) => {
+    setIsAutoMode(false)
     FieldManager.updateCapacity(capacity)
-  }, [])
+  }, [isAutoMode])
 
-  const updateEmotionalState = useCallback((state: Partial<EmotionalState>) => {
-    FieldManager.updateEmotionalState(state)
+  const toggleAutoMode = useCallback(() => setIsAutoMode(prev => !prev), [])
+
+  // updateCapacityField sets the full field without disabling auto mode
+  const updateCapacityField = useCallback((field: CapacityField) => {
+    FieldManager.updateCapacity({ cognitive: field.cognitive, temporal: field.temporal, emotional: field.emotional })
+    FieldManager.updateEmotionalState({ valence: field.valence })
   }, [])
 
   return (
-    <CapacityContext.Provider value={{ context, updateCapacity, updateEmotionalState }}>
+    <CapacityContext.Provider value={{ context, updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField }}>
       {children}
     </CapacityContext.Provider>
   )
@@ -357,15 +398,8 @@ function CapacityProvider({ children }: { children: React.ReactNode }) {
 
 ```tsx
 function useEffectiveMotion() {
-  const { context } = useCapacityContext()
+  const { field } = useDerivedMode()          // builds CapacityField from context
   const prefersReducedMotion = usePrefersReducedMotion()
-
-  const field: CapacityField = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-  }
 
   const derivedMode = deriveMode(field)
   const effectiveMode: MotionMode = prefersReducedMotion ? "off" : derivedMode.motion
@@ -434,37 +468,45 @@ Specialized hooks (`useEnergyField`, `useAttentionField`, `useEmotionalValenceFi
 
 ---
 
+## Implemented: Phase 2 — Automatic Signal Integration
+
+Phase 2 is fully implemented. The `SignalAggregator` collects readings from 6 passive detectors and suggests a `CapacityField` without user interaction.
+
+### Detectors
+
+| Detector | Signals | Dimensions |
+|----------|---------|------------|
+| `TimeDetector` | Hour of day, day of week | cognitive, temporal |
+| `SessionDetector` | Session duration | temporal |
+| `ScrollDetector` | Scroll velocity, direction changes | cognitive |
+| `InteractionDetector` | Click rate, idle detection | cognitive |
+| `InputDetector` | Typing speed (CPM), error correction | cognitive |
+| `EnvironmentDetector` | `prefers-reduced-motion`, color scheme | temporal, emotional |
+
+### Signal Aggregation
+
+Each detector returns a `SignalReading[]` with `{ dimension, value, confidence, detectorName }`. The aggregator computes a **confidence-weighted average** per dimension:
+
+```typescript
+// For each dimension (cognitive, temporal, emotional, valence):
+value = Σ(reading.value × reading.confidence × detectorWeight) / Σ(reading.confidence × detectorWeight)
+// Default: 0.5 if no signals for a dimension
+```
+
+Detector influence on each dimension is tuned independently via `SignalAggregator.DIMENSION_WEIGHTS`. For example, `EnvironmentDetector` contributes more strongly to `emotional` (weight 0.8) than to `temporal` (weight 0.7), while `TimeDetector` contributes more to `cognitive` (weight 0.6) than `temporal` (weight 0.5). When no override is defined, the detector's base `weight` property is used.
+
+### Pattern Prediction (Phase 2)
+
+The `PatternStore` records capacity snapshots to `localStorage` (max 100 entries, all operations wrapped in try/catch for quota safety). The `PatternExtractor` identifies time-of-day and day-of-week patterns. The `PredictionEngine` matches the current context to stored patterns and returns a predicted `CapacityField`.
+
+Pattern confidence scales with sample size: `confidence = min(1, sampleSize / 20)`. A pattern requires at least 12 observations before it is surfaced (confidence 0.6 = threshold); full confidence (1.0) is reached at 20 observations.
+
+`usePredictedCapacity()` exposes the prediction as a React hook, refreshing every 5 seconds.
+
+`decayConfidence()` applies exponential decay (`confidence × 0.9^days`) relative to `pattern.timestamp`, suppressing stale patterns without deleting historical data.
+
 ## Future Considerations
 
-### Automatic Signal Integration (Phase 2)
+### Arousal Dimension
 
-```typescript
-interface AutomaticSignals {
-  scrollVelocity: number
-  timeOnPage: number
-  interactionRate: number
-  idleTime: number
-}
-
-function modulateCapacity(
-  capacity: UserCapacity,
-  signals: AutomaticSignals
-): UserCapacity {
-  return {
-    ...capacity,
-    temporal: capacity.temporal * (1 - signals.scrollVelocity * 0.1),
-    cognitive: capacity.cognitive * (1 - signals.idleTime * 0.01),
-  }
-}
-```
-
-### Arousal Dimension (Phase 3)
-
-```typescript
-interface ExtendedCapacityField extends CapacityField {
-  arousal: number  // 0-1: Calm to activated
-}
-
-// Arousal affects motion and pacing
-const motion = arousal > 0.7 ? "energetic" : arousal < 0.3 ? "calm" : "subtle"
-```
+`EmotionalState` already includes `arousal: number` (0–1, calm to activated) but it is not yet wired into `deriveMode()`. When integrated, arousal would add a fifth axis to mode derivation — independently controlling animation pacing separate from cognitive load.

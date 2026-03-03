@@ -19,8 +19,11 @@ function useCapacityContext(): CapacityContextValue
 | Property | Type | Description |
 |----------|------|-------------|
 | `context` | `AmbientContext` | Current ambient state (raw inputs + derived fields) |
-| `updateCapacity` | `(capacity: Partial<UserCapacity>) => void` | Update cognitive, temporal, or emotional values |
-| `updateEmotionalState` | `(state: Partial<EmotionalState>) => void` | Update valence (and arousal in Phase 2+) |
+| `updateCapacity` | `(capacity: Partial<UserCapacity>) => void` | Update cognitive, temporal, or emotional values. Switches to manual mode. |
+| `updateEmotionalState` | `(state: Partial<EmotionalState>) => void` | Update valence. Switches to manual mode. |
+| `isAutoMode` | `boolean` | Whether signals are driving capacity automatically (`true`) or the user is in manual control (`false`) |
+| `toggleAutoMode` | `() => void` | Toggle between auto (signal-driven) and manual (slider-driven) mode |
+| `updateCapacityField` | `(field: CapacityField) => void` | Set all four capacity values at once without switching to manual mode |
 
 #### Example
 
@@ -28,17 +31,22 @@ function useCapacityContext(): CapacityContextValue
 import { useCapacityContext } from "@/lib/capacity"
 
 function MyComponent() {
-  const { updateCapacity } = useCapacityContext()
+  const { updateCapacity, isAutoMode, toggleAutoMode } = useCapacityContext()
 
   return (
-    <button onClick={() => updateCapacity({ cognitive: 0.5 })}>
-      Set cognitive to 50%
-    </button>
+    <div>
+      <button onClick={() => updateCapacity({ cognitive: 0.5 })}>
+        Set cognitive to 50%
+      </button>
+      <button onClick={toggleAutoMode}>
+        {isAutoMode ? "Switch to manual" : "Switch to auto"}
+      </button>
+    </div>
   )
 }
 ```
 
-> **Note:** Most components should use `useDerivedMode()` instead of `useCapacityContext()` directly. Only use `useCapacityContext()` when you need the mutation functions (`updateCapacity`, `updateEmotionalState`).
+> **Note:** Most components should use `useDerivedMode()` instead of `useCapacityContext()` directly. Only use `useCapacityContext()` when you need mutation functions or auto-mode state.
 
 ### `useDerivedMode()`
 
@@ -104,12 +112,15 @@ function useEmotionalValenceField(): EmotionalValenceFieldValue
 
 ### `useFieldControls()`
 
-Get update functions without subscribing to context changes.
+Get all field control functions and auto-mode state without subscribing to the full context.
 
 ```typescript
 function useFieldControls(): {
   updateCapacity: (capacity: Partial<UserCapacity>) => void
   updateEmotionalState: (state: Partial<EmotionalState>) => void
+  isAutoMode: boolean
+  toggleAutoMode: () => void
+  updateCapacityField: (field: CapacityField) => void
 }
 ```
 
@@ -119,6 +130,31 @@ Detect the system `prefers-reduced-motion` media query.
 
 ```typescript
 function usePrefersReducedMotion(): boolean
+```
+
+### `usePredictedCapacity()`
+
+Returns the anticipated future capacity state based on historical patterns (time of day, day of week). Refreshes every 5 seconds. Returns `null` when no confident prediction is available or before the first prediction cycle completes.
+
+```typescript
+function usePredictedCapacity(): CapacityField | null
+```
+
+#### Example
+
+```tsx
+import { usePredictedCapacity } from "@/lib/capacity/prediction/hooks"
+
+function AdaptivePreloader() {
+  const predicted = usePredictedCapacity()
+
+  // Preload low-density layout if user will likely be overwhelmed
+  if (predicted && predicted.cognitive < 0.4) {
+    prefetchLowDensityAssets()
+  }
+
+  return null
+}
 ```
 
 ### `useEffectiveMotion()`
@@ -714,6 +750,70 @@ SignalBus.subscribe(type: string, handler: SignalHandler): Unsubscribe
 
 ---
 
+## Phase 2: Automatic Signal System (Advanced)
+
+### `SignalAggregator`
+
+Collects readings from 6 passive detectors and produces a weighted-average `CapacityField`. Used internally by `CapacityProvider` in auto mode — direct usage is rarely needed.
+
+```typescript
+const aggregator = new SignalAggregator()
+
+// Returns a suggested CapacityField based on current signals
+const field: CapacityField = await aggregator.aggregateSignals()
+
+// Release event listeners from all detectors
+aggregator.destroy()
+```
+
+#### Active Detectors
+
+| Detector | What it Reads | Dimensions Affected |
+|----------|--------------|---------------------|
+| `TimeDetector` | Hour of day, day of week | cognitive, temporal |
+| `SessionDetector` | Session duration | temporal |
+| `ScrollDetector` | Scroll velocity, direction changes | cognitive |
+| `InteractionDetector` | Click rate, idle detection | cognitive |
+| `InputDetector` | Typing speed (CPM), error correction rate | cognitive |
+| `EnvironmentDetector` | `prefers-reduced-motion`, color scheme | temporal, emotional |
+
+Each detector's influence per dimension is tuned via `SignalAggregator.DIMENSION_WEIGHTS`. Call `aggregator.destroy()` to release all event listeners.
+
+### `PatternStore`
+
+Persists capacity snapshots to `localStorage` (max 100 entries, oldest evicted).
+
+```typescript
+const store = new PatternStore()
+
+store.recordCapacity(field: CapacityField): void
+store.getHistory(): Array<{ capacity: CapacityField; timestamp: number }>
+store.clearHistory(): void
+store.deleteItem(timestamp: number): void
+store.updateItem(timestamp: number, partial: Partial<CapacityField>): void
+```
+
+### `PredictionEngine`
+
+Matches the current context (time of day, day of week) to historical patterns from `PatternExtractor` and returns a predicted `CapacityField`.
+
+```typescript
+const engine = new PredictionEngine(patternExtractor)
+
+engine.loadPatterns(): void
+engine.predictCapacity(trigger: PatternTrigger): CapacityField | null
+engine.decayConfidence(): void  // Call periodically to age out stale predictions
+```
+
+```typescript
+interface PatternTrigger {
+  timeOfDay?: number   // 0-23
+  dayOfWeek?: number   // 0-6 (0 = Sunday)
+}
+```
+
+---
+
 ## Error Handling
 
 ### Missing Provider
@@ -727,3 +827,7 @@ Error: useCapacityContext must be used within CapacityProvider
 ### Value Ranges
 
 The system does not auto-clamp values. Capacity fields expect 0-1, valence expects -1 to +1. Invalid ranges produce undefined behavior in mode derivation.
+
+### localStorage Errors
+
+`PatternStore` wraps all `localStorage` operations in try/catch. On `QuotaExceededError` or any storage failure: reads degrade to `[]`, writes are silently skipped, and `clearHistory()` does not throw. The rest of the application continues normally.

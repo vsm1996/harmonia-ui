@@ -56,6 +56,14 @@ export const DEFAULT_EMOTIONAL_STATE = {
   arousal: 0.5,
 } as const
 
+/** Default capacity field (neutral state) */
+export const DEFAULT_CAPACITY_FIELD = {
+  cognitive: 0.5,
+  temporal: 0.5,
+  emotional: 0.5,
+  valence: 0.0,
+} as const
+
 // ============================================================================
 // Component Response Presets
 // ============================================================================

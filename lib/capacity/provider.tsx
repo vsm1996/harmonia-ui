@@ -8,11 +8,12 @@
 
 import type React from "react"
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react"
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react"
 import type { AmbientContext, UserCapacity, EmotionalState, MotionMode, CapacityField, InterfaceMode } from "./types"
 import { FieldManager } from "./fields/field-manager"
 import { deriveMode } from "./mode"
-import { MOTION_TOKENS } from "./constants"
+import { MOTION_TOKENS, DEFAULT_CAPACITY_FIELD } from "./constants"
+import { SignalAggregator } from "./signals/aggregator"
 
 // ============================================================================
 // Context Definition
@@ -22,6 +23,9 @@ interface CapacityContextValue {
   context: AmbientContext
   updateCapacity: (capacity: Partial<UserCapacity>) => void
   updateEmotionalState: (state: Partial<EmotionalState>) => void
+  isAutoMode: boolean;
+  toggleAutoMode: () => void;
+  updateCapacityField: (field: CapacityField) => void;
 }
 
 const CapacityContext = createContext<CapacityContextValue | null>(null)
@@ -31,31 +35,103 @@ const CapacityContext = createContext<CapacityContextValue | null>(null)
 // ============================================================================
 
 export function CapacityProvider({ children }: { children: React.ReactNode }) {
-  const [context, setContext] = useState<AmbientContext>(() => FieldManager.getContext())
+  const [context, setContext] = useState<AmbientContext>(() => FieldManager.getContext());
+  const [isAutoMode, setIsAutoMode] = useState<boolean>(true); // Start in auto mode
+  const isFirstAggregationComplete = useRef<boolean>(false); // New ref to control initial aggregator application
+  const aggregatorRef = useRef<SignalAggregator | null>(null);
 
-  // Subscribe to field changes
   useEffect(() => {
-    const unsubscribe = FieldManager.subscribe((newContext) => {
-      setContext(newContext)
-    })
+    // Initialize aggregator on mount
+    aggregatorRef.current = new SignalAggregator();
 
-    return unsubscribe
-  }, [])
+    const unsubscribe = FieldManager.subscribe((newContext) => {
+      setContext(newContext);
+    });
+
+    return () => {
+      unsubscribe();
+      // Clean up aggregator on unmount
+      if (aggregatorRef.current) {
+        aggregatorRef.current.destroy();
+      }
+    };
+  }, []);
+
+  // Effect to run aggregator in auto mode
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (isAutoMode && aggregatorRef.current) {
+      intervalId = setInterval(async () => {
+        try {
+          const suggestedField = await aggregatorRef.current!.aggregateSignals();
+
+          if (!isFirstAggregationComplete.current) {
+            // Skip the very first aggregation — detectors need one cycle to stabilise
+            isFirstAggregationComplete.current = true;
+          } else {
+            FieldManager.updateCapacity({
+              cognitive: suggestedField.cognitive,
+              temporal: suggestedField.temporal,
+              emotional: suggestedField.emotional,
+            });
+            FieldManager.updateEmotionalState({
+              valence: suggestedField.valence,
+            });
+          }
+        } catch (error) {
+          // Log but do not crash — auto mode silently degrades on transient failures
+          console.warn('[CapacityProvider] Signal aggregation failed:', error);
+        }
+      }, 2000); // Aggregate every 2 seconds
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isAutoMode]);
 
   // Memoized update functions
   const updateCapacity = useCallback((capacity: Partial<UserCapacity>) => {
-    FieldManager.updateCapacity(capacity)
-  }, [])
+    if (isAutoMode) {
+      setIsAutoMode(false); // Switch to manual mode if user manually updates capacity
+    }
+    FieldManager.updateCapacity(capacity);
+  }, [isAutoMode]);
 
   const updateEmotionalState = useCallback((state: Partial<EmotionalState>) => {
-    FieldManager.updateEmotionalState(state)
-  }, [])
+    if (isAutoMode) {
+      setIsAutoMode(false); // Switch to manual mode if user manually updates emotional state
+    }
+    FieldManager.updateEmotionalState(state);
+  }, [isAutoMode]);
+
+  const updateCapacityField = useCallback((field: CapacityField) => {
+    // This function can be used to set the full capacity field directly, regardless of auto mode.
+    // Useful for initial setup or explicit overrides.
+    FieldManager.updateCapacity({
+      cognitive: field.cognitive,
+      temporal: field.temporal,
+      emotional: field.emotional,
+    });
+    FieldManager.updateEmotionalState({
+      valence: field.valence,
+    });
+  }, []);
+
+  const toggleAutoMode = useCallback(() => {
+    setIsAutoMode((prev) => !prev);
+  }, []);
 
   return (
-    <CapacityContext.Provider value={{ context, updateCapacity, updateEmotionalState }}>
+    <CapacityContext.Provider value={{
+      context, updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField,
+    }}>
       {children}
     </CapacityContext.Provider>
-  )
+  );
 }
 
 // ============================================================================
@@ -102,8 +178,8 @@ export function useEmotionalValenceField() {
  * Get field update functions (for Phase 1 slider system)
  */
 export function useFieldControls() {
-  const { updateCapacity, updateEmotionalState } = useCapacityContext()
-  return { updateCapacity, updateEmotionalState }
+  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField } = useCapacityContext()
+  return { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField }
 }
 
 /**
@@ -164,7 +240,7 @@ export function useDerivedMode(): {
  */
 export function useEffectiveMotion(): {
   mode: MotionMode
-  tokens: typeof MOTION_TOKENS.off
+  tokens: typeof MOTION_TOKENS[keyof typeof MOTION_TOKENS]
   prefersReducedMotion: boolean
 } {
   const { field } = useDerivedMode()
