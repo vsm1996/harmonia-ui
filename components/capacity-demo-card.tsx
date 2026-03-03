@@ -12,7 +12,7 @@
 
 "use client"
 
-import { useDerivedMode, deriveModeLabel, getModeBadgeColor, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass } from "@/lib/capacity"
+import { useDerivedMode, deriveModeLabel, getModeBadgeColor, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass, useFeedback } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -85,6 +85,7 @@ const TONE = {
 
 export function CapacityDemoCard() {
   const { field, mode } = useDerivedMode()
+  const { fire } = useFeedback()
   const modeLabel = deriveModeLabel(field)
   const modeBadgeColor = getModeBadgeColor(modeLabel)
 
@@ -164,11 +165,15 @@ export function CapacityDemoCard() {
         <div className={mode.choiceLoad === "normal" ? "flex gap-2" : ""}>
           <button
             className={`${mode.choiceLoad === "normal" ? "flex-1" : "w-full"} py-2 px-4 rounded-md bg-primary text-primary-foreground font-medium text-sm transition-transform ${hover} ${ambientClass(mode.motion, "breathe")}`}
+            onClick={() => fire("tap")}
           >
             {densityContent.cta}
           </button>
           {mode.choiceLoad === "normal" && mode.density !== "low" && (
-            <button className="py-2 px-3 rounded-md border border-border text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <button
+              className="py-2 px-3 rounded-md border border-border text-sm text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => fire("tap")}
+            >
               Details
             </button>
           )}

@@ -14,7 +14,7 @@
 "use client"
 
 import { useRef } from "react"
-import { useDerivedMode, useEffectiveMotion, ambientClass, hoverClass as getHoverClass, focusBeaconClass, focusTextClass } from "@/lib/capacity"
+import { useDerivedMode, useEffectiveMotion, useFeedback, ambientClass, hoverClass as getHoverClass, focusBeaconClass, focusTextClass } from "@/lib/capacity"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { AnimatedDumpster } from "./animated-dumpster"
@@ -54,6 +54,7 @@ const TONES = {
 export function HeroSection() {
   const { field, mode } = useDerivedMode()
   const { mode: motionMode } = useEffectiveMotion()
+  const { fire } = useFeedback()
   const sectionRef = useRef<HTMLElement>(null)
 
   // Content adaptations
@@ -144,6 +145,7 @@ export function HeroSection() {
           <Button
             size="lg"
             className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 ${getHoverClass(motionMode)} ${focusBeaconClass(mode.focus)}`}
+            onClick={() => fire("tap")}
           >
             {ctaText.cta}
           </Button>
@@ -152,6 +154,7 @@ export function HeroSection() {
               size="lg"
               variant="outline"
               className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent transition-transform hover:scale-105 active:scale-95 hover:text-white"
+              onClick={() => fire("tap")}
             >
               {ctaText.secondary}
             </Button>

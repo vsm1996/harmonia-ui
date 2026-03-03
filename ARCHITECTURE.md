@@ -341,8 +341,15 @@ interface CapacityContextValue {
   isAutoMode: boolean
   toggleAutoMode: () => void
   updateCapacityField: (field: CapacityField) => void
+  // Multimodal feedback opt-in flags (Phase 3)
+  hapticEnabled: boolean
+  sonicEnabled: boolean
+  setHapticEnabled: Dispatch<SetStateAction<boolean>>
+  setSonicEnabled: Dispatch<SetStateAction<boolean>>
 }
 ```
+
+Feedback flags live on the context (not in `CapacityControls` local state) so that any component — including the demo card and convention page sections — can check opt-in state and fire feedback without prop drilling.
 
 ### Provider Implementation
 
@@ -533,10 +540,31 @@ Pattern confidence scales with sample size: `confidence = min(1, sampleSize / 20
 
 `lib/capacity/feedback.ts` provides opt-in haptic and sonic feedback:
 
-- **Haptic**: `triggerHaptic(pattern)` via Web Vibration API — patterns: tap, toggle, pulse, error
+- **Haptic**: `triggerHaptic(pattern)` via Web Vibration API — patterns: `tap`, `toggle`, `pulse`, `error`
 - **Sonic**: `playSonicFeedback(frequency, duration)` via Web Audio API — frequencies from `FEEDBACK_FREQUENCIES` (396/528/741 Hz)
 - **`playPacedSonic(pace)`**: convenience wrapper selecting frequency by arousal level
-- Degraded gracefully on unsupported browsers; opt-in via UI toggles in the capacity controls panel
+- Degrades silently on unsupported browsers (haptic: desktop + iOS Safari; sonic: no AudioContext)
+- Opt-in via UI toggles in the `CapacityControls` panel; flags live in `CapacityContext` (not local state)
+
+**`useFeedback()` hook** wraps the above into a single ergonomic API:
+
+```typescript
+const { fire } = useFeedback()
+// fire("tap")    — fires haptic tap + pace-matched sonic if each is enabled
+// fire("toggle") — fires haptic toggle (two-pulse) + sonic
+```
+
+The `fire()` helper is a no-op when both flags are `false`. Sonic frequency is automatically selected from `FEEDBACK_FREQUENCIES` based on `mode.pace` (calm → 396 Hz, neutral → 528 Hz, activated → 741 Hz).
+
+**Components that fire feedback** (live demo + convention pages only):
+
+| Component | Interaction | Pattern |
+|-----------|-------------|---------|
+| `CapacityDemoCard` | Primary + secondary CTA click | `tap` |
+| `HeroSection` | Primary + secondary CTA click | `tap` |
+| `EventCard` | Expand / collapse click | `toggle` |
+| `TicketsSection` | "Get X Pass" button click | `tap` |
+| `CapacityControls` | Preset selection | `tap` |
 
 ### Proportional Scaling Systems
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass, focusBeaconClass, focusTextClass } from "@/lib/capacity"
+import { useDerivedMode, useFeedback, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass, focusBeaconClass, focusTextClass } from "@/lib/capacity"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -95,6 +95,7 @@ const HEADERS = {
 
 export function TicketsSection() {
   const { field, mode } = useDerivedMode()
+  const { fire } = useFeedback()
   const { ref: sectionRef, isInView, hasPlayed } = useScrollFade<HTMLElement>()
 
   const entrance = getEntranceClass(mode.motion, "spiral", hasPlayed)
@@ -176,10 +177,11 @@ export function TicketsSection() {
                     ))}
                   </ul>
 
-                  <Button 
+                  <Button
                     className={`w-full ${tier.highlight ? "" : "bg-transparent"} ${getHoverClass(mode.motion)} ${tier.highlight ? focusBeaconClass(mode.focus) : ""}`}
                     variant={tier.highlight ? "default" : "outline"}
                     size="lg"
+                    onClick={() => fire("tap")}
                   >
                     Get {tier.name} Pass
                   </Button>

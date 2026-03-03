@@ -24,6 +24,10 @@ function useCapacityContext(): CapacityContextValue
 | `isAutoMode` | `boolean` | Whether signals are driving capacity automatically (`true`) or the user is in manual control (`false`) |
 | `toggleAutoMode` | `() => void` | Toggle between auto (signal-driven) and manual (slider-driven) mode |
 | `updateCapacityField` | `(field: CapacityField) => void` | Set all four capacity values at once without switching to manual mode |
+| `hapticEnabled` | `boolean` | Whether haptic feedback is opted in (default `false`) |
+| `sonicEnabled` | `boolean` | Whether sonic feedback is opted in (default `false`) |
+| `setHapticEnabled` | `Dispatch<SetStateAction<boolean>>` | Enable/disable haptic feedback |
+| `setSonicEnabled` | `Dispatch<SetStateAction<boolean>>` | Enable/disable sonic feedback |
 
 #### Example
 
@@ -157,6 +161,58 @@ function AdaptivePreloader() {
 }
 ```
 
+### `useFeedback()`
+
+Access multimodal feedback preferences and a pace-aware fire helper. Reads opt-in flags from `CapacityContext` — feedback only fires when the user has explicitly enabled each channel in the controls panel.
+
+```typescript
+function useFeedback(): {
+  hapticEnabled: boolean
+  sonicEnabled: boolean
+  setHapticEnabled: Dispatch<SetStateAction<boolean>>
+  setSonicEnabled: Dispatch<SetStateAction<boolean>>
+  fire: (pattern?: HapticPatternName) => void
+}
+```
+
+#### Returns
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `hapticEnabled` | `boolean` | Whether haptic feedback is currently opted in |
+| `sonicEnabled` | `boolean` | Whether sonic feedback is currently opted in |
+| `setHapticEnabled` | `Dispatch<SetStateAction<boolean>>` | Toggle haptic opt-in |
+| `setSonicEnabled` | `Dispatch<SetStateAction<boolean>>` | Toggle sonic opt-in |
+| `fire` | `(pattern?: HapticPatternName) => void` | Fire both channels if enabled. Pattern defaults to `"tap"`. Sonic frequency is automatically selected for the current `mode.pace`. |
+
+#### Design constraints
+
+- **Opt-in only** — `fire()` is a no-op until the user explicitly enables each channel
+- **Degrades silently** — haptic no-ops on desktop and iOS Safari; sonic no-ops if `AudioContext` is unavailable
+- **Pace-aware** — sonic frequency adapts automatically: `calm` → 396 Hz, `neutral` → 528 Hz, `activated` → 741 Hz
+
+#### Example
+
+```tsx
+import { useFeedback } from "@/lib/capacity"
+
+function MyButton() {
+  const { fire } = useFeedback()
+  return <button onClick={() => fire("tap")}>Confirm</button>
+}
+```
+
+#### Haptic patterns
+
+| Pattern | Duration (ms) | Use for |
+|---------|--------------|---------|
+| `tap` | `[8]` | Single confirm / select |
+| `toggle` | `[8, 50, 8]` | Expand / collapse toggle |
+| `pulse` | `[15, 30, 15]` | Ambient / ambient confirmation |
+| `error` | `[50, 30, 50, 30, 50]` | Error / warning |
+
+---
+
 ### `useEffectiveMotion()`
 
 Get the effective motion mode after applying the system reduced-motion override. System `prefers-reduced-motion` is a hard override that forces `"off"` regardless of derived mode.
@@ -252,6 +308,7 @@ An example adaptive card demonstrating token consumption. Takes no props -- it r
 | Emotional | `mode.motion` | Controls animation class via `entranceClass()` and `ambientClass()` | Active |
 | Valence | `field.valence` | Controls tone/greeting text and accent color | Active |
 | Mode label | `deriveModeLabel(field)` | Badge color and label text | Active |
+| Feedback | `useFeedback().fire` | Fires haptic + pace-matched sonic on CTA button clicks (opt-in) | Active |
 
 ---
 
@@ -346,6 +403,7 @@ interface InterfaceMode {
   focus: "default" | "gentle" | "guided"
   guidance: "low" | "medium" | "high"
   choiceLoad: "minimal" | "normal"
+  pace: "calm" | "neutral" | "activated"  // Phase 3 — arousal-driven animation speed
 }
 ```
 

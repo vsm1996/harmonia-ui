@@ -63,6 +63,13 @@ vi.mock("@/lib/capacity", async (importOriginal) => {
     useEnergyField: () => ({ value: 0.5, trend: "stable", lastChange: Date.now() }),
     useAttentionField: () => ({ value: 0.75, trend: "stable", lastChange: Date.now() }),
     useEmotionalValenceField: () => ({ value: 0.0, trend: "stable", lastChange: Date.now() }),
+    useFeedback: () => ({
+      hapticEnabled: false,
+      sonicEnabled: false,
+      setHapticEnabled: vi.fn(),
+      setSonicEnabled: vi.fn(),
+      fire: vi.fn(),
+    }),
   }
 })
 

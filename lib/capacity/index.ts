@@ -16,6 +16,7 @@ export {
   usePrefersReducedMotion,
   useEffectiveMotion,
   usePacedMotionTokens,
+  useFeedback,
 } from "./provider"
 
 // Animation Utilities

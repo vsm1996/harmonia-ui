@@ -8,8 +8,9 @@
 
 import type React from "react"
 
-import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react"
+import { createContext, useContext, useEffect, useState, useCallback, useRef, type Dispatch, type SetStateAction } from "react"
 import type { AmbientContext, UserCapacity, EmotionalState, MotionMode, CapacityField, InterfaceMode } from "./types"
+import { triggerHaptic, playPacedSonic, type HapticPatternName } from "./feedback"
 import { FieldManager } from "./fields/field-manager"
 import { deriveMode } from "./mode"
 import { MOTION_TOKENS, DEFAULT_CAPACITY_FIELD } from "./constants"
@@ -26,6 +27,10 @@ interface CapacityContextValue {
   isAutoMode: boolean;
   toggleAutoMode: () => void;
   updateCapacityField: (field: CapacityField) => void;
+  hapticEnabled: boolean;
+  sonicEnabled: boolean;
+  setHapticEnabled: Dispatch<SetStateAction<boolean>>;
+  setSonicEnabled: Dispatch<SetStateAction<boolean>>;
 }
 
 const CapacityContext = createContext<CapacityContextValue | null>(null)
@@ -57,6 +62,8 @@ function applyEMA(prev: CapacityField, next: CapacityField, alpha: number): Capa
 export function CapacityProvider({ children }: { children: React.ReactNode }) {
   const [context, setContext] = useState<AmbientContext>(() => FieldManager.getContext());
   const [isAutoMode, setIsAutoMode] = useState<boolean>(true); // Start in auto mode
+  const [hapticEnabled, setHapticEnabled] = useState<boolean>(false);
+  const [sonicEnabled, setSonicEnabled] = useState<boolean>(false);
   const isFirstAggregationComplete = useRef<boolean>(false); // New ref to control initial aggregator application
   const smoothedFieldRef = useRef<CapacityField | null>(null); // EMA-smoothed field for auto mode
   const aggregatorRef = useRef<SignalAggregator | null>(null);
@@ -163,6 +170,7 @@ export function CapacityProvider({ children }: { children: React.ReactNode }) {
   return (
     <CapacityContext.Provider value={{
       context, updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField,
+      hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled,
     }}>
       {children}
     </CapacityContext.Provider>
@@ -290,6 +298,31 @@ export function useEffectiveMotion(): {
     tokens: MOTION_TOKENS[effectiveMode],
     prefersReducedMotion,
   }
+}
+
+/**
+ * Access multimodal feedback preferences and fire helper.
+ *
+ * Reads opt-in flags from context — feedback only fires when the user
+ * has explicitly enabled it in the CapacityControls panel.
+ * Pace-aware: sonic frequency adapts to current arousal level.
+ */
+export function useFeedback(): {
+  hapticEnabled: boolean
+  sonicEnabled: boolean
+  setHapticEnabled: Dispatch<SetStateAction<boolean>>
+  setSonicEnabled: Dispatch<SetStateAction<boolean>>
+  fire: (pattern?: HapticPatternName) => void
+} {
+  const { hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled } = useCapacityContext()
+  const { mode } = useDerivedMode()
+
+  const fire = useCallback((pattern: HapticPatternName = "tap") => {
+    if (hapticEnabled) triggerHaptic(pattern)
+    if (sonicEnabled) playPacedSonic(mode.pace)
+  }, [hapticEnabled, sonicEnabled, mode.pace])
+
+  return { hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled, fire }
 }
 
 /**

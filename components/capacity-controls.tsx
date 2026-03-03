@@ -28,10 +28,9 @@ import {
   useEnergyField,
   useAttentionField,
   useEmotionalValenceField,
+  useFeedback,
   deriveModeLabel,
   getModeBadgeColor,
-  triggerHaptic,
-  playPacedSonic,
 } from "@/lib/capacity"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
@@ -194,9 +193,8 @@ const DEFAULT_CALM_STATE = {
 
 export function CapacityControls() {
   const [isOpen, setIsOpen] = useState(false)
-  const [hapticEnabled, setHapticEnabled] = useState(false)
-  const [sonicEnabled, setSonicEnabled] = useState(false)
   const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode } = useCapacityContext()
+  const { hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled, fire: fireFeedback } = useFeedback()
   const { field, mode } = useDerivedMode()
   const energy = useEnergyField()
   const attention = useAttentionField()
@@ -224,9 +222,8 @@ export function CapacityControls() {
    * Fire multimodal feedback on significant interactions (opt-in)
    */
   const fireInteractionFeedback = useCallback(() => {
-    if (hapticEnabled) triggerHaptic("tap")
-    if (sonicEnabled) playPacedSonic(mode.pace)
-  }, [hapticEnabled, sonicEnabled, mode.pace])
+    fireFeedback("tap")
+  }, [fireFeedback])
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
