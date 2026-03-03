@@ -58,7 +58,7 @@ export function HeroSection() {
 
   // Content adaptations
   const tagline = field.temporal > 0.4 ? TAGLINES.full : TAGLINES.abbreviated
-  const toneKey = field.valence > 0.2 ? "positive" 
+  const toneKey = field.valence > 0.2 ? "positive"
     : field.valence < -0.2 ? "negative" : "neutral"
   const ctaText = TONES[toneKey]
   const showSecondaryCTA = mode.choiceLoad === "normal"
@@ -66,7 +66,7 @@ export function HeroSection() {
 
   // Hero is above fold - use immediate animation (no scroll trigger needed)
   const animateClass = motionMode !== "off" ? "animate-fade-in-immediate" : ""
-  
+
   // Fun CON letter collision animation - only at high expressiveness + positive valence
   const showConCollision = motionMode === "expressive" && field.valence > 0.3
 
@@ -84,7 +84,7 @@ export function HeroSection() {
 
       {/* Main content - CSS animations only */}
       <div className="relative z-10 max-w-5xl mx-auto text-center">
-        
+
         {/* Date badge */}
         {field.temporal > 0.3 && (
           <div className={animateClass} style={{ animationDelay: "0ms" }}>
@@ -141,8 +141,8 @@ export function HeroSection() {
           className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${animateClass}`}
           style={{ animationDelay: "300ms" }}
         >
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 ${getHoverClass(motionMode)} ${focusBeaconClass(mode.focus)}`}
           >
             {ctaText.cta}
@@ -151,7 +151,7 @@ export function HeroSection() {
             <Button
               size="lg"
               variant="outline"
-              className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent transition-transform hover:scale-105 active:scale-95"
+              className="text-lg px-8 py-6 font-medium tracking-wide bg-transparent transition-transform hover:scale-105 active:scale-95 hover:text-white"
             >
               {ctaText.secondary}
             </Button>

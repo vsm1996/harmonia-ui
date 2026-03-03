@@ -163,7 +163,8 @@ describe("CapacityControls – opening the panel", () => {
   it("shows descriptive text inside the panel", async () => {
     renderControls()
     await openPanel()
-    expect(screen.getByText(/adjust your state/i)).toBeInTheDocument()
+    // isAutoMode: true in mock → signals-driving message
+    expect(screen.getByText(/signals are driving values/i)).toBeInTheDocument()
   })
 })
 

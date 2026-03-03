@@ -255,10 +255,10 @@ function NextStepsGuide() {
           </p>
         </div>
         <div className="flex items-start gap-3">
-          <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-600 border-yellow-500/30">Next</Badge>
+          <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">Done</Badge>
           <p className="text-muted-foreground">
-            <strong className="text-foreground">Phase 2:</strong> Automatic signals (scroll velocity, time-on-page, 
-            interaction patterns) to modulate inputs without manual controls
+            <strong className="text-foreground">Phase 2:</strong> Automatic signals (scroll velocity, time-on-page,
+            interaction patterns) modulate inputs passively — plus pattern-based prediction from past sessions
           </p>
         </div>
         <div className="flex items-start gap-3">

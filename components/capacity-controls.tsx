@@ -184,7 +184,7 @@ const DEFAULT_CALM_STATE = {
 
 export function CapacityControls() {
   const [isOpen, setIsOpen] = useState(false)
-  const { updateCapacity, updateEmotionalState } = useCapacityContext()
+  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode } = useCapacityContext()
   const { field, mode } = useDerivedMode()
   const energy = useEnergyField()
   const attention = useAttentionField()
@@ -273,21 +273,34 @@ export function CapacityControls() {
                       {modeLabel}
                     </Badge>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setIsOpen(false)
-                    }}
-                    aria-label="Close capacity controls"
-                  >
-                    <CloseIcon className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant={isAutoMode ? "default" : "outline"}
+                      size="sm"
+                      className="h-7 text-xs px-2"
+                      onClick={toggleAutoMode}
+                      aria-label={isAutoMode ? "Switch to manual mode" : "Switch to auto mode"}
+                    >
+                      {isAutoMode ? "Auto" : "Manual"}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setIsOpen(false)
+                      }}
+                      aria-label="Close capacity controls"
+                    >
+                      <CloseIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Adjust your state to see the UI adapt in real-time.
+                  {isAutoMode
+                    ? "Signals are driving values automatically. Move any slider to take manual control."
+                    : "Adjust your state to see the UI adapt in real-time."}
                 </p>
               </CardHeader>
 
