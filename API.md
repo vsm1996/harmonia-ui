@@ -779,6 +779,8 @@ aggregator.destroy()
 
 Each detector's influence per dimension is tuned via `SignalAggregator.DIMENSION_WEIGHTS`. Call `aggregator.destroy()` to release all event listeners.
 
+> **Note on mode stability:** `CapacityProvider` applies EMA smoothing (α = 0.2) to each aggregated field before writing to `FieldManager`. A single noisy poll therefore cannot flip the mode label — sustained signal across ~4–5 polls (~8–10 s) is required for a full transition. `aggregateSignals()` itself always returns the raw weighted average; the smoothing is the provider's responsibility.
+
 ### `PatternStore`
 
 Persists capacity snapshots to `localStorage` (max 100 entries, oldest evicted).

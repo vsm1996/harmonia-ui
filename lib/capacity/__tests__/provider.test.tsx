@@ -2,11 +2,16 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { render, act, renderHook } from "@testing-library/react"
 import React from "react"
 
+// Hoist the mock fn so it can be referenced inside vi.mock and also in tests.
+const { mockAggregateSignals } = vi.hoisted(() => ({
+  mockAggregateSignals: vi.fn<[], Promise<{ cognitive: number; temporal: number; emotional: number; valence: number }>>(),
+}))
+
 // Must use class syntax for vi.mock constructor mocks (arrow functions are not constructable)
 vi.mock("../signals/aggregator", () => {
   class MockSignalAggregator {
     aggregateSignals() {
-      return Promise.resolve({ cognitive: 0.6, temporal: 0.6, emotional: 0.6, valence: 0.0 })
+      return mockAggregateSignals()
     }
     destroy() {}
   }
@@ -37,9 +42,13 @@ import {
   useEffectiveMotion,
 } from "../provider"
 import { MOTION_TOKENS } from "../constants"
+import { FieldManager } from "../fields/field-manager"
+
+const DEFAULT_SIGNAL = { cognitive: 0.6, temporal: 0.6, emotional: 0.6, valence: 0.0 }
 
 beforeEach(() => {
   setupMatchMedia()
+  mockAggregateSignals.mockResolvedValue(DEFAULT_SIGNAL)
 })
 
 afterEach(() => {
@@ -219,5 +228,153 @@ describe("useEffectiveMotion", () => {
   it("tokens match the effective motion mode", () => {
     const { result } = renderHook(() => useEffectiveMotion(), { wrapper })
     expect(result.current.tokens).toEqual(MOTION_TOKENS[result.current.mode])
+  })
+})
+
+// ============================================================================
+// EMA Smoothing (auto mode)
+// ============================================================================
+//
+// These tests verify that auto-mode signal readings are smoothed with an
+// exponential moving average (α = 0.2) before being written to FieldManager,
+// so a single noisy poll cannot instantly flip the mode label.
+//
+// Timeline per test:
+//   poll 1 — seeds the EMA baseline, NO write to FieldManager
+//   poll 2 — first active write: smoothed = 0.8 × seed + 0.2 × new
+//   poll 3 — second active write: smoothed = 0.8 × prev + 0.2 × new
+//   …etc.
+
+describe("auto mode EMA smoothing", () => {
+  // Reset FieldManager to deterministic defaults so EMA arithmetic is exact.
+  const RESET_CAPACITY = { cognitive: 0.5, temporal: 0.5, emotional: 0.5 }
+  const RESET_EMOTIONAL = { valence: 0.0 }
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+    FieldManager.updateCapacity(RESET_CAPACITY)
+    FieldManager.updateEmotionalState(RESET_EMOTIONAL)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    // Restore default so non-EMA tests are unaffected if run after.
+    mockAggregateSignals.mockResolvedValue(DEFAULT_SIGNAL)
+  })
+
+  it("first poll seeds the EMA baseline without writing to FieldManager", async () => {
+    // Even though the poll returns 0.9, the first cycle only seeds smoothedFieldRef.
+    // The FieldManager should remain at the reset value of 0.5.
+    mockAggregateSignals.mockResolvedValue({ cognitive: 0.9, temporal: 0.5, emotional: 0.5, valence: 0.0 })
+
+    const { result } = renderHook(() => useCapacityContext(), { wrapper })
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // seed — no write
+
+    expect(result.current.context.userCapacity.cognitive).toBe(0.5)
+  })
+
+  it("second poll applies α=0.2 blend (80% seed + 20% new value)", async () => {
+    // seed = 0.5, active poll = 1.0
+    // Expected: 0.8 × 0.5 + 0.2 × 1.0 = 0.60
+    mockAggregateSignals
+      .mockResolvedValueOnce({ cognitive: 0.5, temporal: 0.5, emotional: 0.5, valence: 0.0 }) // seed
+      .mockResolvedValue({ cognitive: 1.0, temporal: 0.5, emotional: 0.5, valence: 0.0 })     // active polls
+
+    const { result } = renderHook(() => useCapacityContext(), { wrapper })
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // seed
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // → 0.60
+
+    expect(result.current.context.userCapacity.cognitive).toBeCloseTo(0.60, 5)
+  })
+
+  it("EMA smoothing applies to all four dimensions simultaneously", async () => {
+    // seed = all 0.5 / valence 0.0, active poll = all 1.0 / valence 0.4
+    // Expected cognitive/temporal/emotional: 0.60; valence: 0.08
+    mockAggregateSignals
+      .mockResolvedValueOnce({ cognitive: 0.5, temporal: 0.5, emotional: 0.5, valence: 0.0 }) // seed
+      .mockResolvedValue({ cognitive: 1.0, temporal: 1.0, emotional: 1.0, valence: 0.4 })     // active
+
+    const { result } = renderHook(() => useCapacityContext(), { wrapper })
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // seed
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // active
+
+    const cap = result.current.context.userCapacity
+    expect(cap.cognitive).toBeCloseTo(0.60, 5)
+    expect(cap.temporal).toBeCloseTo(0.60, 5)
+    expect(cap.emotional).toBeCloseTo(0.60, 5)
+    expect(result.current.context.emotionalState.valence).toBeCloseTo(0.08, 5)
+  })
+
+  it("three consecutive polls converge toward the target", async () => {
+    // seed = 0.5, then three active polls at 1.0:
+    //   poll 2: 0.8 × 0.500 + 0.2 × 1.0 = 0.600
+    //   poll 3: 0.8 × 0.600 + 0.2 × 1.0 = 0.680
+    //   poll 4: 0.8 × 0.680 + 0.2 × 1.0 = 0.744
+    mockAggregateSignals
+      .mockResolvedValueOnce({ cognitive: 0.5, temporal: 0.5, emotional: 0.5, valence: 0.0 })
+      .mockResolvedValue({ cognitive: 1.0, temporal: 0.5, emotional: 0.5, valence: 0.0 })
+
+    const { result } = renderHook(() => useCapacityContext(), { wrapper })
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // seed
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // → 0.600
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // → 0.680
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // → 0.744
+
+    expect(result.current.context.userCapacity.cognitive).toBeCloseTo(0.744, 5)
+  })
+
+  it("a single outlier poll barely moves the smoothed field", async () => {
+    // seed = 0.5, spike to 1.0, then returns to 0.5.
+    //   after spike:  0.8 × 0.5  + 0.2 × 1.0 = 0.60
+    //   after return: 0.8 × 0.60 + 0.2 × 0.5 = 0.58
+    // The field recovers quickly — the spike left only a small residual.
+    mockAggregateSignals
+      .mockResolvedValueOnce({ cognitive: 0.5, temporal: 0.5, emotional: 0.5, valence: 0.0 }) // seed
+      .mockResolvedValueOnce({ cognitive: 1.0, temporal: 0.5, emotional: 0.5, valence: 0.0 }) // spike
+      .mockResolvedValue({ cognitive: 0.5, temporal: 0.5, emotional: 0.5, valence: 0.0 })     // return
+
+    const { result } = renderHook(() => useCapacityContext(), { wrapper })
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // seed
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // spike → 0.60
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // return → 0.58
+
+    expect(result.current.context.userCapacity.cognitive).toBeCloseTo(0.58, 5)
+    // Confirm it didn't jump anywhere near 1.0
+    expect(result.current.context.userCapacity.cognitive).toBeLessThan(0.65)
+  })
+
+  it("EMA state resets when re-entering auto mode", async () => {
+    // Build up EMA state: seed=0.5, active at 0.9 → smoothed=0.58.
+    // Toggle auto off → on (resets EMA baseline).
+    // New seed=0.5, new active at 0.7 → fresh EMA: 0.8×0.5 + 0.2×0.7 = 0.54.
+    //
+    // Without the reset, the stale smoothed value (0.58) would carry forward
+    // and the second active poll would give a different result (~0.604).
+    mockAggregateSignals
+      .mockResolvedValueOnce({ cognitive: 0.5, temporal: 0.5, emotional: 0.5, valence: 0.0 }) // seed 1
+      .mockResolvedValueOnce({ cognitive: 0.9, temporal: 0.5, emotional: 0.5, valence: 0.0 }) // active 1 → 0.58
+      .mockResolvedValueOnce({ cognitive: 0.5, temporal: 0.5, emotional: 0.5, valence: 0.0 }) // seed 2
+      .mockResolvedValue({ cognitive: 0.7, temporal: 0.5, emotional: 0.5, valence: 0.0 })     // active 2 → 0.54
+
+    const { result } = renderHook(() => useCapacityContext(), { wrapper })
+
+    // First auto-mode cycle
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // seed 1
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // active 1 → 0.58
+    expect(result.current.context.userCapacity.cognitive).toBeCloseTo(0.58, 5)
+
+    // Re-enter auto mode — this should reset smoothedFieldRef and isFirstAggregationComplete
+    act(() => { result.current.toggleAutoMode() }) // → manual (interval stops)
+    act(() => { result.current.toggleAutoMode() }) // → auto  (EMA refs reset, new interval)
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // seed 2 — no write
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) }) // active 2 → 0.8×0.5 + 0.2×0.7 = 0.54
+
+    expect(result.current.context.userCapacity.cognitive).toBeCloseTo(0.54, 5)
   })
 })

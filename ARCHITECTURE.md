@@ -12,7 +12,7 @@ Signals (auto) ─────────────────┐
 Sliders (manual) → UserCapacity + EmotionalState → FieldManager → AmbientContext → deriveMode() → Components
 ```
 
-In auto mode, the `SignalAggregator` collects readings from 6 passive detectors every 2 seconds and updates capacity without user intervention. In manual mode, sliders drive state directly. Both paths write to `FieldManager`; everything downstream is identical.
+In auto mode, the `SignalAggregator` collects readings from 6 passive detectors every 2 seconds. Raw readings are smoothed through an exponential moving average (α = 0.2) before being applied to `FieldManager`, so a single noisy poll cannot instantly flip the mode label — a sustained change requires roughly 8–10 seconds of consistent signal. In manual mode, sliders drive state directly with no smoothing. Both paths write to `FieldManager`; everything downstream is identical.
 
 Each layer transforms data for the next, maintaining clear boundaries and predictable behavior.
 
@@ -360,12 +360,22 @@ function CapacityProvider({ children }: { children: React.ReactNode }) {
     return () => { unsubscribe(); aggregatorRef.current?.destroy() }
   }, [])
 
-  // Auto mode: aggregate signals every 2 seconds and apply to FieldManager
+  // Auto mode: aggregate signals every 2 seconds, apply EMA smoothing, then
+  // write to FieldManager. The first poll seeds the EMA baseline (skipped);
+  // subsequent polls blend in at α=0.2 to prevent single-poll mode flips.
   useEffect(() => {
     if (!isAutoMode) return
+    isFirstAggregationComplete.current = false
+    smoothedFieldRef.current = null
     const id = setInterval(async () => {
       const suggested = await aggregatorRef.current!.aggregateSignals()
-      FieldManager.updateCapacity({ cognitive: suggested.cognitive, ... })
+      if (!isFirstAggregationComplete.current) {
+        isFirstAggregationComplete.current = true
+        smoothedFieldRef.current = suggested          // seed baseline
+      } else {
+        smoothedFieldRef.current = applyEMA(smoothedFieldRef.current!, suggested, 0.2)
+        FieldManager.updateCapacity({ cognitive: smoothedFieldRef.current.cognitive, ... })
+      }
     }, 2000)
     return () => clearInterval(id)
   }, [isAutoMode])
@@ -494,6 +504,8 @@ value = Σ(reading.value × reading.confidence × detectorWeight) / Σ(reading.c
 ```
 
 Detector influence on each dimension is tuned independently via `SignalAggregator.DIMENSION_WEIGHTS`. For example, `EnvironmentDetector` contributes more strongly to `emotional` (weight 0.8) than to `temporal` (weight 0.7), while `TimeDetector` contributes more to `cognitive` (weight 0.6) than `temporal` (weight 0.5). When no override is defined, the detector's base `weight` property is used.
+
+**EMA smoothing (auto mode only):** `CapacityProvider` applies an exponential moving average (α = 0.2) to the aggregated field before writing to `FieldManager`. Each new poll contributes 20% of its value; the previous smoothed field retains 80%. This prevents a single anomalous reading from triggering a mode switch — a genuine step-change needs roughly 4–5 consecutive polls (~8–10 s) to reach ~67% of its final value. The EMA is reset to `null` whenever auto mode is (re-)entered, so stale manual slider positions never pollute the baseline.
 
 ### Pattern Prediction (Phase 2)
 

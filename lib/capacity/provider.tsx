@@ -34,10 +34,31 @@ const CapacityContext = createContext<CapacityContextValue | null>(null)
 // Provider Component
 // ============================================================================
 
+/**
+ * Exponential moving average weight for auto-mode signal smoothing.
+ *
+ * Each new reading contributes this fraction; the previous smoothed value
+ * keeps (1 − α). A lower value means more smoothing and a longer "warm-up"
+ * before a mode label actually flips — roughly α=0.2 means 4–5 consecutive
+ * 2-second polls (~8–10 s) before a step-change lands at ≈ 67 % of its
+ * final value, preventing single noisy readings from triggering a switch.
+ */
+const AUTO_EMA_ALPHA = 0.2;
+
+function applyEMA(prev: CapacityField, next: CapacityField, alpha: number): CapacityField {
+  return {
+    cognitive: prev.cognitive * (1 - alpha) + next.cognitive * alpha,
+    temporal:  prev.temporal  * (1 - alpha) + next.temporal  * alpha,
+    emotional: prev.emotional * (1 - alpha) + next.emotional * alpha,
+    valence:   prev.valence   * (1 - alpha) + next.valence   * alpha,
+  };
+}
+
 export function CapacityProvider({ children }: { children: React.ReactNode }) {
   const [context, setContext] = useState<AmbientContext>(() => FieldManager.getContext());
   const [isAutoMode, setIsAutoMode] = useState<boolean>(true); // Start in auto mode
   const isFirstAggregationComplete = useRef<boolean>(false); // New ref to control initial aggregator application
+  const smoothedFieldRef = useRef<CapacityField | null>(null); // EMA-smoothed field for auto mode
   const aggregatorRef = useRef<SignalAggregator | null>(null);
 
   useEffect(() => {
@@ -62,21 +83,35 @@ export function CapacityProvider({ children }: { children: React.ReactNode }) {
     let intervalId: NodeJS.Timeout;
 
     if (isAutoMode && aggregatorRef.current) {
+      // Reset smoothing state when (re-)entering auto mode so stale manual
+      // slider positions don't bias the EMA baseline.
+      isFirstAggregationComplete.current = false;
+      smoothedFieldRef.current = null;
       intervalId = setInterval(async () => {
         try {
           const suggestedField = await aggregatorRef.current!.aggregateSignals();
 
           if (!isFirstAggregationComplete.current) {
-            // Skip the very first aggregation — detectors need one cycle to stabilise
+            // Skip the very first aggregation — detectors need one cycle to stabilise.
+            // Seed the EMA with this reading so the next poll has a sensible baseline.
             isFirstAggregationComplete.current = true;
+            smoothedFieldRef.current = suggestedField;
           } else {
+            // Apply EMA smoothing: new readings blend in gradually so a single
+            // noisy poll can't instantly flip the mode label.
+            smoothedFieldRef.current = applyEMA(
+              smoothedFieldRef.current ?? suggestedField,
+              suggestedField,
+              AUTO_EMA_ALPHA,
+            );
+            const smoothed = smoothedFieldRef.current;
             FieldManager.updateCapacity({
-              cognitive: suggestedField.cognitive,
-              temporal: suggestedField.temporal,
-              emotional: suggestedField.emotional,
+              cognitive: smoothed.cognitive,
+              temporal: smoothed.temporal,
+              emotional: smoothed.emotional,
             });
             FieldManager.updateEmotionalState({
-              valence: suggestedField.valence,
+              valence: smoothed.valence,
             });
           }
         } catch (error) {
