@@ -39,7 +39,7 @@ function InputsToModeFlow() {
     <Card className="overflow-hidden border-border/50">
       {/* Three-column flow */}
       <div className="grid lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-border/50">
-        
+
         {/* Column 1: Inputs */}
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -60,7 +60,7 @@ function InputsToModeFlow() {
             <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">2</span>
             Derived Mode
           </div>
-          
+
           {/* Large mode badge */}
           <div className="flex flex-col items-center py-4">
             <Badge
@@ -88,7 +88,7 @@ function InputsToModeFlow() {
             <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">3</span>
             UI Effects
           </div>
-          
+
           <div className="space-y-1.5">
             <EffectRow active={mode.density === "low"} text="Fewer items shown, simpler layouts" />
             <EffectRow active={mode.density === "high"} text="Full feature display, dense grids" />
@@ -111,12 +111,12 @@ function InputsToModeFlow() {
 /**
  * Visual gauge for input values
  */
-function InputGauge({ 
-  label, 
-  value, 
+function InputGauge({
+  label,
+  value,
   description,
-  isBipolar = false 
-}: { 
+  isBipolar = false
+}: {
   label: string
   value: number
   description: string
@@ -124,7 +124,7 @@ function InputGauge({
 }) {
   // For bipolar, remap -1..1 to 0..100
   const percentage = isBipolar ? ((value + 1) / 2) * 100 : value * 100
-  
+
   // Color based on value -- thresholds match mode.ts derivation
   const getColor = () => {
     if (isBipolar) {
@@ -145,7 +145,7 @@ function InputGauge({
       </div>
       <div className="flex items-center gap-3">
         <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-          <div 
+          <div
             className={`h-full rounded-full transition-all duration-300 ${getColor()}`}
             style={{ width: `${percentage}%` }}
           />
@@ -262,9 +262,10 @@ function NextStepsGuide() {
           </p>
         </div>
         <div className="flex items-start gap-3">
-          <Badge variant="outline" className="text-xs">Future</Badge>
+          {/* <Badge variant="outline" className="text-xs">Future</Badge> */}
+          <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">Done</Badge>
           <p className="text-muted-foreground">
-            <strong className="text-foreground">Phase 3:</strong> Arousal dimension, multimodal feedback, 
+            <strong className="text-foreground">Phase 3:</strong> Arousal dimension, multimodal feedback,
             proportional scaling systems
           </p>
         </div>
