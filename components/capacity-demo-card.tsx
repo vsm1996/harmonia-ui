@@ -150,22 +150,46 @@ export function CapacityDemoCard() {
           </ul>
         )}
 
-        {/* CTA button - motion restraint from emotional */}
-        <button
-          className={`w-full py-2 px-4 rounded-md bg-primary text-primary-foreground font-medium text-sm transition-transform ${hover} ${ambientClass(mode.motion, "breathe")}`}
-        >
-          {densityContent.cta}
-        </button>
+        {/* Guidance hint: shown when cognitive/temporal is low — helps orient user */}
+        {mode.guidance !== "low" && (
+          <p className="text-xs text-muted-foreground/70 italic">
+            {mode.guidance === "high"
+              ? "Tip: adjust capacity controls (bottom-right) to see this card change"
+              : "Try adjusting the capacity controls"}
+          </p>
+        )}
 
-        {/* Live state readout with hints showing what each controls */}
+        {/* CTA button - motion restraint from emotional */}
+        {/* choiceLoad=minimal → single primary CTA only; normal → shows secondary too */}
+        <div className={mode.choiceLoad === "normal" ? "flex gap-2" : ""}>
+          <button
+            className={`${mode.choiceLoad === "normal" ? "flex-1" : "w-full"} py-2 px-4 rounded-md bg-primary text-primary-foreground font-medium text-sm transition-transform ${hover} ${ambientClass(mode.motion, "breathe")}`}
+          >
+            {densityContent.cta}
+          </button>
+          {mode.choiceLoad === "normal" && mode.density !== "low" && (
+            <button className="py-2 px-3 rounded-md border border-border text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Details
+            </button>
+          )}
+        </div>
+
+        {/* Live state readout — chip count respects choiceLoad */}
         <div className="pt-4 border-t border-border">
           <p className="text-xs text-muted-foreground mb-2">Live State</p>
-          <div className="grid grid-cols-4 gap-1 text-xs">
-            <StateChip label="Cog" value={field.cognitive} hint="density" />
-            <StateChip label="Temp" value={field.temporal} hint="length" />
-            <StateChip label="Emo" value={field.emotional} hint="motion" />
-            <StateChip label="Val" value={field.valence} hint="tone" signed />
-          </div>
+          {mode.choiceLoad === "minimal" ? (
+            <div className="grid grid-cols-2 gap-1 text-xs">
+              <StateChip label="Cog" value={field.cognitive} hint="density" />
+              <StateChip label="Temp" value={field.temporal} hint="length" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 gap-1 text-xs">
+              <StateChip label="Cog" value={field.cognitive} hint="density" />
+              <StateChip label="Temp" value={field.temporal} hint="length" />
+              <StateChip label="Emo" value={field.emotional} hint="motion" />
+              <StateChip label="Val" value={field.valence} hint="tone" signed />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -104,7 +104,8 @@ export function TicketsSection() {
   const headerVariant = field.temporal < 0.3 ? "minimal" : field.temporal < 0.6 ? "reduced" : "full"
   const header = HEADERS[headerVariant]
 
-  const visibleTiers = field.cognitive < 0.25 ? TIERS.filter(t => t.highlight) : TIERS
+  // choiceLoad="minimal" reduces decision fatigue: show only the recommended tier
+  const visibleTiers = mode.choiceLoad === "minimal" ? TIERS.filter(t => t.highlight) : TIERS
   const featureVariant = field.temporal < 0.4 ? "short" : "full"
 
   const gridClass = visibleTiers.length === 1 

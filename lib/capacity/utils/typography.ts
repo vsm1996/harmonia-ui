@@ -11,7 +11,8 @@
  * - Energy-based bias: low energy = larger (readability), high = smaller (density)
  */
 
-import { PHI } from "../constants"
+import { PHI, FIBONACCI } from "../constants"
+import type { DensityMode } from "../types"
 
 // ============================================================================
 // Type Definitions
@@ -245,4 +246,97 @@ export function getFluidFontSize(role: TypographyRole, energy: EnergyLevel = "me
 
   // Fluid scaling between 320px and 1920px viewports
   return `clamp(${minSize}px, ${minSize}px + (${maxSize - minSize}) * ((100vw - 320px) / 1600), ${maxSize}px)`
+}
+
+// ============================================================================
+// Proportional Spacing System (Fibonacci / Golden Ratio) — Phase 3
+// ============================================================================
+
+/** Base spacing unit in pixels (4px = 0.25rem grid) */
+const SPACING_BASE = 4
+
+/**
+ * Fibonacci-based spacing scale.
+ * Each step is a Fibonacci number × SPACING_BASE (4px):
+ *
+ * Step | Fibonacci | px  | rem
+ * -----|-----------|-----|-----
+ *  0   |     1     |  4  | 0.25
+ *  1   |     1     |  4  | 0.25
+ *  2   |     2     |  8  | 0.5
+ *  3   |     3     | 12  | 0.75
+ *  4   |     5     | 20  | 1.25
+ *  5   |     8     | 32  | 2
+ *  6   |    13     | 52  | 3.25
+ *  7   |    21     | 84  | 5.25
+ *  8   |    34     | 136 | 8.5
+ *  9   |    55     | 220 | 13.75
+ */
+export const SPACING_SCALE = FIBONACCI.map((f) => f * SPACING_BASE)
+
+/**
+ * Get spacing value from Fibonacci scale.
+ *
+ * @param step - Scale step (0–11, maps to FIBONACCI sequence)
+ * @param unit - Return "px" string, "rem" string, or raw number (default: "px")
+ * @returns Spacing value
+ *
+ * @example
+ * getSpacing(4)        // "20px"   (Fibonacci[4]=5 × 4)
+ * getSpacing(5, "rem") // "2rem"   (Fibonacci[5]=8 × 4 / 16)
+ * getSpacing(3, "raw") // 12
+ */
+export function getSpacing(
+  step: number,
+  unit: "px" | "rem" | "raw" = "px",
+): string | number {
+  const clampedStep = Math.max(0, Math.min(step, SPACING_SCALE.length - 1))
+  const raw = SPACING_SCALE[clampedStep]
+
+  if (unit === "raw") return raw
+  if (unit === "rem") return `${(raw / 16).toFixed(4).replace(/\.?0+$/, "")}rem`
+  return `${raw}px`
+}
+
+/**
+ * Get proportional padding/gap values based on current density mode.
+ *
+ * Returns CSS-ready spacing strings using the Fibonacci scale,
+ * scaled back at low density (less space) and up at high density (more breathing room).
+ *
+ * @param density - Current density mode from InterfaceMode
+ * @returns Object of CSS spacing values for padding, gap, etc.
+ */
+export function getProportionalSpacing(density: DensityMode): {
+  xs: string   // Inline/tight spacing
+  sm: string   // Component internal padding
+  md: string   // Section/card padding
+  lg: string   // Between-section gap
+  gap: string  // Grid/flex gap
+} {
+  // Fibonacci steps shift by density
+  const shift = density === "low" ? -1 : density === "high" ? 1 : 0
+
+  return {
+    xs: getSpacing(2 + shift) as string,
+    sm: getSpacing(3 + shift) as string,
+    md: getSpacing(5 + shift) as string,
+    lg: getSpacing(7 + shift) as string,
+    gap: getSpacing(4 + shift) as string,
+  }
+}
+
+/**
+ * Get a φ-based size ratio for proportional component scaling.
+ *
+ * @param steps - Number of φ steps (positive = larger, negative = smaller)
+ * @returns Unitless multiplier based on powers of φ
+ *
+ * @example
+ * phiRatio(1)  // 1.618 — golden ratio
+ * phiRatio(-1) // 0.618 — inverse golden ratio
+ * phiRatio(2)  // 2.618 — φ²
+ */
+export function phiRatio(steps: number): number {
+  return Math.pow(PHI, steps)
 }

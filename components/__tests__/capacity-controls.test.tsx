@@ -219,10 +219,10 @@ describe("CapacityControls – slider labels and values", () => {
     expect(screen.getByText("Neutral")).toBeInTheDocument()
   })
 
-  it("shows percentage value for cognitive, temporal, emotional (all 50% at 0.5)", () => {
-    // All three capacity fields are 0.5 → each shows "50%"
+  it("shows percentage value for cognitive, temporal, emotional, and arousal (all 50% at 0.5)", () => {
+    // Cognitive, Temporal, Emotional, and Arousal all default to 0.5 → each shows "50%"
     const percentages = screen.getAllByText("50%")
-    expect(percentages.length).toBe(3)
+    expect(percentages.length).toBe(4)
   })
 
   it("shows signed valence value (+0.00 for neutral)", () => {
@@ -266,13 +266,13 @@ describe("CapacityControls – Reset button", () => {
     })
   })
 
-  it("clicking Reset calls updateEmotionalState with valence 0", async () => {
+  it("clicking Reset calls updateEmotionalState with valence 0 and arousal 0.5", async () => {
     renderControls()
     const user = await openPanel()
 
     await user.click(screen.getByRole("button", { name: /reset/i }))
 
-    expect(mocks.updateEmotionalState).toHaveBeenCalledWith({ valence: 0.0 })
+    expect(mocks.updateEmotionalState).toHaveBeenCalledWith({ valence: 0.0, arousal: 0.5 })
   })
 
   it("Reset calls both updateCapacity and updateEmotionalState together", async () => {

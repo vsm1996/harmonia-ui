@@ -225,6 +225,7 @@ export function useDerivedMode(): {
     temporal: context.userCapacity.temporal,
     emotional: context.userCapacity.emotional,
     valence: context.emotionalState.valence,
+    arousal: context.emotionalState.arousal,
   }
 
   const mode = deriveMode(field)
@@ -234,7 +235,7 @@ export function useDerivedMode(): {
 
 /**
  * Get effective motion mode with system preference override
- * 
+ *
  * System prefers-reduced-motion is a HARD OVERRIDE - non-negotiable on safety.
  * This ensures accessibility compliance regardless of derived mode.
  */
@@ -253,5 +254,45 @@ export function useEffectiveMotion(): {
     mode: effectiveMode,
     tokens: MOTION_TOKENS[effectiveMode],
     prefersReducedMotion,
+  }
+}
+
+/**
+ * Get motion tokens with arousal-based pacing applied (Phase 3)
+ *
+ * Arousal independently controls animation speed:
+ * - calm (< 0.35): +50% duration — slow, deliberate
+ * - neutral (0.35–0.65): standard duration
+ * - activated (> 0.65): -35% duration — fast, energetic
+ *
+ * System prefers-reduced-motion overrides pace to "calm" for safety.
+ */
+export function usePacedMotionTokens(): {
+  mode: MotionMode
+  pace: ReturnType<typeof deriveMode>["pace"]
+  tokens: {
+    durationFast: number
+    durationBase: number
+    durationSlow: number
+    easing: string
+    essentialDuration: number
+    essentialEasing: string
+  }
+} {
+  const { mode } = useDerivedMode()
+  const { mode: effectiveMotion, tokens: baseTokens, prefersReducedMotion } = useEffectiveMotion()
+
+  const effectivePace = prefersReducedMotion ? "calm" : mode.pace
+  const multiplier = effectivePace === "calm" ? 1.5 : effectivePace === "activated" ? 0.65 : 1.0
+
+  return {
+    mode: effectiveMotion,
+    pace: effectivePace,
+    tokens: {
+      ...baseTokens,
+      durationFast: Math.round(baseTokens.durationFast * multiplier),
+      durationBase: Math.round(baseTokens.durationBase * multiplier),
+      durationSlow: Math.round(baseTokens.durationSlow * multiplier),
+    },
   }
 }

@@ -29,6 +29,9 @@ export interface CapacityField {
 
   /** Emotional direction (-1 = negative, 0 = neutral, +1 = positive) */
   valence: number
+
+  /** Energy/activation level (0 = calm, 1 = activated) — Phase 3 */
+  arousal?: number
 }
 
 // ============================================================================
@@ -66,6 +69,15 @@ export type ContrastMode = "standard" | "boosted"
 export type ChoiceLoadMode = "minimal" | "normal"
 
 /**
+ * Arousal (pace) modes - Animation pacing from arousal level
+ *
+ * calm:      Low arousal (< 0.35) — slow, deliberate pacing
+ * neutral:   Normal arousal (0.35–0.65) — standard pacing
+ * activated: High arousal (> 0.65) — faster, energetic pacing
+ */
+export type ArousalMode = "calm" | "neutral" | "activated"
+
+/**
  * Focus modes - Attention guidance for important elements
  *
  * default:  No special treatment for important elements
@@ -89,6 +101,8 @@ export interface InterfaceMode {
   contrast: ContrastMode
   choiceLoad: ChoiceLoadMode
   focus: FocusMode
+  /** Animation pacing derived from arousal (Phase 3) */
+  pace: ArousalMode
 }
 
 /**

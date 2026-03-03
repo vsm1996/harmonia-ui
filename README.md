@@ -573,12 +573,12 @@ Harmonia UI is built with accessibility as a core constraint:
 - [x] PredictionEngine — context-matched capacity prediction
 - [x] `usePredictedCapacity()` hook
 
-### Phase 3: Extended Dimensions (Future)
+### Phase 3: Extended Dimensions (Complete)
 
-- [ ] Arousal dimension (calm to activated)
-- [ ] Multimodal feedback (haptics, sound)
-- [ ] Proportional scaling systems (golden ratio integration)
-- [ ] `guidance` and `choiceLoad` token consumption in components
+- [x] Arousal dimension (calm to activated) — 5th axis on `CapacityField`; derives `pace` token for animation speed
+- [x] Multimodal feedback (haptics, sound) — opt-in `triggerHaptic()` + `playPacedSonic()` utilities using Web Vibration & Web Audio APIs
+- [x] Proportional scaling systems (golden ratio integration) — `getSpacing()` Fibonacci scale, `phiRatio()`, `getProportionalSpacing()` by density
+- [x] `guidance` and `choiceLoad` token consumption in components — guidance shows contextual hints; choiceLoad filters ticket tiers and CTA complexity
 
 ---
 

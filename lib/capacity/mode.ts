@@ -15,7 +15,7 @@
  * └─────────────┴────────────────────────────────────┴─────────────────────────────┘
  */
 
-import type { CapacityField, InterfaceMode, InterfaceModeLabel } from "./types"
+import type { CapacityField, InterfaceMode, InterfaceModeLabel, ArousalMode } from "./types"
 
 // ============================================================================
 // Mode Derivation Rules
@@ -108,7 +108,19 @@ export function deriveMode(field: CapacityField): InterfaceMode {
         ? "gentle"
         : "default"
 
-  return { density, guidance, motion, contrast, choiceLoad, focus }
+  // ═══════════════════════════════════════════════════════════════════════════
+  // AROUSAL → Animation Pacing (Phase 3)
+  // Controls HOW FAST animations play, independent of motion intensity.
+  //   calm:      arousal < 0.35 → slow, deliberate pacing (+50% duration)
+  //   neutral:   arousal 0.35–0.65 → standard pacing
+  //   activated: arousal > 0.65 → fast, energetic pacing (-35% duration)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const arousal = field.arousal ?? 0.5
+  const pace: ArousalMode = arousal < 0.35 ? "calm"
+    : arousal > 0.65 ? "activated"
+    : "neutral"
+
+  return { density, guidance, motion, contrast, choiceLoad, focus, pace }
 }
 
 // ============================================================================

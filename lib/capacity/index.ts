@@ -15,6 +15,7 @@ export {
   useFieldControls,
   usePrefersReducedMotion,
   useEffectiveMotion,
+  usePacedMotionTokens,
 } from "./provider"
 
 // Animation Utilities
@@ -31,6 +32,7 @@ export type {
   FocusMode,
   ContrastMode,
   ChoiceLoadMode,
+  ArousalMode,
   UserCapacity,
   EmotionalState,
   AmbientContext,
@@ -49,6 +51,18 @@ export { deriveMode, deriveModeLabel, getModeBadgeColor } from "./mode"
 
 // Constants
 export { PHI, PHI_INVERSE, FIBONACCI, FEEDBACK_FREQUENCIES, DEFAULT_COMPONENT_RESPONSE, MOTION_TOKENS } from "./constants"
+
+// Feedback utilities (Phase 3)
+export {
+  triggerHaptic,
+  playSonicFeedback,
+  getFrequencyForPace,
+  playPacedSonic,
+  HAPTIC_PATTERNS,
+} from "./feedback"
+
+// Spacing utilities (Phase 3)
+export { getSpacing, getProportionalSpacing, phiRatio, SPACING_SCALE, modularScale, getFontSize, getFontWeight, getLetterSpacing, getLineHeight, getTypographyStyles, getFluidFontSize } from "./utils/typography"
 
 // Signal Bus
 export { SignalBus, SIGNAL_TYPES } from "./signals/signal-bus"

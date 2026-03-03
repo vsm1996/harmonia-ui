@@ -20,7 +20,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import {
   useCapacityContext,
@@ -30,6 +30,8 @@ import {
   useEmotionalValenceField,
   deriveModeLabel,
   getModeBadgeColor,
+  triggerHaptic,
+  playPacedSonic,
 } from "@/lib/capacity"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
@@ -118,6 +120,7 @@ const CAPACITY_PRESETS = {
     temporal: 0.1,
     emotional: 0.1,
     valence: -0.6,
+    arousal: 0.1,
   },
   overwhelmed: {
     label: "Overwhelmed",
@@ -126,6 +129,7 @@ const CAPACITY_PRESETS = {
     temporal: 0.15,
     emotional: 0.2,
     valence: -0.5,
+    arousal: 0.2,
   },
   distracted: {
     label: "Distracted",
@@ -134,6 +138,7 @@ const CAPACITY_PRESETS = {
     temporal: 0.25,
     emotional: 0.5,
     valence: 0.0,
+    arousal: 0.4,
   },
   neutral: {
     label: "Neutral",
@@ -142,6 +147,7 @@ const CAPACITY_PRESETS = {
     temporal: 0.5,
     emotional: 0.5,
     valence: 0.0,
+    arousal: 0.5,
   },
   focused: {
     label: "Focused",
@@ -150,6 +156,7 @@ const CAPACITY_PRESETS = {
     temporal: 0.75,
     emotional: 0.55,
     valence: 0.1,
+    arousal: 0.6,
   },
   energized: {
     label: "Energized",
@@ -158,6 +165,7 @@ const CAPACITY_PRESETS = {
     temporal: 0.85,
     emotional: 0.85,
     valence: 0.6,
+    arousal: 0.8,
   },
   exploring: {
     label: "Exploring",
@@ -166,6 +174,7 @@ const CAPACITY_PRESETS = {
     temporal: 1.0,
     emotional: 1.0,
     valence: 0.8,
+    arousal: 0.9,
   },
 } as const
 
@@ -180,10 +189,13 @@ const DEFAULT_CALM_STATE = {
   temporal: 0.5,
   emotional: 0.5,
   valence: 0.0,
+  arousal: 0.5,
 } as const
 
 export function CapacityControls() {
   const [isOpen, setIsOpen] = useState(false)
+  const [hapticEnabled, setHapticEnabled] = useState(false)
+  const [sonicEnabled, setSonicEnabled] = useState(false)
   const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode } = useCapacityContext()
   const { field, mode } = useDerivedMode()
   const energy = useEnergyField()
@@ -202,8 +214,19 @@ export function CapacityControls() {
       temporal: DEFAULT_CALM_STATE.temporal,
       emotional: DEFAULT_CALM_STATE.emotional,
     })
-    updateEmotionalState({ valence: DEFAULT_CALM_STATE.valence })
+    updateEmotionalState({
+      valence: DEFAULT_CALM_STATE.valence,
+      arousal: DEFAULT_CALM_STATE.arousal,
+    })
   }
+
+  /**
+   * Fire multimodal feedback on significant interactions (opt-in)
+   */
+  const fireInteractionFeedback = useCallback(() => {
+    if (hapticEnabled) triggerHaptic("tap")
+    if (sonicEnabled) playPacedSonic(mode.pace)
+  }, [hapticEnabled, sonicEnabled, mode.pace])
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -316,7 +339,8 @@ export function CapacityControls() {
                         temporal: preset.temporal,
                         emotional: preset.emotional,
                       })
-                      updateEmotionalState({ valence: preset.valence })
+                      updateEmotionalState({ valence: preset.valence, arousal: preset.arousal })
+                      fireInteractionFeedback()
                     }}
                   >
                     <SelectTrigger className="w-full py-6">
@@ -390,6 +414,42 @@ export function CapacityControls() {
                   />
                 </div>
 
+                {/* Arousal → animation pacing (Phase 3) */}
+                <SliderControl
+                  label="Arousal"
+                  description="Controls: animation pacing (calm → activated)"
+                  value={field.arousal ?? 0.5}
+                  onChange={(v) => updateEmotionalState({ arousal: v })}
+                  lowLabel="Calm"
+                  highLabel="Activated"
+                />
+
+                {/* Multimodal feedback toggles (Phase 3, opt-in) */}
+                <div className="pt-2 border-t border-border space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Feedback <span className="font-normal opacity-60">(opt-in)</span>
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setHapticEnabled(v => !v)}
+                      className={`flex-1 py-1.5 px-2 rounded text-xs border transition-colors ${hapticEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                      aria-pressed={hapticEnabled}
+                    >
+                      📳 Haptic
+                    </button>
+                    <button
+                      onClick={() => setSonicEnabled(v => !v)}
+                      className={`flex-1 py-1.5 px-2 rounded text-xs border transition-colors ${sonicEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                      aria-pressed={sonicEnabled}
+                    >
+                      🔔 Sonic
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground opacity-60">
+                    Pace: <span className="font-medium">{mode.pace}</span> → {mode.pace === "calm" ? "+50% duration" : mode.pace === "activated" ? "−35% duration" : "standard"}
+                  </p>
+                </div>
+
                 {/* Derived field values display */}
                 <div className="pt-4 border-t border-border">
                   <p className="text-xs font-medium text-muted-foreground mb-2">
@@ -433,6 +493,8 @@ export function CapacityControls() {
                     <span className="font-medium">{mode.choiceLoad}</span>
                     <span className="text-muted-foreground">Focus:</span>
                     <span className="font-medium">{mode.focus}</span>
+                    <span className="text-muted-foreground">Pace:</span>
+                    <span className="font-medium">{mode.pace}</span>
                   </div>
                 </div>
               </CardContent>

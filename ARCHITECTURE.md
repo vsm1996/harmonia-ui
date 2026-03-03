@@ -505,8 +505,41 @@ Pattern confidence scales with sample size: `confidence = min(1, sampleSize / 20
 
 `decayConfidence()` applies exponential decay (`confidence × 0.9^days`) relative to `pattern.timestamp`, suppressing stale patterns without deleting historical data.
 
-## Future Considerations
+## Implemented: Phase 3 — Extended Dimensions
 
 ### Arousal Dimension
 
-`EmotionalState` already includes `arousal: number` (0–1, calm to activated) but it is not yet wired into `deriveMode()`. When integrated, arousal would add a fifth axis to mode derivation — independently controlling animation pacing separate from cognitive load.
+`CapacityField` now includes `arousal?: number` (0–1, calm to activated). `deriveMode()` uses it to produce a `pace: ArousalMode` token (`"calm"` / `"neutral"` / `"activated"`):
+
+- **calm** (arousal < 0.35): +50% animation duration — slow, deliberate pacing
+- **neutral** (0.35–0.65): standard timing
+- **activated** (arousal > 0.65): −35% animation duration — fast, energetic pacing
+
+`usePacedMotionTokens()` applies the pace multiplier to `MOTION_TOKENS` duration values. `prefers-reduced-motion` forces pace to `"calm"` as an additional safety override.
+
+### Multimodal Feedback
+
+`lib/capacity/feedback.ts` provides opt-in haptic and sonic feedback:
+
+- **Haptic**: `triggerHaptic(pattern)` via Web Vibration API — patterns: tap, toggle, pulse, error
+- **Sonic**: `playSonicFeedback(frequency, duration)` via Web Audio API — frequencies from `FEEDBACK_FREQUENCIES` (396/528/741 Hz)
+- **`playPacedSonic(pace)`**: convenience wrapper selecting frequency by arousal level
+- Degraded gracefully on unsupported browsers; opt-in via UI toggles in the capacity controls panel
+
+### Proportional Scaling Systems
+
+`lib/capacity/utils/typography.ts` now exports:
+
+- **`SPACING_SCALE`**: Fibonacci × 4px base — [4, 4, 8, 12, 20, 32, 52, 84, 136, 220...]
+- **`getSpacing(step, unit)`**: returns Fibonacci-based spacing in px, rem, or raw number
+- **`getProportionalSpacing(density)`**: returns `{ xs, sm, md, lg, gap }` CSS strings scaled by density mode
+- **`phiRatio(steps)`**: returns φ^n for proportional component scaling
+
+### Token Consumption
+
+| Token | Was | Now |
+|-------|-----|-----|
+| `guidance` | Derived only | Events section: "Tap for details" hint; demo card: help text at medium/high guidance |
+| `choiceLoad` | Derived only | Tickets: filters to recommended tier; demo card: hides secondary CTA + compresses state readout |
+| `focus` | Active | Unchanged |
+| `pace` | New (Phase 3) | Controls animation speed multiplier via `usePacedMotionTokens()` |
