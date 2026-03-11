@@ -93,10 +93,12 @@ export class PatternExtractor {
     const totalWeight = oldWeight + newWeight;
 
     (Object.keys(newItem) as Array<keyof CapacityField>).forEach(key => {
+      const newVal = newItem[key];
+      if (newVal === undefined) return;
       if (currentAvg[key] !== undefined) {
-        newAvg[key] = ((currentAvg[key]! * oldWeight) + (newItem[key] * newWeight)) / totalWeight;
+        newAvg[key] = ((currentAvg[key]! * oldWeight) + (newVal * newWeight)) / totalWeight;
       } else {
-        newAvg[key] = newItem[key];
+        newAvg[key] = newVal;
       }
     });
     return newAvg;

@@ -36,13 +36,7 @@ import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select } from "@/components/ui/select"
 
 function SettingsIcon({ className }: { className?: string }) {
   return (
@@ -281,28 +275,11 @@ export function CapacityControls() {
           >
             <Card className="w-80 shadow-xl max-h-[85vh] overflow-y-auto">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col items-center gap-2">
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-sm font-semibold">
                       Capacity Controls
                     </CardTitle>
-                    <Badge
-                      className="text-xs"
-                      style={{ backgroundColor: modeBadgeColor, color: "white" }}
-                    >
-                      {modeLabel}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant={isAutoMode ? "default" : "outline"}
-                      size="sm"
-                      className="h-7 text-xs px-2"
-                      onClick={toggleAutoMode}
-                      aria-label={isAutoMode ? "Switch to manual mode" : "Switch to auto mode"}
-                    >
-                      {isAutoMode ? "Auto" : "Manual"}
-                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -315,6 +292,25 @@ export function CapacityControls() {
                     >
                       <CloseIcon className="w-4 h-4" />
                     </Button>
+
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      className="text-xs"
+                      style={{ backgroundColor: modeBadgeColor, color: "white" }}
+                    >
+                      {modeLabel}
+                    </Badge>
+                    <Button
+                      variant={isAutoMode ? "default" : "outline"}
+                      size="sm"
+                      className="h-7 text-xs px-2"
+                      onClick={toggleAutoMode}
+                      aria-label={isAutoMode ? "Switch to manual mode" : "Switch to auto mode"}
+                    >
+                      {isAutoMode ? "Auto" : "Manual"}
+                    </Button>
+
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -329,8 +325,10 @@ export function CapacityControls() {
                 <div className="space-y-2 flex flex-col gap-2">
                   <label className="text-sm font-medium">Quick Presets</label>
                   <Select
-                    onValueChange={(value: PresetKey) => {
-                      const preset = CAPACITY_PRESETS[value]
+                    defaultValue=""
+                    onValueChange={(value: string) => {
+                      if (!value) return
+                      const preset = CAPACITY_PRESETS[value as PresetKey]
                       updateCapacity({
                         cognitive: preset.cognitive,
                         temporal: preset.temporal,
@@ -340,21 +338,12 @@ export function CapacityControls() {
                       fireInteractionFeedback()
                     }}
                   >
-                    <SelectTrigger className="w-full py-6">
-                      <SelectValue placeholder="Select a preset..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(CAPACITY_PRESETS).map(([key, preset]) => (
-                        <SelectItem key={key} value={key}>
-                          <div className="flex flex-col items-start">
-                            <span className="font-medium">{preset.label}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {preset.description}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                    <option value="" disabled>Select a preset...</option>
+                    {Object.entries(CAPACITY_PRESETS).map(([key, preset]) => (
+                      <option key={key} value={key}>
+                        {preset.label} — {preset.description}
+                      </option>
+                    ))}
                   </Select>
                 </div>
 
@@ -530,8 +519,8 @@ function SliderControl({
         </span>
       </div>
       <Slider
-        value={[value]}
-        onValueChange={([v]) => onChange(v)}
+        value={value}
+        onChange={(v) => onChange(v)}
         min={0}
         max={1}
         step={0.01}
@@ -574,8 +563,8 @@ function ValenceSliderControl({
         </span>
       </div>
       <Slider
-        value={[sliderValue]}
-        onValueChange={([v]) => onChange(v * 2 - 1)}
+        value={sliderValue}
+        onChange={(v) => onChange(v * 2 - 1)}
         min={0}
         max={1}
         step={0.01}

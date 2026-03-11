@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 
 import type { Metadata } from "next"
 
@@ -81,9 +80,7 @@ export default function PrivacyPage() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border">
-          <Button asChild variant="outline" className="bg-transparent">
-            <Link href="/convention">Back to Abyss Con</Link>
-          </Button>
+          <Link href="/convention" className="btn btn-outline bg-transparent">Back to Abyss Con</Link>
         </div>
       </div>
     </main>

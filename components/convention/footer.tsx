@@ -12,7 +12,6 @@
 
 import React from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { useDerivedMode, entranceClass as getEntranceClass, hoverClass as getHoverClass, ambientClass, listItemClass, type MotionMode } from "@/lib/capacity"
 import { useScrollFade, fadeClass } from "@/lib/use-scroll-animation"
 
@@ -99,12 +98,10 @@ export function Footer() {
 
         {/* Back to Homepage */}
         <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "200ms" } : undefined}>
-          <Button asChild variant="outline" size="lg" className={`bg-transparent ${hover}`}>
-            <Link href="/">
-              <HomeIcon className="w-4 h-4 mr-2" />
-              Back to Harmonia Homepage
-            </Link>
-          </Button>
+          <Link href="/" className={`btn btn-outline btn-lg bg-transparent ${hover}`}>
+            <HomeIcon className="w-4 h-4 mr-2" />
+            Back to Harmonia Homepage
+          </Link>
         </div>
 
         {/* Bottom bar */}

@@ -4,7 +4,7 @@ import React from "react"
 
 // Hoist the mock fn so it can be referenced inside vi.mock and also in tests.
 const { mockAggregateSignals } = vi.hoisted(() => ({
-  mockAggregateSignals: vi.fn<[], Promise<{ cognitive: number; temporal: number; emotional: number; valence: number }>>(),
+  mockAggregateSignals: vi.fn<() => Promise<{ cognitive: number; temporal: number; emotional: number; valence: number }>>(),
 }))
 
 // Must use class syntax for vi.mock constructor mocks (arrow functions are not constructable)
