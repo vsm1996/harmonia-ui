@@ -209,7 +209,7 @@ export function GuestsSection() {
           </div>
           <h2
             id="guests-title"
-            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${fadeClass(isInView, hasPlayed)} ${ambientClass(motionMode, "float")}`}
+            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 gachi-title-shadow ${fadeClass(isInView, hasPlayed)} ${ambientClass(motionMode, "float")}`}
             style={{ animationDelay: "50ms" }}
           >
             {headerContent.title.split(" ").slice(0, -1).join(" ")}
@@ -291,7 +291,7 @@ function GuestCard({
   const bio = guest.bio[bioLength]
 
   return (
-    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-300 ${hoverClass} ${ambientClass(motionMode, "breathe")} ${guest.featured ? focusBeaconClass(focusMode) : ""}`}>
+    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-300 gachi-card-hover gachi-scanlines ${hoverClass} ${ambientClass(motionMode, "breathe")} ${guest.featured ? focusBeaconClass(focusMode) : ""}`}>
       {/* Guest image */}
       <div className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}>
         <div className={`absolute inset-0 transition-transform duration-500 ${motionMode !== "off" ? "group-hover:scale-105" : ""}`}>
@@ -315,7 +315,7 @@ function GuestCard({
         <h3 className={`font-bold text-lg group-hover:text-primary transition-colors ${ambientClass(motionMode, "float")} ${guest.featured ? focusTextClass(focusMode) : ""}`}>
           {guest.name}
         </h3>
-        <p className="text-accent text-sm font-medium mb-2">
+        <p className="text-accent text-sm font-medium mb-2 gachi-toxic-glow">
           {guest.role}
         </p>
         <p className="text-muted-foreground text-sm">

@@ -131,7 +131,7 @@ export function EventsSection() {
           </Badge>
           <h2
             id="events-title"
-            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${ambientClass(mode.motion, "float")}`}
+            className={`text-4xl md:text-6xl font-black tracking-tight mb-4 gachi-title-shadow ${ambientClass(mode.motion, "float")}`}
           >
             <InfectedText text="What We" infectColor={infectedColor} />
             <span style={{ color: infectedColor }}> Salvaged</span>
@@ -219,7 +219,7 @@ function EventCard({
 
   return (
     <Card
-      className={`h-full flex flex-col overflow-hidden group transition-all duration-300 ${hoverClass} hover:border-primary/50 hover:shadow-lg ${!shouldAutoShowDescription ? "cursor-pointer" : ""
+      className={`h-full flex flex-col overflow-hidden group transition-all duration-300 gachi-card-hover gachi-scanlines ${hoverClass} hover:border-primary/50 hover:shadow-lg ${!shouldAutoShowDescription ? "cursor-pointer" : ""
         } ${ambientClass(motionMode, "breathe")} ${(event.category === "Panel" || event.category === "Workshop") ? focusBeaconClass(focusMode) : ""}`}
       onClick={handleCardClick}
       role={!shouldAutoShowDescription ? "button" : undefined}
@@ -232,7 +232,7 @@ function EventCard({
       } : undefined}
     >
       {/* Category color bar - pulses in expressive mode */}
-      <div className={`h-1.5 w-full ${categoryStyle.split(" ")[0]} ${ambientClass(motionMode, "pulse")}`} />
+      <div className={`h-1.5 w-full gachi-bar-glow ${categoryStyle.split(" ")[0]} ${ambientClass(motionMode, "pulse")}`} />
 
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-3">

@@ -62,7 +62,9 @@ export default function ConventionPage() {
       <HeroSection />
 
       {/* Debris divider */}
-      <DebrisDivider className="text-primary/40" />
+      <div className="gachi-drip relative">
+        <DebrisDivider className="text-primary/40" />
+      </div>
 
       {/* Events grid - responds to energy field for density */}
       <EventsSection />
@@ -71,7 +73,9 @@ export default function ConventionPage() {
       <GuestsSection />
 
       {/* Debris divider */}
-      <DebrisDivider className="text-accent/40" />
+      <div className="gachi-drip relative">
+        <DebrisDivider className="text-accent/40" />
+      </div>
 
       {/* Tickets CTA - attention-driven emphasis */}
       <TicketsSection />

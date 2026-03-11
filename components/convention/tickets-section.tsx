@@ -121,7 +121,7 @@ export function TicketsSection() {
           <Badge variant="outline" className="mb-4 tracking-widest text-primary border-primary/50">
             PASSES
           </Badge>
-          <h2 id="tickets-title" className={`text-4xl md:text-6xl font-black tracking-tight mb-4 ${ambientClass(mode.motion, "float")}`}>
+          <h2 id="tickets-title" className={`text-4xl md:text-6xl font-black tracking-tight mb-4 gachi-title-shadow ${ambientClass(mode.motion, "float")}`}>
             {header.title}
           </h2>
           {header.description && (
@@ -139,9 +139,9 @@ export function TicketsSection() {
               className={entrance || fadeClass(isInView, hasPlayed)}
               style={!hasPlayed ? { animationDelay: `${100 + index * 100}ms` } : undefined}
             >
-              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 ${hover} hover:border-primary/50 hover:shadow-lg ${
-                tier.highlight 
-                  ? "border-primary/50 shadow-lg" 
+              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 gachi-card-hover gachi-scanlines ${hover} hover:border-primary/50 hover:shadow-lg ${
+                tier.highlight
+                  ? "border-primary/50 shadow-lg gachi-rust-glow"
                   : "border-border/50"
               } ${ambientClass(mode.motion, "breathe")} ${tier.highlight ? focusBeaconClass(mode.focus) : ""}`}>
                 {tier.highlight && (

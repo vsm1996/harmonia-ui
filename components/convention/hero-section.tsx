@@ -79,7 +79,7 @@ export function HeroSection() {
     >
       {/* Background gradient only - removed heavy SVG filter */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-background via-background to-card"
+        className="absolute inset-0 bg-gradient-to-b from-background via-background to-card gachi-grit"
         aria-hidden="true"
       />
 
@@ -101,7 +101,7 @@ export function HeroSection() {
         {/* Main title */}
         <h1
           id="hero-title"
-          className={`font-sans font-black tracking-tighter leading-none mb-6 ${animateClass}`}
+          className={`font-sans font-black tracking-tighter leading-none mb-6 gachi-title-shadow ${animateClass}`}
           style={{
             fontSize: "clamp(3rem, 15vw, 12rem)",
             filter: `hue-rotate(${warmthShift}deg)`,
@@ -144,7 +144,7 @@ export function HeroSection() {
         >
           <Button
             size="lg"
-            className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 ${getHoverClass(motionMode)} ${focusBeaconClass(mode.focus)}`}
+            className={`text-lg px-8 py-6 font-bold tracking-wide transition-transform hover:scale-105 active:scale-95 gachi-rust-glow ${getHoverClass(motionMode)} ${focusBeaconClass(mode.focus)}`}
             onClick={() => fire("tap")}
           >
             {ctaText.cta}

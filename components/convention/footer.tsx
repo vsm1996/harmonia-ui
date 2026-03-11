@@ -31,7 +31,7 @@ export function Footer() {
         >
           {/* Brand column */}
           <div className="md:col-span-2">
-            <h3 className={`font-black text-2xl tracking-tighter mb-4 ${ambientClass(mode.motion, "float")}`}>
+            <h3 className={`font-black text-2xl tracking-tighter mb-4 gachi-title-shadow ${ambientClass(mode.motion, "float")}`}>
               <span className="text-primary">ABYSS</span>
               <span className="text-foreground/80"> CON</span>
             </h3>
