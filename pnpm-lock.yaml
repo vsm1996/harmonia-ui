@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@renge-ui/tokens':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@vercel/analytics':
         specifier: 1.3.1
         version: 1.3.1(next@16.1.6(@babel/core@7.29.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
@@ -638,6 +641,9 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
+
+  '@renge-ui/tokens@1.0.0':
+    resolution: {integrity: sha512-bJXvxzco+aAgQY24TNnzuM+DWF/yt+EIa4f7RPizYC0DzPAR06MTcNWlyxQ24vxWYEXf0+nQrRUV3feEVyzjcQ==}
 
   '@rolldown/pluginutils@1.0.0-rc.3':
     resolution: {integrity: sha512-eybk3TjzzzV97Dlj5c+XrBFW57eTNhzod66y9HrBlzJ6NsCrWCp/2kaPS3K9wJmurBC0Tdw4yPjXKZqlznim3Q==}
@@ -2268,6 +2274,8 @@ snapshots:
 
   '@next/swc-win32-x64-msvc@16.1.6':
     optional: true
+
+  '@renge-ui/tokens@1.0.0': {}
 
   '@rolldown/pluginutils@1.0.0-rc.3': {}
 
