@@ -195,7 +195,7 @@ export function TicketsSection() {
         {header.footer && (
           <p 
             className={`mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${fadeClass(isInView, hasPlayed)}`}
-            style={!hasPlayed ? { animationDelay: "350ms" } : undefined}
+            style={!hasPlayed ? { animationDelay: "var(--renge-duration-3)" } : undefined}
           >
             {header.footer}
           </p>

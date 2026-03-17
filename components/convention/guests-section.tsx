@@ -202,7 +202,7 @@ export function GuestsSection() {
       <div className="max-w-7xl mx-auto relative" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         {/* Section header */}
         <header className="mb-16 text-center">
-          <div className={fadeClass(isInView, hasPlayed)} style={{ animationDelay: "0ms" }}>
+          <div className={fadeClass(isInView, hasPlayed)} style={{ animationDelay: "var(--renge-duration-0)" }}>
             <Badge variant="outline" className="mb-4 tracking-widest">
               GUESTS
             </Badge>
@@ -210,7 +210,7 @@ export function GuestsSection() {
           <h2
             id="guests-title"
             className={`text-4xl md:text-6xl font-black tracking-tight mb-4 gachi-title-shadow ${fadeClass(isInView, hasPlayed)} ${ambientClass(motionMode, "float")}`}
-            style={{ animationDelay: "50ms" }}
+            style={{ animationDelay: "var(--renge-duration-1)" }}
           >
             {headerContent.title.split(" ").slice(0, -1).join(" ")}
             <span className="text-primary"> {headerContent.title.split(" ").slice(-1)}</span>
@@ -218,7 +218,7 @@ export function GuestsSection() {
           {headerContent.description && (
             <p
               className={`text-muted-foreground text-lg max-w-2xl mx-auto text-balance ${fadeClass(isInView, hasPlayed)}`}
-              style={{ animationDelay: "100ms" }}
+              style={{ animationDelay: "var(--renge-duration-1)" }}
             >
               {headerContent.description}
             </p>
@@ -249,7 +249,7 @@ export function GuestsSection() {
         {showViewAll && (
           <div
             className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`}
-            style={{ animationDelay: "400ms" }}
+            style={{ animationDelay: "var(--renge-duration-3)" }}
           >
             <a
               href="#guests"

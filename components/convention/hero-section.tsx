@@ -88,7 +88,7 @@ export function HeroSection() {
 
         {/* Date badge */}
         {field.temporal > 0.3 && (
-          <div className={animateClass} style={{ animationDelay: "0ms" }}>
+          <div className={animateClass} style={{ animationDelay: "var(--renge-duration-0)" }}>
             <Badge
               variant="outline"
               className={`mb-6 text-sm tracking-widest uppercase border-primary/50 ${ambientClass(motionMode, "vibrate")}`}
@@ -105,7 +105,7 @@ export function HeroSection() {
           style={{
             fontSize: "clamp(3rem, 15vw, 12rem)",
             filter: `hue-rotate(${warmthShift}deg)`,
-            animationDelay: "100ms",
+            animationDelay: "var(--renge-duration-1)",
           }}
         >
           <span className={`block text-primary ${ambientClass(motionMode, "breathe")}`}>
@@ -127,7 +127,7 @@ export function HeroSection() {
         {/* Tagline */}
         <p
           className={`text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance ${animateClass}`}
-          style={{ animationDelay: "200ms" }}
+          style={{ animationDelay: "var(--renge-duration-2)" }}
         >
           {tagline.main}
           {tagline.sub && (
@@ -140,7 +140,7 @@ export function HeroSection() {
         {/* CTA buttons */}
         <div
           className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${animateClass}`}
-          style={{ animationDelay: "300ms" }}
+          style={{ animationDelay: "var(--renge-duration-3)" }}
         >
           <Button
             size="lg"
@@ -165,7 +165,7 @@ export function HeroSection() {
         {field.cognitive > 0.4 && (
           <p
             className={`mt-12 text-sm text-muted-foreground tracking-widest uppercase ${animateClass}`}
-            style={{ animationDelay: "400ms" }}
+            style={{ animationDelay: "var(--renge-duration-3)" }}
           >
             Los Angeles Convention Center
           </p>

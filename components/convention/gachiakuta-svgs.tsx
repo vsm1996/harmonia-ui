@@ -47,10 +47,10 @@ export const FloatingDebris = memo(function FloatingDebris({
           0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
           50%       { transform: translateY(-3px) rotate(14deg); opacity: 0.7; }
         }
-        .rd-main  { animation: rebarDrift 7s ease-in-out infinite; transform-origin: 24px 24px; }
-        .rd-sa    { animation: shardDrift 5s ease-in-out 0s infinite; transform-origin: 8px 10px; }
-        .rd-sb    { animation: shardDrift 4.3s ease-in-out -2s infinite; transform-origin: 40px 38px; }
-        .rd-sc    { animation: shardDrift 6s ease-in-out -3.5s infinite; transform-origin: 40px 9px; }
+        .rd-main  { animation: rebarDrift 7s var(--renge-easing-ease-in-out) infinite; transform-origin: 24px 24px; }
+        .rd-sa    { animation: shardDrift var(--renge-duration-9) var(--renge-easing-ease-in-out) 0s infinite; transform-origin: 8px 10px; }
+        .rd-sb    { animation: shardDrift 4.3s var(--renge-easing-ease-in-out) -2s infinite; transform-origin: 40px 38px; }
+        .rd-sc    { animation: shardDrift var(--renge-duration-9) var(--renge-easing-ease-in-out) -3.5s infinite; transform-origin: 40px 9px; }
       `}</style>
 
       {/* Bent rebar: two segments meeting at a kinked, deformed joint */}
@@ -114,10 +114,10 @@ export const BrokenChain = memo(function BrokenChain({
           0%, 100% { opacity: 0; transform: scale(0.5); }
           50%       { opacity: 1; transform: scale(1); }
         }
-        .bc-top    { animation: bcTopSway 3.5s ease-in-out infinite; transform-origin: 20px 9px; }
-        .bc-bottom { animation: bcBottomDrop 3s ease-in-out infinite; transform-origin: 20px 31px; }
-        .bc-spa    { animation: bcSpark 0.8s ease-in-out infinite; }
-        .bc-spb    { animation: bcSpark 0.8s ease-in-out -0.4s infinite; }
+        .bc-top    { animation: bcTopSway var(--renge-duration-8) var(--renge-easing-ease-in-out) infinite; transform-origin: 20px 9px; }
+        .bc-bottom { animation: bcBottomDrop var(--renge-duration-8) var(--renge-easing-ease-in-out) infinite; transform-origin: 20px 31px; }
+        .bc-spa    { animation: bcSpark var(--renge-duration-5) var(--renge-easing-ease-in-out) infinite; }
+        .bc-spb    { animation: bcSpark var(--renge-duration-5) var(--renge-easing-ease-in-out) -0.4s infinite; }
       `}</style>
 
       {/* Top link — intact oval, swaying */}
@@ -186,9 +186,9 @@ export const CrackPattern = memo(function CrackPattern({
           from { stroke-dashoffset: 220; opacity: 0.2; }
           to   { stroke-dashoffset: 0;   opacity: 1; }
         }
-        .cr-main   { stroke-dasharray: 220; animation: crackReveal 2s ease-out forwards; }
-        .cr-branch { stroke-dasharray: 80; animation: crackReveal 2.5s ease-out 0.25s forwards; opacity: 0; }
-        .cr-micro  { stroke-dasharray: 40; animation: crackReveal 3s ease-out 0.6s forwards; opacity: 0; }
+        .cr-main   { stroke-dasharray: 220; animation: crackReveal var(--renge-duration-7) var(--renge-easing-ease-out) forwards; }
+        .cr-branch { stroke-dasharray: 80; animation: crackReveal var(--renge-duration-7) var(--renge-easing-ease-out) 0.25s forwards; opacity: 0; }
+        .cr-micro  { stroke-dasharray: 40; animation: crackReveal var(--renge-duration-8) var(--renge-easing-ease-out) 0.6s forwards; opacity: 0; }
       `}</style>
 
       {/* Main fracture — heavy variable-weight stroke */}
@@ -215,7 +215,7 @@ export const CrackPattern = memo(function CrackPattern({
         stroke="currentColor" strokeWidth="1"
         strokeLinecap="round" strokeLinejoin="round"
         opacity="0.45"
-        style={{ animationDelay: "0.45s" }}
+        style={{ animationDelay: "var(--renge-duration-4)" }}
       />
       {/* Branch 3 — upward from ~79,21 */}
       <path
@@ -224,7 +224,7 @@ export const CrackPattern = memo(function CrackPattern({
         stroke="currentColor" strokeWidth="1"
         strokeLinecap="round"
         opacity="0.4"
-        style={{ animationDelay: "0.65s" }}
+        style={{ animationDelay: "var(--renge-duration-4)" }}
       />
       {/* Branch 4 — downward from ~91,29 */}
       <path
@@ -233,7 +233,7 @@ export const CrackPattern = memo(function CrackPattern({
         stroke="currentColor" strokeWidth="0.9"
         strokeLinecap="round"
         opacity="0.38"
-        style={{ animationDelay: "0.85s" }}
+        style={{ animationDelay: "var(--renge-duration-5)" }}
       />
 
       {/* Micro-cracks — hairline offshoots */}
@@ -277,7 +277,7 @@ export const SalvagedGear = memo(function SalvagedGear({
     >
       <style>{`
         @keyframes sgSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .sg-body { animation: sgSpin 18s linear infinite; transform-origin: 24px 24px; }
+        .sg-body { animation: sgSpin 18s var(--renge-easing-linear) infinite; transform-origin: 24px 24px; }
       `}</style>
 
       <g className="sg-body">
@@ -308,20 +308,20 @@ export const SalvagedGear = memo(function SalvagedGear({
         <circle cx="24" cy="24" r="13" fill="currentColor" opacity="0.08" />
 
         {/* 3 bolt holes at r=10, 120° apart (90° / 210° / 330°) */}
-        <circle cx="24"   cy="34"   r="2.2" fill="var(--background, #000)" />
-        <circle cx="15.3" cy="19"   r="2.2" fill="var(--background, #000)" />
-        <circle cx="32.7" cy="19"   r="2.2" fill="var(--background, #000)" />
+        <circle cx="24"   cy="34"   r="2.2" fill="var(--renge-color-bg)" />
+        <circle cx="15.3" cy="19"   r="2.2" fill="var(--renge-color-bg)" />
+        <circle cx="32.7" cy="19"   r="2.2" fill="var(--renge-color-bg)" />
 
         {/* Hex centre hole (flat-top, r=6) */}
         <polygon
           points="29.2,27 24,30 18.8,27 18.8,21 24,18 29.2,21"
-          fill="var(--background, #000)"
+          fill="var(--renge-color-bg)"
         />
 
         {/* Diagonal crack across the gear face */}
         <path
           d="M11 17 L17 21 L22 19 L28 24 L33 22 L37 27"
-          stroke="var(--background, #000)"
+          stroke="var(--renge-color-bg)"
           strokeWidth="1.3"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -356,10 +356,10 @@ export const DebrisDivider = memo(function DebrisDivider({
           0%, 100% { transform: translateY(0); }
           50%       { transform: translateY(-2px); }
         }
-        .dd-p1 { animation: ddFloat 4s ease-in-out 0s infinite; }
-        .dd-p2 { animation: ddFloat 4s ease-in-out -1s infinite; }
-        .dd-p3 { animation: ddFloat 4s ease-in-out -2s infinite; }
-        .dd-p4 { animation: ddFloat 4s ease-in-out -3s infinite; }
+        .dd-p1 { animation: ddFloat var(--renge-duration-8) var(--renge-easing-ease-in-out) 0s infinite; }
+        .dd-p2 { animation: ddFloat var(--renge-duration-8) var(--renge-easing-ease-in-out) -1s infinite; }
+        .dd-p3 { animation: ddFloat var(--renge-duration-8) var(--renge-easing-ease-in-out) -2s infinite; }
+        .dd-p4 { animation: ddFloat var(--renge-duration-8) var(--renge-easing-ease-in-out) -3s infinite; }
       `}</style>
 
       {/* Left line */}

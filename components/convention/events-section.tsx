@@ -163,7 +163,7 @@ export function EventsSection() {
         </div>
 
         {/* View all link */}
-        <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "400ms" } : undefined}>
+        <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "var(--renge-duration-3)" } : undefined}>
           <a
             href="#schedule"
             className={`font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${getHoverClass(mode.motion)}`}

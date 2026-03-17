@@ -161,7 +161,7 @@ export function InfectedText({
               // Preserve spaces
               width: isSpace ? "0.25em" : "auto",
               // CSS transition handles color change smoothly
-              transition: "color 0.4s ease-out",
+              transition: "color var(--renge-duration-3) var(--renge-easing-ease-out)",
               // Use custom infectColor if provided, otherwise fall back to classes
               ...(infectColor && { color: isInfected ? infectColor : undefined }),
             }}

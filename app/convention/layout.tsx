@@ -1,5 +1,12 @@
 import React from "react"
 import type { Metadata } from "next"
+import { createRengeTheme } from "@renge-ui/tokens"
+
+const conventionTheme = createRengeTheme({
+  profile: 'fire',
+  mode: 'dark',
+  selector: '.theme-gachiakuta',
+})
 
 export const metadata: Metadata = {
   title: "Abyss Con - Gachiakuta Convention",
@@ -33,5 +40,10 @@ export default function ConventionLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: conventionTheme.css }} />
+      {children}
+    </>
+  )
 }

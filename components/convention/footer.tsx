@@ -97,7 +97,7 @@ export function Footer() {
         </div>
 
         {/* Back to Homepage */}
-        <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "200ms" } : undefined}>
+        <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "var(--renge-duration-2)" } : undefined}>
           <Link href="/" className={`btn btn-outline btn-lg bg-transparent ${hover}`}>
             <HomeIcon className="w-4 h-4 mr-2" />
             Back to Harmonia Homepage
@@ -105,7 +105,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className={`mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "300ms" } : undefined}>
+        <div className={`mt-4 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "var(--renge-duration-3)" } : undefined}>
           <p>© 2026 Abyss Con. Nothing is truly discarded.</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-foreground transition-colors">

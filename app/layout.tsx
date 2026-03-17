@@ -7,7 +7,7 @@ import "./globals.css"
 import { Providers } from "@/components/providers"
 import { createRengeTheme } from "@renge-ui/tokens"
 
-const rengeTheme = createRengeTheme()
+const rengeTheme = createRengeTheme({ profile: 'ocean' })
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
