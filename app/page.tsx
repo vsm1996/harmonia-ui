@@ -50,7 +50,7 @@ function PhaseCard({
   }
 
   return (
-    <div className={`rounded-lg border p-4 space-y-3 ${statusStyles[status]}`}>
+    <div className={`rounded-renge-1 border p-4 space-y-renge-2 ${statusStyles[status]}`}>
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground font-medium">{phase}</span>
         <Badge variant="outline" className={`text-xs ${badgeStyles[status]}`}>
@@ -75,9 +75,9 @@ export default function Page() {
     <main className="min-h-screen bg-background">
       {/* Header section with framework introduction */}
       <header className="border-b border-border/40 bg-linear-to-b from-background to-muted/20">
-        <div className="mx-auto max-w-6xl px-6 py-12 space-y-4">
+        <div className="mx-auto max-w-6xl px-6 py-renge-5 space-y-4">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-renge-2">
               <div className="w-fit" role="img" aria-label="Framework">
                 <BrainIcon size={66} />
               </div>
@@ -105,7 +105,7 @@ export default function Page() {
           <div className="pt-4">
             <Link
               href="/convention"
-              className="inline-flex items-center gap-3 px-4 py-3 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-colors group"
+              className="inline-flex items-center gap-renge-2 px-4 py-renge-2 rounded-renge-1 border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-colors group"
             >
               <Badge variant="outline" className="border-primary/50 text-primary text-xs">
                 Example
@@ -127,7 +127,7 @@ export default function Page() {
       </header>
 
       {/* Main content area */}
-      <div className="mx-auto max-w-6xl px-6 py-12 space-y-12">
+      <div className="mx-auto max-w-6xl px-6 py-renge-5 space-y-renge-5">
         {/* Live Demo Section */}
         <section>
           <h2 className="text-2xl font-bold tracking-tight mb-2">Live Demo</h2>

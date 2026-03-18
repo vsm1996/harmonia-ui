@@ -17,7 +17,7 @@ function Badge({
   return (
     <span
       data-slot="badge"
-      className={`badge ${variantClasses[variant]} transition-all duration-200 p-2 ${className ?? ''}`}
+      className={`badge ${variantClasses[variant]} transition-all duration-renge-2 p-2 ${className ?? ''}`}
       {...props}
     />
   )

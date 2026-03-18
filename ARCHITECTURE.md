@@ -431,6 +431,87 @@ function useEffectiveMotion() {
 
 ---
 
+## Design Token Layer — Renge
+
+Harmonia UI sits on top of the Renge design system for its token-based styling values. Renge provides a proportional scale derived from the golden ratio (φ = 1.618) and Fibonacci sequences — the same mathematical principles that underpin Harmonia's capacity-adaptive approach.
+
+### Packages
+
+| Package | Role |
+|---|---|
+| `@renge-ui/tokens` | Generates `--renge-*` CSS custom properties at runtime via `createRengeTheme()` |
+| `@renge-ui/tailwind` | v3 Tailwind preset (not directly used — see v4 adaptation below) |
+
+### Token injection
+
+`app/layout.tsx` calls `createRengeTheme({ profile: 'ocean' })` and injects the resulting CSS string into the document `<head>` via `dangerouslySetInnerHTML`. This runs server-side (RSC), so tokens are present on first paint with no flash.
+
+```ts
+const rengeTheme = createRengeTheme({ profile: 'ocean' })
+// → writes --renge-space-*, --renge-font-size-*, --renge-radius-*,
+//          --renge-duration-*, --renge-easing-*, --renge-color-* to :root
+```
+
+Six profiles are available: `ocean` (default), `earth`, `twilight`, `fire`, `void`, `leaf`. Switching profile is a one-line change; all renge utilities update automatically because they reference CSS variables.
+
+### Tailwind v4 adaptation
+
+`@renge-ui/tailwind` targets Tailwind v3. This project uses Tailwind v4 (`@tailwindcss/postcss`), which uses a CSS-first config model with no `tailwind.config.ts`. The equivalent integration is an `@theme inline` block in `app/globals.css` that maps each `--renge-*` var into Tailwind v4's CSS custom property namespaces:
+
+```css
+@theme inline {
+  --spacing-renge-4: var(--renge-space-4);   /* → p-renge-4, gap-renge-4, … */
+  --radius-renge-2:  var(--renge-radius-2);  /* → rounded-renge-2 */
+  --duration-renge-3: var(--renge-duration-3); /* → duration-renge-3 */
+  --ease-renge-spring: var(--renge-easing-spring); /* → ease-renge-spring */
+  --color-renge-fg: var(--renge-color-fg);   /* → text-renge-fg, border-renge-fg */
+  /* … full mapping in globals.css */
+}
+```
+
+`@theme inline` means Tailwind inlines the var reference directly into generated utilities (no extra `:root` property). Since the `--renge-*` vars are set at runtime by the style injection, all utilities resolve correctly in the browser.
+
+### Token scales
+
+**Spacing** (Fibonacci × 6px base):
+
+| Step | Value | Tailwind utility |
+|---|---|---|
+| renge-0 | 0px | `p-renge-0` |
+| renge-1 | 6px | `p-renge-1` |
+| renge-2 | 12px | `p-renge-2` |
+| renge-3 | 18px | `p-renge-3` |
+| renge-4 | 30px | `p-renge-4` |
+| renge-5 | 48px | `p-renge-5` |
+| renge-6 | 78px | `p-renge-6` |
+
+**Duration** (Fibonacci × 100ms):
+`renge-0`=0ms, `renge-1`=100ms, `renge-2`=200ms, `renge-3`=300ms, `renge-4`=500ms, `renge-5`=800ms, `renge-6`=1300ms…
+
+**Easing** (φ-derived cubic-bezier, A=1/φ²≈0.382, B=1/φ≈0.618):
+- `ease-renge-ease-out`: `cubic-bezier(0.382, 1, 0.618, 1)`
+- `ease-renge-spring`: `cubic-bezier(0.382, 0.618, 0.618, 1.382)`
+
+**Border radius** (Fibonacci × 6px): `renge-1`=6px, `renge-2`=12px, `renge-3`=18px, `renge-4`=30px, `renge-5`=48px, `renge-full`=9999px.
+
+### Migration status
+
+Harmonia's Tailwind classes were partially migrated to renge utilities where scales align exactly. The following were replaced:
+
+| Category | Replaced | Deferred |
+|---|---|---|
+| Duration | `duration-200/300/500` → `duration-renge-2/3/4` | — |
+| Spacing | `*-3` (12px) → `*-renge-2`, `*-12` (48px) → `*-renge-5` | All other values (4px-grid mismatch) |
+| Border radius | `rounded-md/xl/full` → `rounded-renge-1/2/full` | — |
+| Typography | — | φ-scale (6–177px) vs Tailwind scale (12–36px): too divergent without redesign |
+| Semantic colors | — | Requires aligning Harmonia's `--background/--primary` layer with `--renge-color-*` |
+
+### Relationship to capacity adaptation
+
+Renge's motion tokens are directly relevant to Harmonia's adaptive behavior. The `duration-renge-*` and `ease-renge-*` utilities provide the base values; `deriveMode()` then selects *which* animation class is applied (or suppresses animation entirely at `motion: "off"`). The two systems are complementary — Renge provides proportional defaults, Harmonia decides whether to use them.
+
+---
+
 ## Why This Architecture?
 
 ### 1. Separation of Concerns

@@ -27,7 +27,7 @@ export function Footer() {
     <footer ref={footerRef} className="bg-card/50 border-t border-border py-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto" style={{ filter: `hue-rotate(${warmthShift}deg)` }}>
         <div
-          className={`grid md:grid-cols-4 gap-8 md:gap-12 ${entrance || fadeClass(isInView, hasPlayed)}`}
+          className={`grid md:grid-cols-4 gap-8 md:gap-renge-5 ${entrance || fadeClass(isInView, hasPlayed)}`}
         >
           {/* Brand column */}
           <div className="md:col-span-2">
@@ -97,7 +97,7 @@ export function Footer() {
         </div>
 
         {/* Back to Homepage */}
-        <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "var(--renge-duration-2)" } : undefined}>
+        <div className={`mt-renge-5 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "var(--renge-duration-2)" } : undefined}>
           <Link href="/" className={`btn btn-outline btn-lg bg-transparent ${hover}`}>
             <HomeIcon className="w-4 h-4 mr-2" />
             Back to Harmonia Homepage
@@ -138,7 +138,7 @@ function SocialLink({
   return (
     <a
       href={href}
-      className={`w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all duration-300 ${getHoverClass(motionMode)}`}
+      className={`w-10 h-10 rounded-renge-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all duration-renge-3 ${getHoverClass(motionMode)}`}
       aria-label={label}
     >
       {children}

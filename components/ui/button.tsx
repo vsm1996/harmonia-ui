@@ -33,7 +33,7 @@ function Button({
   return (
     <button
       data-slot="button"
-      className={`btn ${variantClasses[variant]} ${sizeClasses[size]} transition-all duration-200 ${className ?? ''}`}
+      className={`btn ${variantClasses[variant]} ${sizeClasses[size]} transition-all duration-renge-2 ${className ?? ''}`}
       {...props}
     />
   )

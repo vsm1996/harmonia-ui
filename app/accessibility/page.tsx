@@ -45,7 +45,7 @@ export default function AccessibilityPage() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Motion and Animations</h2>
             <p>
-              Harmonia UI respects the <code className="bg-muted px-1 rounded">prefers-reduced-motion</code> media 
+              Harmonia UI respects the <code className="bg-muted px-1 rounded-renge-1">prefers-reduced-motion</code> media 
               query. When enabled, all animations are disabled or significantly reduced.
             </p>
             <p>
@@ -108,7 +108,7 @@ export default function AccessibilityPage() {
           </section>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border">
+        <div className="mt-renge-5 pt-8 border-t border-border">
           <Link href="/convention" className="btn btn-outline bg-transparent">Back to Abyss Con</Link>
         </div>
       </div>

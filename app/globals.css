@@ -324,6 +324,97 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Renge design system — Tailwind v4 @theme mappings
+   Maps --renge-* CSS custom properties (injected by createRengeTheme in layout.tsx)
+   to Tailwind utility classes with the renge- prefix. */
+@theme inline {
+  /* Spacing: p-renge-{0–10}, m-renge-{0–10}, gap-renge-{0–10}, etc. */
+  --spacing-renge-0: var(--renge-space-0);
+  --spacing-renge-1: var(--renge-space-1);
+  --spacing-renge-2: var(--renge-space-2);
+  --spacing-renge-3: var(--renge-space-3);
+  --spacing-renge-4: var(--renge-space-4);
+  --spacing-renge-5: var(--renge-space-5);
+  --spacing-renge-6: var(--renge-space-6);
+  --spacing-renge-7: var(--renge-space-7);
+  --spacing-renge-8: var(--renge-space-8);
+  --spacing-renge-9: var(--renge-space-9);
+  --spacing-renge-10: var(--renge-space-10);
+
+  /* Font size: text-renge-{xs|sm|base|lg|xl|2xl|3xl|4xl} */
+  --text-renge-xs: var(--renge-font-size-xs);
+  --text-renge-sm: var(--renge-font-size-sm);
+  --text-renge-base: var(--renge-font-size-base);
+  --text-renge-lg: var(--renge-font-size-lg);
+  --text-renge-xl: var(--renge-font-size-xl);
+  --text-renge-2xl: var(--renge-font-size-2xl);
+  --text-renge-3xl: var(--renge-font-size-3xl);
+  --text-renge-4xl: var(--renge-font-size-4xl);
+
+  /* Line height: leading-renge-{xs|sm|base|lg|xl|2xl|3xl|4xl} */
+  --leading-renge-xs: var(--renge-line-height-xs);
+  --leading-renge-sm: var(--renge-line-height-sm);
+  --leading-renge-base: var(--renge-line-height-base);
+  --leading-renge-lg: var(--renge-line-height-lg);
+  --leading-renge-xl: var(--renge-line-height-xl);
+  --leading-renge-2xl: var(--renge-line-height-2xl);
+  --leading-renge-3xl: var(--renge-line-height-3xl);
+  --leading-renge-4xl: var(--renge-line-height-4xl);
+
+  /* Border radius: rounded-renge-{none|1–5|full} */
+  --radius-renge-none: var(--renge-radius-none);
+  --radius-renge-1: var(--renge-radius-1);
+  --radius-renge-2: var(--renge-radius-2);
+  --radius-renge-3: var(--renge-radius-3);
+  --radius-renge-4: var(--renge-radius-4);
+  --radius-renge-5: var(--renge-radius-5);
+  --radius-renge-full: var(--renge-radius-full);
+
+  /* Transition duration: duration-renge-{0–10} */
+  --duration-renge-0: var(--renge-duration-0);
+  --duration-renge-1: var(--renge-duration-1);
+  --duration-renge-2: var(--renge-duration-2);
+  --duration-renge-3: var(--renge-duration-3);
+  --duration-renge-4: var(--renge-duration-4);
+  --duration-renge-5: var(--renge-duration-5);
+  --duration-renge-6: var(--renge-duration-6);
+  --duration-renge-7: var(--renge-duration-7);
+  --duration-renge-8: var(--renge-duration-8);
+  --duration-renge-9: var(--renge-duration-9);
+  --duration-renge-10: var(--renge-duration-10);
+
+  /* Easing: ease-renge-{linear|ease-in|ease-out|ease-in-out|spring} */
+  --ease-renge-linear: var(--renge-easing-linear);
+  --ease-renge-ease-in: var(--renge-easing-ease-in);
+  --ease-renge-ease-out: var(--renge-easing-ease-out);
+  --ease-renge-ease-in-out: var(--renge-easing-ease-in-out);
+  --ease-renge-spring: var(--renge-easing-spring);
+
+  /* Colors — backgrounds, foregrounds, borders, accent, semantic states */
+  --color-renge-bg: var(--renge-color-bg);
+  --color-renge-bg-subtle: var(--renge-color-bg-subtle);
+  --color-renge-bg-muted: var(--renge-color-bg-muted);
+  --color-renge-bg-inverse: var(--renge-color-bg-inverse);
+  --color-renge-fg: var(--renge-color-fg);
+  --color-renge-fg-subtle: var(--renge-color-fg-subtle);
+  --color-renge-fg-muted: var(--renge-color-fg-muted);
+  --color-renge-fg-inverse: var(--renge-color-fg-inverse);
+  --color-renge-border: var(--renge-color-border);
+  --color-renge-border-subtle: var(--renge-color-border-subtle);
+  --color-renge-border-focus: var(--renge-color-border-focus);
+  --color-renge-accent: var(--renge-color-accent);
+  --color-renge-accent-hover: var(--renge-color-accent-hover);
+  --color-renge-accent-subtle: var(--renge-color-accent-subtle);
+  --color-renge-success: var(--renge-color-success);
+  --color-renge-success-subtle: var(--renge-color-success-subtle);
+  --color-renge-warning: var(--renge-color-warning);
+  --color-renge-warning-subtle: var(--renge-color-warning-subtle);
+  --color-renge-danger: var(--renge-color-danger);
+  --color-renge-danger-subtle: var(--renge-color-danger-subtle);
+  --color-renge-info: var(--renge-color-info);
+  --color-renge-info-subtle: var(--renge-color-info-subtle);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

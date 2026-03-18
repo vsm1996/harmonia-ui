@@ -139,7 +139,7 @@ export function TicketsSection() {
               className={entrance || fadeClass(isInView, hasPlayed)}
               style={!hasPlayed ? { animationDelay: `${100 + index * 100}ms` } : undefined}
             >
-              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-300 gachi-card-hover gachi-scanlines ${hover} hover:border-primary/50 hover:shadow-lg ${
+              <Card className={`h-full flex flex-col relative overflow-hidden group transition-all duration-renge-3 gachi-card-hover gachi-scanlines ${hover} hover:border-primary/50 hover:shadow-lg ${
                 tier.highlight
                   ? "border-primary/50 shadow-lg gachi-rust-glow"
                   : "border-border/50"
@@ -164,7 +164,7 @@ export function TicketsSection() {
                 </CardHeader>
 
                 <CardContent className="flex-1 flex flex-col">
-                  <ul className="space-y-3 flex-1 mb-6">
+                  <ul className="space-y-renge-2 flex-1 mb-6">
                     {tier.features[featureVariant].map((feature, i) => (
                       <li
                         key={i}
@@ -194,7 +194,7 @@ export function TicketsSection() {
         {/* Footer */}
         {header.footer && (
           <p 
-            className={`mt-12 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${fadeClass(isInView, hasPlayed)}`}
+            className={`mt-renge-5 text-center text-sm text-muted-foreground max-w-2xl mx-auto ${fadeClass(isInView, hasPlayed)}`}
             style={!hasPlayed ? { animationDelay: "var(--renge-duration-3)" } : undefined}
           >
             {header.footer}
