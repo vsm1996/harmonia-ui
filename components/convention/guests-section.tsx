@@ -248,7 +248,7 @@ export function GuestsSection() {
         {/* More guests link */}
         {showViewAll && (
           <div
-            className={`mt-renge-5 text-center ${fadeClass(isInView, hasPlayed)}`}
+            className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`}
             style={{ animationDelay: "var(--renge-duration-3)" }}
           >
             <a
@@ -291,10 +291,10 @@ function GuestCard({
   const bio = guest.bio[bioLength]
 
   return (
-    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-renge-3 gachi-card-hover gachi-scanlines ${hoverClass} ${ambientClass(motionMode, "breathe")} ${guest.featured ? focusBeaconClass(focusMode) : ""}`}>
+    <Card className={`overflow-hidden group cursor-pointer h-full border-border/50 hover:border-primary/50 hover:shadow-lg transition-all duration-300 gachi-card-hover gachi-scanlines ${hoverClass} ${ambientClass(motionMode, "breathe")} ${guest.featured ? focusBeaconClass(focusMode) : ""}`}>
       {/* Guest image */}
       <div className={`aspect-[3/4] relative overflow-hidden bg-gradient-to-br ${gradientClass}`}>
-        <div className={`absolute inset-0 transition-transform duration-renge-4 ${motionMode !== "off" ? "group-hover:scale-105" : ""}`}>
+        <div className={`absolute inset-0 transition-transform duration-500 ${motionMode !== "off" ? "group-hover:scale-105" : ""}`}>
           <Image
             src={guest.image || "/placeholder.svg"}
             alt={`${guest.name} - ${guest.role}`}

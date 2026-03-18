@@ -81,45 +81,29 @@ Import everything via the barrel: `import { ... } from "@/lib/capacity"`. Key ex
 
 ## Design Tokens — Renge Integration
 
-Harmonia UI uses `@renge-ui/tokens` and `@renge-ui/tailwind` for its design token layer.
+Harmonia UI uses `@renge-ui/tokens` for its design token layer. Tokens are injected at runtime via `createRengeTheme()` in the layout files — this is intentional. The capacity system derives mode from state and manipulates `--renge-*` CSS custom properties at runtime; static Tailwind classes cannot do this.
 
-### How it works
+**Two-profile injection** (`app/layout.tsx` + `app/convention/layout.tsx`):
+- Root layout: `createRengeTheme({ profile: 'ocean' })` → injects into `<head>` as `<style>`, applies to `:root`
+- Convention layout: `createRengeTheme({ profile: 'fire', mode: 'dark', selector: '.theme-gachiakuta' })` → scoped to the convention page
 
-**Token injection** (`app/layout.tsx`):
-```ts
-import { createRengeTheme } from "@renge-ui/tokens"
-const rengeTheme = createRengeTheme({ profile: 'ocean' })
-// Injected as <style dangerouslySetInnerHTML={{ __html: rengeTheme.css }} />
+**Do not** replace this with static CSS or `@renge-ui/tailwind` — the capacity system needs live CSS var manipulation.
+
+### Using renge vars in components
+
+Reference `--renge-*` vars directly in inline styles, `style` props, or `<style>` tags:
+```tsx
+style={{ animationDelay: "var(--renge-duration-3)" }}
+style={{ transitionDuration: "var(--renge-duration-2)" }}
 ```
-This writes all `--renge-*` CSS custom properties to `:root` at runtime. Profile can be switched to `earth`, `twilight`, `fire`, `void`, or `leaf` — a single change propagates everywhere.
 
-**Tailwind v4 mapping** (`app/globals.css`, `@theme inline` block):
-Because this project uses Tailwind v4 (not v3), the `@renge-ui/tailwind` preset cannot be added via `tailwind.config.ts`. Instead, a `@theme inline` block maps each `--renge-*` var to the Tailwind v4 CSS custom property namespace, enabling `renge-` prefixed utility classes.
-
-### Available utility classes
-
-| Category | Utilities | Scale |
-|---|---|---|
-| Spacing | `p-renge-{0–10}`, `m-renge-{0–10}`, `gap-renge-{0–10}`, `space-{x,y}-renge-{0–10}` | Fibonacci × 6px |
-| Border radius | `rounded-renge-{none,1–5,full}` | Fibonacci: 6/12/18/30/48px + 9999px |
-| Duration | `duration-renge-{0–10}` | Fibonacci × 100ms: 0/100/200/300/500/800ms… |
-| Easing | `ease-renge-{linear,ease-in,ease-out,ease-in-out,spring}` | φ-derived cubic-bezier |
-| Font size | `text-renge-{xs,sm,base,lg,xl,2xl,3xl,4xl}` | φ-based: 6/10/16/26/42/68/110/177px |
-| Line height | `leading-renge-{xs–4xl}` | φ-derived: 1.618 (body), 1.382 (heading), 1.236 (display) |
-| Colors | `bg-renge-{bg,bg-subtle,bg-muted,bg-inverse,accent,accent-hover,accent-subtle,success-subtle,warning-subtle,danger-subtle,info-subtle}` | Semantic, profile-aware |
-| Colors | `text-renge-{fg,fg-subtle,fg-muted,fg-inverse,accent,success,warning,danger,info}` | Semantic, profile-aware |
-| Colors | `border-renge-{border,border-subtle,border-focus}` | Semantic, profile-aware |
-
-### What has been migrated
-
-- **Motion** — all `duration-200/300/500` → `duration-renge-2/3/4` (exact ms match)
-- **Spacing (exact matches only)** — `*-3` (12px) → `*-renge-2`, `*-12` (48px) → `*-renge-5`
-- **Border radius** — all `rounded-{md,lg,xl,full}` → `rounded-renge-{1,1,2,full}`
-
-### What is deferred
-
-- **Typography** — `text-renge-*` font sizes use φ-scaling (6→177px). Tailwind's scale (12→36px) diverges significantly; replacing without redesign would break layouts.
-- **Semantic colors** — The project uses its own `--background/--foreground/--primary` layer (DaisyUI + custom). Aligning with `--renge-color-*` is a cross-system decision, not a drop-in swap.
+Available scales (injected by `@renge-ui/tokens`):
+- Spacing: `--renge-space-{0–10}` — Fibonacci × 6px
+- Duration: `--renge-duration-{0–10}` — Fibonacci × 100ms
+- Easing: `--renge-easing-{linear,ease-in,ease-out,ease-in-out,spring}` — φ-derived cubic-bezier
+- Radius: `--renge-radius-{none,1–5,full}` — Fibonacci × 6px
+- Font size: `--renge-font-size-{xs,sm,base,lg,xl,2xl,3xl,4xl}` — φ-scale from 16px
+- Colors: `--renge-color-{bg,fg,border,accent,...}` — profile-aware semantic colors
 
 ## Test Setup
 

@@ -274,7 +274,7 @@ export function CapacityControls() {
             className="relative"
           >
             <Card className="w-80 shadow-xl max-h-[85vh] overflow-y-auto">
-              <CardHeader className="pb-renge-2">
+              <CardHeader className="pb-3">
                 <div className="flex flex-col items-center gap-2">
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-sm font-semibold">
@@ -418,14 +418,14 @@ export function CapacityControls() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setHapticEnabled(v => !v)}
-                      className={`flex-1 py-1.5 px-2 rounded-renge-1 text-xs border transition-colors ${hapticEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                      className={`flex-1 py-1.5 px-2 rounded-md text-xs border transition-colors ${hapticEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
                       aria-pressed={hapticEnabled}
                     >
                       📳 Haptic
                     </button>
                     <button
                       onClick={() => setSonicEnabled(v => !v)}
-                      className={`flex-1 py-1.5 px-2 rounded-renge-1 text-xs border transition-colors ${sonicEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                      className={`flex-1 py-1.5 px-2 rounded-md text-xs border transition-colors ${sonicEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
                       aria-pressed={sonicEnabled}
                     >
                       🔔 Sonic
@@ -598,7 +598,7 @@ function FieldDisplay({
     : value.toFixed(2)
 
   return (
-    <div className="bg-muted/50 rounded-renge-1 p-2">
+    <div className="bg-muted/50 rounded-md p-2">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className={`text-sm font-mono font-bold ${color}`}>{displayValue}</p>
     </div>

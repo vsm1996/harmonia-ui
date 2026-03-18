@@ -83,7 +83,7 @@ export default function TermsPage() {
           </section>
         </div>
 
-        <div className="mt-renge-5 pt-8 border-t border-border">
+        <div className="mt-12 pt-8 border-t border-border">
           <Link href="/convention" className="btn btn-outline bg-transparent">Back to Abyss Con</Link>
         </div>
       </div>

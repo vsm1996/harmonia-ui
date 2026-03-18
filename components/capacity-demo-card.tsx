@@ -164,14 +164,14 @@ export function CapacityDemoCard() {
         {/* choiceLoad=minimal → single primary CTA only; normal → shows secondary too */}
         <div className={mode.choiceLoad === "normal" ? "flex gap-2" : ""}>
           <button
-            className={`${mode.choiceLoad === "normal" ? "flex-1" : "w-full"} py-2 px-4 rounded-renge-1 bg-primary text-primary-foreground font-medium text-sm transition-transform ${hover} ${ambientClass(mode.motion, "breathe")}`}
+            className={`${mode.choiceLoad === "normal" ? "flex-1" : "w-full"} py-2 px-4 rounded-md bg-primary text-primary-foreground font-medium text-sm transition-transform ${hover} ${ambientClass(mode.motion, "breathe")}`}
             onClick={() => fire("tap")}
           >
             {densityContent.cta}
           </button>
           {mode.choiceLoad === "normal" && mode.density !== "low" && (
             <button
-              className="py-2 px-renge-2 rounded-renge-1 border border-border text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="py-2 px-3 rounded-md border border-border text-sm text-muted-foreground hover:text-foreground transition-colors"
               onClick={() => fire("tap")}
             >
               Details
@@ -217,7 +217,7 @@ function StateChip({
     : value.toFixed(1)
 
   return (
-    <div className="bg-muted/50 rounded-renge-1 px-2 py-1 text-center">
+    <div className="bg-muted/50 rounded-md px-2 py-1 text-center">
       <p className="text-muted-foreground text-[10px]">{label}</p>
       <p className="font-mono font-medium">{displayValue}</p>
       <p className="text-muted-foreground text-[9px] opacity-70">{hint}</p>

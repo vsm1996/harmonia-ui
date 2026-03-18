@@ -43,10 +43,10 @@ function InputsToModeFlow() {
         {/* Column 1: Inputs */}
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <span className="w-6 h-6 rounded-renge-full bg-muted flex items-center justify-center text-xs">1</span>
+            <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">1</span>
             Your Inputs
           </div>
-          <div className="space-y-renge-2">
+          <div className="space-y-3">
             <InputGauge label="Cognitive" value={field.cognitive} description="mental bandwidth" />
             <InputGauge label="Temporal" value={field.temporal} description="time available" />
             <InputGauge label="Emotional" value={field.emotional} description="resilience" />
@@ -57,14 +57,14 @@ function InputsToModeFlow() {
         {/* Column 2: Mode */}
         <div className="p-6 space-y-4 bg-muted/30">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <span className="w-6 h-6 rounded-renge-full bg-muted flex items-center justify-center text-xs">2</span>
+            <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">2</span>
             Derived Mode
           </div>
 
           {/* Large mode badge */}
           <div className="flex flex-col items-center py-4">
             <Badge
-              className="text-xl font-bold px-6 py-renge-2 shadow-lg"
+              className="text-xl font-bold px-6 py-3 shadow-lg"
               style={{ backgroundColor: badgeColor, color: "white" }}
             >
               {label}
@@ -85,7 +85,7 @@ function InputsToModeFlow() {
         {/* Column 3: UI Effects */}
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <span className="w-6 h-6 rounded-renge-full bg-muted flex items-center justify-center text-xs">3</span>
+            <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">3</span>
             UI Effects
           </div>
 
@@ -143,10 +143,10 @@ function InputGauge({
         <span className="text-sm font-medium text-foreground">{label}</span>
         <span className="text-xs text-muted-foreground">{description}</span>
       </div>
-      <div className="flex items-center gap-renge-2">
-        <div className="flex-1 h-2 bg-muted rounded-renge-full overflow-hidden">
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-renge-full transition-all duration-300 ${getColor()}`}
+            className={`h-full rounded-full transition-all duration-300 ${getColor()}`}
             style={{ width: `${percentage}%` }}
           />
         </div>
@@ -163,7 +163,7 @@ function InputGauge({
  */
 function ModePill({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-renge-full bg-background border border-border text-xs">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background border border-border text-xs">
       <span className="text-muted-foreground">{label}:</span>
       <span className="font-medium text-foreground">{value}</span>
     </span>
@@ -247,21 +247,21 @@ function NextStepsGuide() {
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
         Roadmap
       </h3>
-      <div className="space-y-renge-2 text-sm">
-        <div className="flex items-start gap-renge-2">
+      <div className="space-y-3 text-sm">
+        <div className="flex items-start gap-3">
           <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">Done</Badge>
           <p className="text-muted-foreground">
             <strong className="text-foreground">Phase 1:</strong> Manual 4-input controls with mode derivation
           </p>
         </div>
-        <div className="flex items-start gap-renge-2">
+        <div className="flex items-start gap-3">
           <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">Done</Badge>
           <p className="text-muted-foreground">
             <strong className="text-foreground">Phase 2:</strong> Automatic signals (scroll velocity, time-on-page,
             interaction patterns) modulate inputs passively — plus pattern-based prediction from past sessions
           </p>
         </div>
-        <div className="flex items-start gap-renge-2">
+        <div className="flex items-start gap-3">
           {/* <Badge variant="outline" className="text-xs">Future</Badge> */}
           <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">Done</Badge>
           <p className="text-muted-foreground">

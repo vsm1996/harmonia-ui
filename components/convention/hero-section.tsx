@@ -164,7 +164,7 @@ export function HeroSection() {
         {/* Location info */}
         {field.cognitive > 0.4 && (
           <p
-            className={`mt-renge-5 text-sm text-muted-foreground tracking-widest uppercase ${animateClass}`}
+            className={`mt-12 text-sm text-muted-foreground tracking-widest uppercase ${animateClass}`}
             style={{ animationDelay: "var(--renge-duration-3)" }}
           >
             Los Angeles Convention Center

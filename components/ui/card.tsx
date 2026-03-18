@@ -4,7 +4,7 @@ function Card({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card"
-      className={`card bg-base-200 shadow-sm border border-base-300 rounded-renge-2 transition-all duration-renge-3 ${className ?? ''}`}
+      className={`card bg-base-200 shadow-sm border border-base-300 rounded-xl transition-all duration-300 ${className ?? ''}`}
       {...props}
     />
   )

@@ -163,7 +163,7 @@ export function EventsSection() {
         </div>
 
         {/* View all link */}
-        <div className={`mt-renge-5 text-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "var(--renge-duration-3)" } : undefined}>
+        <div className={`mt-12 text-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "var(--renge-duration-3)" } : undefined}>
           <a
             href="#schedule"
             className={`font-medium tracking-wide inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${getHoverClass(mode.motion)}`}
@@ -219,7 +219,7 @@ function EventCard({
 
   return (
     <Card
-      className={`h-full flex flex-col overflow-hidden group transition-all duration-renge-3 gachi-card-hover gachi-scanlines ${hoverClass} hover:border-primary/50 hover:shadow-lg ${!shouldAutoShowDescription ? "cursor-pointer" : ""
+      className={`h-full flex flex-col overflow-hidden group transition-all duration-300 gachi-card-hover gachi-scanlines ${hoverClass} hover:border-primary/50 hover:shadow-lg ${!shouldAutoShowDescription ? "cursor-pointer" : ""
         } ${ambientClass(motionMode, "breathe")} ${(event.category === "Panel" || event.category === "Workshop") ? focusBeaconClass(focusMode) : ""}`}
       onClick={handleCardClick}
       role={!shouldAutoShowDescription ? "button" : undefined}
@@ -235,7 +235,7 @@ function EventCard({
       <div className={`h-1.5 w-full gachi-bar-glow ${categoryStyle.split(" ")[0]} ${ambientClass(motionMode, "pulse")}`} />
 
       <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-renge-2">
+        <div className="flex items-start justify-between gap-3">
           <CardTitle className={`font-bold leading-tight group-hover:text-primary transition-colors ${isLowCognitive ? "text-base" : "text-lg"} ${ambientClass(motionMode, "float")} ${(event.category === "Panel" || event.category === "Workshop") ? focusTextClass(focusMode) : ""}`}>
             {title}
           </CardTitle>
