@@ -13,6 +13,7 @@ const rengeTheme = createRengeTheme({ profile: 'ocean' })
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
+const siteUrl = "https://harmonia-ui.vercel.app"
 export const metadata: Metadata = {
   title: {
     default: "Harmonia UI",
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   },
   description: "UI that adapts to human capacity. Interfaces that meet you where you are.",
   generator: "v0.app",
-  metadataBase: new URL("https://harmonia-ui.vercel.app"),
+  metadataBase: new URL(siteUrl),
   keywords: [
     "adaptive UI",
     "capacity-aware design",
@@ -37,13 +38,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Harmonia UI",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
-    url: "https://harmonia-ui.vercel.app",
+    url: siteUrl,
     siteName: "Harmonia UI",
     images: [
       {
-        url: ogImage.src,
-        width: ogImage.width,
-        height: ogImage.height,
+        url: `${siteUrl}/images/renge-ui.png`,
+        width: 1200,
+        height: 630,
         alt: "Harmonia UI - Interfaces that adapt to human capacity",
       },
     ],
@@ -80,6 +81,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <meta property="og:image" content="<generated>" />
+        <meta property="og:image:type" content="<generated>" />
+        <meta property="og:image:width" content="<generated>" />
+        <meta property="og:image:height" content="<generated>" />
+
         <style dangerouslySetInnerHTML={{ __html: rengeTheme.css }} />
       </head>
       <body className={`font-sans antialiased`}>
