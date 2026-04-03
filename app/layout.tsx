@@ -6,7 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 import { Providers } from "@/components/providers"
 import { createRengeTheme } from "@renge-ui/tokens"
-import ogImage from "@/public/ogImage.jpg"
+import ogImage from "@/public/images/ogImage.jpg"
 
 const rengeTheme = createRengeTheme({ profile: 'ocean' })
 
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "Harmonia UI",
     images: [
       {
-        url: ogImage.src,
+        url: `${siteUrl}/images/ogImage.jpg`,
         width: ogImage.width,
         height: ogImage.height,
         alt: "Harmonia UI - Interfaces that adapt to human capacity",
