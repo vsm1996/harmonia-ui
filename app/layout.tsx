@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     siteName: "Harmonia UI",
     images: [
       {
-        url: `${siteUrl}/images/renge-ui.png`,
+        url: `${siteUrl}/images/ogImage.jpg`,
         width: 1200,
         height: 630,
         alt: "Harmonia UI - Interfaces that adapt to human capacity",
@@ -81,7 +81,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <meta property="og:image" content="<generated>" />
+        <meta property="og:image" content="" />
         <meta property="og:image:type" content="<generated>" />
         <meta property="og:image:width" content="<generated>" />
         <meta property="og:image:height" content="<generated>" />
