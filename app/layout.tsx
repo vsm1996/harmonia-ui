@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "Harmonia UI",
     images: [
       {
-        url: ogImage.src,
+        url: `${siteUrl}/images/ogImage.jpg`,
         width: 1200,
         height: 630,
         alt: "Harmonia UI - Interfaces that adapt to human capacity",
@@ -57,9 +57,9 @@ export const metadata: Metadata = {
     title: "Harmonia UI - Capacity-Adaptive Framework",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
     images: [{
-      url: ogImage.src,
-      width: ogImage.width,
-      height: ogImage.height,
+      url: `${siteUrl}/images/ogImage.jpg`,
+      width: 1200,
+      height: 630,
       alt: "Harmonia UI - Interfaces that adapt to human capacity",
     },],
     creator: "Vanessa Martin",
