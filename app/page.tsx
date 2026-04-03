@@ -7,19 +7,8 @@
  * - State is shared between this page and /convention
  */
 
-import type { Metadata } from "next"
 import Link from "next/link"
 
-export const metadata: Metadata = {
-  title: "Harmonia UI",
-  description:
-    "Explore the Harmonia UI capacity-adaptive framework. Adjust cognitive, temporal, and emotional capacity to see how interfaces adapt in real-time.",
-  openGraph: {
-    title: "Harmonia UI - Capacity-Adaptive Demo",
-    description:
-      "A dynamic system that responds to human capacity through distributed intelligence. See how UI adapts to your state.",
-  },
-}
 import { AmbientFieldMonitor } from "@/components/ambient-field-monitor"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"

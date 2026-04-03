@@ -1,19 +1,11 @@
 import Link from "next/link"
 
-import type { Metadata } from "next"
-
-export const metadata: Metadata = {
-  title: "Accessibility",
-  description:
-    "Accessibility statement for Harmonia UI. Built with accessibility as a core constraint, ensuring capacity adaptation never breaks access paths.",
-}
-
 export default function AccessibilityPage() {
   return (
     <main className="min-h-screen bg-background py-16 px-4 md:px-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-black tracking-tighter mb-8">Accessibility Statement</h1>
-        
+
         <div className="prose prose-invert max-w-none space-y-6 text-foreground/80">
           <p className="text-lg">
             Harmonia UI is built with accessibility as a core constraint, not an afterthought.
@@ -22,8 +14,8 @@ export default function AccessibilityPage() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Our Commitment</h2>
             <p>
-              We believe that capacity-adaptive interfaces should enhance accessibility, 
-              never compromise it. The Harmonia framework is designed so that adaptation 
+              We believe that capacity-adaptive interfaces should enhance accessibility,
+              never compromise it. The Harmonia framework is designed so that adaptation
               cannot break access paths or alter semantic meaning.
             </p>
           </section>
@@ -45,7 +37,7 @@ export default function AccessibilityPage() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Motion and Animations</h2>
             <p>
-              Harmonia UI respects the <code className="bg-muted px-1 rounded">prefers-reduced-motion</code> media 
+              Harmonia UI respects the <code className="bg-muted px-1 rounded">prefers-reduced-motion</code> media
               query. When enabled, all animations are disabled or significantly reduced.
             </p>
             <p>
@@ -71,12 +63,12 @@ export default function AccessibilityPage() {
             <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">The Key Rule</h2>
             <blockquote className="border-l-4 border-primary pl-4 italic">
 
-              "Fluidity may never alter meaning, semantics, or access paths. Only presentation 
+              "Fluidity may never alter meaning, semantics, or access paths. Only presentation
               and density may change."
             </blockquote>
             <p className="mt-4">
-              This principle ensures that regardless of what capacity mode you're in, the 
-              content remains accessible. Hidden content in low-density modes is still 
+              This principle ensures that regardless of what capacity mode you're in, the
+              content remains accessible. Hidden content in low-density modes is still
               reachable via expandable regions or alternative navigation.
             </p>
           </section>
@@ -95,11 +87,11 @@ export default function AccessibilityPage() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">Feedback</h2>
             <p>
-              If you encounter accessibility barriers, please let us know by opening an issue 
+              If you encounter accessibility barriers, please let us know by opening an issue
               on our{" "}
-              <a 
-                href="https://github.com/vsm1996/harmonia-ui/issues" 
-                target="_blank" 
+              <a
+                href="https://github.com/vsm1996/harmonia-ui/issues"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
