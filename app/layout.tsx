@@ -14,6 +14,7 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 const siteUrl = "https://harmonia-ui.vercel.app"
+
 export const metadata: Metadata = {
   title: {
     default: "Harmonia UI",
@@ -43,8 +44,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: ogImage.src,
-        width: 1200,
-        height: 630,
+        width: ogImage.width,
+        height: ogImage.height,
         alt: "Harmonia UI - Interfaces that adapt to human capacity",
       },
     ],
@@ -81,11 +82,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <meta property="og:image" content="https://harmonia-ui.vercel.app/ogImage.jpg" />
-        <meta property="og:image:type" content="<generated>" />
-        <meta property="og:image:width" content="<generated>" />
-        <meta property="og:image:height" content="<generated>" />
-
         <style dangerouslySetInnerHTML={{ __html: rengeTheme.css }} />
       </head>
       <body className={`font-sans antialiased`}>
