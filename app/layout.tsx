@@ -81,11 +81,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <meta property="og:image" content="" />
-        <meta property="og:image:type" content="<generated>" />
-        <meta property="og:image:width" content="<generated>" />
-        <meta property="og:image:height" content="<generated>" />
-
         <style dangerouslySetInnerHTML={{ __html: rengeTheme.css }} />
       </head>
       <body className={`font-sans antialiased`}>
