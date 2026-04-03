@@ -62,15 +62,7 @@ export const metadata: Metadata = {
       height: ogImage.height,
       alt: "Harmonia UI - Interfaces that adapt to human capacity",
     },],
-    creator: "",
-  },
-  verification: {
-    // Add your verification codes here when available
-    // google: "your-google-verification-code",
-    // yandex: "your-yandex-verification-code",
-  },
-  alternates: {
-    canonical: siteUrl,
+    creator: "Vanessa Martin",
   },
 }
 
@@ -82,6 +74,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <meta property="og:image" content="<generated>" />
+        <meta property="og:image:type" content="<generated>" />
+        <meta property="og:image:width" content="<generated>" />
+        <meta property="og:image:height" content="<generated>" />
         <style dangerouslySetInnerHTML={{ __html: rengeTheme.css }} />
       </head>
       <body className={`font-sans antialiased`}>
