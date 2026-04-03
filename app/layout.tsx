@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   creator: "Vanessa Martin",
   publisher: "Vanessa Martin",
   openGraph: {
-    title: "Harmonia UI",
+    title: "Harmonia UI - Capacity-Adaptive Framework",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
     url: siteUrl,
     siteName: "Harmonia UI",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Harmonia UI",
+    title: "Harmonia UI - Capacity-Adaptive Framework",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
     images: [{
       url: ogImage.src,
@@ -74,7 +74,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <meta property="og:image" content="<generated>" />
+        <meta property="og:image" content={`${siteUrl}/images/ogImage.jpg`} />
         <meta property="og:image:type" content="<generated>" />
         <meta property="og:image:width" content="<generated>" />
         <meta property="og:image:height" content="<generated>" />
