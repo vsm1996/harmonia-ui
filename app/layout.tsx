@@ -31,20 +31,8 @@ export const metadata: Metadata = {
     "cognitive load",
     "inclusive design",
   ],
-  authors: [{ name: "Vanessa Martin" }],
   creator: "Vanessa Martin",
   publisher: "Vanessa Martin",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
   openGraph: {
     title: "Harmonia UI",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
@@ -52,7 +40,7 @@ export const metadata: Metadata = {
     siteName: "Harmonia UI",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "https://harmonia-ui.vercel.app/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Harmonia UI - Interfaces that adapt to human capacity",
@@ -65,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Harmonia UI",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
-    images: ["/og-image.jpg"],
+    images: ["https://harmonia-ui.vercel.app/og-image.jpg"],
     creator: "",
   },
   verification: {
