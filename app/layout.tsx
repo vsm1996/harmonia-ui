@@ -44,8 +44,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: `${siteUrl}/images/ogImage.jpg`,
-        width: ogImage.width,
-        height: ogImage.height,
+        width: 1200,
+        height: 630,
         alt: "Harmonia UI - Interfaces that adapt to human capacity",
       },
     ],
