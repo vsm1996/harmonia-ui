@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 import { Providers } from "@/components/providers"
 import { createRengeTheme } from "@renge-ui/tokens"
+import ogImage from "@/public/ogImage.jpg"
 
 const rengeTheme = createRengeTheme({ profile: 'ocean' })
 
@@ -40,9 +41,9 @@ export const metadata: Metadata = {
     siteName: "Harmonia UI",
     images: [
       {
-        url: "https://harmonia-ui.vercel.app/og-image.jpg",
-        width: 1200,
-        height: 630,
+        url: ogImage.src,
+        width: ogImage.width,
+        height: ogImage.height,
         alt: "Harmonia UI - Interfaces that adapt to human capacity",
       },
     ],
@@ -53,7 +54,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Harmonia UI",
     description: "A capacity-adaptive UI framework that treats human state as a first-class input.",
-    images: ["https://harmonia-ui.vercel.app/og-image.jpg"],
+    images: [{
+      url: ogImage.src,
+      width: ogImage.width,
+      height: ogImage.height,
+      alt: "Harmonia UI - Interfaces that adapt to human capacity",
+    },],
     creator: "",
   },
   verification: {
