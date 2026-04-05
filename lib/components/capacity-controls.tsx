@@ -414,9 +414,11 @@ export function CapacityControls() {
                         {c.suggestion && (
                           <p className="opacity-60 italic">{c.suggestion}</p>
                         )}
-                        <p className="opacity-50">
-                          Affects: {c.affectedTokens.join(", ")}
-                        </p>
+                        {c.affectedTokens.length > 0 && (
+                          <p className="opacity-50">
+                            Affects: {c.affectedTokens.join(", ")}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>

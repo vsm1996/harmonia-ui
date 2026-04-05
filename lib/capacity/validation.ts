@@ -26,8 +26,8 @@ export interface ConflictWarning {
   label: string
   /** Full description of what's conflicting and why it matters */
   message: string
-  /** Which derived tokens are affected */
-  affectedTokens: string[]
+  /** Which derived tokens are affected — at least one required */
+  affectedTokens: [string, ...string[]]
   /** Optional resolution hint shown to the user */
   suggestion?: string
 }
