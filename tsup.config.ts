@@ -6,6 +6,6 @@ export default {
   splitting: true,
   sourcemap: true,
   clean: true,
-  external: ["react", "react-dom", "@renge-ui/tokens", "motion", "motion/react"],
+  external: ["react", "react-dom", "@renge-ui/tokens", "motion", "motion/react", "@harmonia-core/ui"],
   treeshake: true,
 }

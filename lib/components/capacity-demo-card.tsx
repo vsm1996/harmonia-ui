@@ -21,7 +21,7 @@ import {
   ambientClass,
   listItemClass,
   useFeedback,
-} from "../capacity"
+} from "@harmonia-core/ui"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card"
 import { Badge } from "./ui/badge"
 

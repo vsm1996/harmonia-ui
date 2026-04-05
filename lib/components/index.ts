@@ -2,7 +2,7 @@
  * @harmonia-core/ui — Pre-built Components
  *
  * Drop-in components for the capacity system.
- * Requires DaisyUI for styling and `motion` for CapacityControls animations.
+ * Requires DaisyUI for styling.
  *
  * @example
  * import { CapacityControls, CapacityDemoCard, AmbientFieldMonitor } from "@harmonia-core/ui/components"

@@ -15,7 +15,6 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { motion, AnimatePresence } from "motion/react"
 import {
   useCapacityContext,
   useDerivedMode,
@@ -25,7 +24,7 @@ import {
   useFeedback,
   deriveModeLabel,
   getModeBadgeColor,
-} from "../capacity"
+} from "@harmonia-core/ui"
 import { Slider } from "./ui/slider"
 import { Button } from "./ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card"
@@ -201,56 +200,37 @@ export function CapacityControls() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="flex items-center gap-2"
+      {!isOpen && (
+        <div className="flex items-center gap-2">
+          <Badge
+            className="shadow-lg"
+            style={{ backgroundColor: modeBadgeColor, color: "white" }}
           >
-            <Badge
-              className="shadow-lg"
-              style={{ backgroundColor: modeBadgeColor, color: "white" }}
-            >
-              {modeLabel}
-            </Badge>
-            <Button
-              onClick={() => setIsOpen(true)}
-              variant="outline"
-              size="sm"
-              className="shadow-lg bg-background"
-            >
-              <SettingsIcon className="w-4 h-4 mr-2" />
-              Capacity
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm md:hidden"
-            onClick={() => setIsOpen(false)}
-            aria-hidden="true"
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="relative"
+            {modeLabel}
+          </Badge>
+          <Button
+            onClick={() => setIsOpen(true)}
+            variant="outline"
+            size="sm"
+            className="shadow-lg bg-background"
           >
-            <Card className="w-80 shadow-xl max-h-[85vh] overflow-y-auto">
+            <SettingsIcon className="w-4 h-4 mr-2" />
+            Capacity
+          </Button>
+        </div>
+      )}
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm md:hidden"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {isOpen && (
+        <div className="relative">
+          <Card className="w-80 shadow-xl max-h-[85vh] overflow-y-auto">
               <CardHeader className="pb-3">
                 <div className="flex flex-col items-center gap-2">
                   <div className="flex items-center gap-2">
@@ -438,9 +418,8 @@ export function CapacityControls() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   )
 }

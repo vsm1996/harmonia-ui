@@ -13,7 +13,7 @@ import {
   useDerivedMode,
   deriveModeLabel,
   getModeBadgeColor,
-} from "../capacity"
+} from "@harmonia-core/ui"
 import { Card } from "./ui/card"
 import { Badge } from "./ui/badge"
 

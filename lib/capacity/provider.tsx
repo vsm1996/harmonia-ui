@@ -135,6 +135,14 @@ export function CapacityProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isAutoMode]);
 
+  // Effect to sync arousal → --capacity-pace-multiplier on :root
+  // This is what makes the arousal slider visibly change animation speed
+  useEffect(() => {
+    const arousal = context.emotionalState.arousal ?? 0.5
+    const multiplier = arousal < 0.35 ? 1.5 : arousal > 0.65 ? 0.65 : 1.0
+    document.documentElement.style.setProperty("--capacity-pace-multiplier", String(multiplier))
+  }, [context.emotionalState.arousal])
+
   // Memoized update functions
   const updateCapacity = useCallback((capacity: Partial<UserCapacity>) => {
     if (isAutoMode) {

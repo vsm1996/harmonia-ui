@@ -89,6 +89,9 @@
  * - Calm, centered aesthetic embodying "Harmonia"
  */
 :root {
+  /* Animation pacing — updated by CapacityProvider based on arousal */
+  --capacity-pace-multiplier: 1;
+
   /* Soft sky blue background - serene, open */
   --background: oklch(0.97 0.02 230);
   --foreground: oklch(0.18 0.03 240);
@@ -441,7 +444,7 @@
 
     /* Vortex Reveal (Slow like the earth's pulse) */
     .vortex-reveal {
-      animation: vortexAnim 1.2s cubic-bezier(0.4, 0.0, 0.6, 1) both; /* both = backwards + forwards */
+      animation: vortexAnim calc(1.2s * var(--capacity-pace-multiplier, 1)) cubic-bezier(0.4, 0.0, 0.6, 1) both; /* both = backwards + forwards */
     }
     @keyframes vortexAnim {
       0% { transform: scale(0.8) rotate(20deg); opacity: 0; }
@@ -450,7 +453,7 @@
 
     /* Helix Rise (Energizing, like a plant sprouting) */
     .helix-rise {
-      animation: helixAnim 1s ease-out both;
+      animation: helixAnim calc(1s * var(--capacity-pace-multiplier, 1)) ease-out both;
     }
     @keyframes helixAnim {
       0% { transform: translateY(50px) rotate(10deg); opacity: 0; }
@@ -459,7 +462,7 @@
 
     /* Gentle Fade (Slow and steady entrance) */
     .gentle-fade {
-      animation: gentleFadeAnim 0.8s ease-in-out both;
+      animation: gentleFadeAnim calc(0.8s * var(--capacity-pace-multiplier, 1)) ease-in-out both;
     }
     @keyframes gentleFadeAnim {
       0% { transform: scale(0.95); opacity: 0; }
@@ -467,12 +470,12 @@
     }
     /* Alias for backwards compatibility */
     .sacred-fade {
-      animation: gentleFadeAnim 0.8s ease-in-out both;
+      animation: gentleFadeAnim calc(0.8s * var(--capacity-pace-multiplier, 1)) ease-in-out both;
     }
 
     /* Spiral In (Dynamic, like a whirlwind) */
     .spiral-in {
-      animation: spiralAnim 1s cubic-bezier(0.75, 0.2, 0.5, 1) both;
+      animation: spiralAnim calc(1s * var(--capacity-pace-multiplier, 1)) cubic-bezier(0.75, 0.2, 0.5, 1) both;
     }
     @keyframes spiralAnim {
       0% { transform: translate(-30px, 30px) rotate(-12deg); opacity: 0; }
@@ -481,7 +484,7 @@
 
     /* Pulsing (Heartbeat rhythm) */
     .pulse {
-      animation: pulseAnim 4.44s infinite ease-in-out; /* Slow, rhythmic pulse */
+      animation: pulseAnim calc(4.44s * var(--capacity-pace-multiplier, 1)) infinite ease-in-out;
     }
     @keyframes pulseAnim {
       0%, 100% { transform: scale(1); opacity: 1; }
@@ -490,7 +493,7 @@
 
     /* Vibrating (Energy in rapid motion) */
     .vibrate {
-      animation: vibrateAnim 1.11s infinite linear; /* Quick, constant vibration */
+      animation: vibrateAnim calc(1.11s * var(--capacity-pace-multiplier, 1)) infinite linear;
     }
     @keyframes vibrateAnim {
       0% { transform: translate(0); }
@@ -502,7 +505,7 @@
 
     /* Morph Fade In (Slow morph, like a liquid transforming) */
     .morph-fade-in {
-      animation: morphFadeAnim 1.2s ease-in-out both;
+      animation: morphFadeAnim calc(1.2s * var(--capacity-pace-multiplier, 1)) ease-in-out both;
     }
     @keyframes morphFadeAnim {
       0% {
@@ -522,7 +525,7 @@
 
     /* Waving (Subtle, like a gentle breeze) */
     .wave {
-      animation: waveAnim 4.44s infinite ease-in-out; /* Soft, rhythmic undulation */
+      animation: waveAnim calc(4.44s * var(--capacity-pace-multiplier, 1)) infinite ease-in-out;
     }
     @keyframes waveAnim {
       0% { transform: rotate(0deg); }
@@ -532,7 +535,7 @@
 
     /* Breathing (Slow and steady, like the earth's breath) */
     .breathe {
-      animation: breatheAnim 7.77s ease-in-out infinite !important;
+      animation: breatheAnim calc(7.77s * var(--capacity-pace-multiplier, 1)) ease-in-out infinite !important;
     }
     @keyframes breatheAnim {
       0%, 100% { transform: scale(1); }
@@ -541,7 +544,7 @@
 
     /* Falling (Descending, like a rain drop) */
     .fall {
-      animation: fallAnim 4.44s ease-in-out infinite; /* Flowing, slow rise and fall */
+      animation: fallAnim calc(4.44s * var(--capacity-pace-multiplier, 1)) ease-in-out infinite;
     }
     @keyframes fallAnim {
       0% { transform: translateY(0); }
@@ -551,7 +554,7 @@
 
     /* Floating (Gentle, like a cloud drifting) */
     .float {
-      animation: floatAnim 4.44s ease-in-out infinite !important;
+      animation: floatAnim calc(4.44s * var(--capacity-pace-multiplier, 1)) ease-in-out infinite !important;
     }
     @keyframes floatAnim {
       0% { transform: translateY(0); }
@@ -560,7 +563,7 @@
     }
 
     .floatWave {
-      animation: floatWaveAnim 4.44s ease-in-out infinite; /* Flowing, slow rise and fall */
+      animation: floatWaveAnim calc(4.44s * var(--capacity-pace-multiplier, 1)) ease-in-out infinite;
     }
 
 @keyframes floatWaveAnim {
@@ -571,7 +574,7 @@
 
     /* Blooming (Slow, like the opening of a flower) */
     .bloom {
-      animation: bloomAnim 1.4s ease-in-out both !important;
+      animation: bloomAnim calc(1.4s * var(--capacity-pace-multiplier, 1)) ease-in-out both !important;
     }
     @keyframes bloomAnim {
       0% { transform: scale(0.92); opacity: 0; }
@@ -580,7 +583,7 @@
 
     /* Pulsing Color Shift (Smooth, like the ocean's waves) */
     .pulse-color-shift {
-      animation: pulseColorShiftAnim 4.44s infinite ease-in-out; /* Slow ebb and flow of color */
+      animation: pulseColorShiftAnim calc(4.44s * var(--capacity-pace-multiplier, 1)) infinite ease-in-out;
     }
     @keyframes pulseColorShiftAnim {
       0%, 100% { background: #10b981; }
@@ -589,7 +592,7 @@
 
     /* Swelling (Gradual, like the ocean's tide) */
     .swelling {
-      animation: swellingAnim 4.44s ease-in-out infinite; /* Slow swelling effect */
+      animation: swellingAnim calc(4.44s * var(--capacity-pace-multiplier, 1)) ease-in-out infinite;
     }
     @keyframes swellingAnim {
       0%, 100% { transform: scale(1); opacity: 1; }
@@ -643,7 +646,7 @@
        without moving them (no transform, so it stacks with any motion)
        ================================================================ */
     .attention-beacon {
-      animation: beaconGlow 3s ease-in-out infinite !important;
+      animation: beaconGlow calc(3s * var(--capacity-pace-multiplier, 1)) ease-in-out infinite !important;
     }
     @keyframes beaconGlow {
       0%, 100% {
@@ -658,7 +661,7 @@
 
     /* Text-level attention: subtle color pulse for headings / labels */
     .attention-text {
-      animation: beaconText 3s ease-in-out infinite !important;
+      animation: beaconText calc(3s * var(--capacity-pace-multiplier, 1)) ease-in-out infinite !important;
     }
     @keyframes beaconText {
       0%, 100% { text-shadow: 0 0 0 oklch(0.65 0.18 45 / 0); }
@@ -676,7 +679,7 @@
        Slower cycle, lower opacity, muted glow vs. the guided beacon
        ================================================================ */
     .gentle-beacon {
-      animation: gentleGlow 5s ease-in-out infinite !important;
+      animation: gentleGlow calc(5s * var(--capacity-pace-multiplier, 1)) ease-in-out infinite !important;
     }
     @keyframes gentleGlow {
       0%, 100% {
@@ -690,7 +693,7 @@
     }
 
     .gentle-text {
-      animation: gentleTextGlow 5s ease-in-out infinite !important;
+      animation: gentleTextGlow calc(5s * var(--capacity-pace-multiplier, 1)) ease-in-out infinite !important;
     }
     @keyframes gentleTextGlow {
       0%, 100% { text-shadow: 0 0 0 oklch(0.65 0.15 220 / 0); }
