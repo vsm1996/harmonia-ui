@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { PatternStore } from "../prediction/pattern-store"
 import { PatternExtractor } from "../prediction/pattern-extractor"

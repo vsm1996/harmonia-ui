@@ -1,5 +1,5 @@
-// Node 25 ships a native localStorage that shadows jsdom's and lacks .clear().
-// Override with a full in-memory implementation for all tests.
+// Node 25 ships a native localStorage (a special native accessor) that ignores
+// Object.defineProperty and vi.stubGlobal — only direct assignment overrides it.
 const makeLocalStorage = () => {
   const store = new Map<string, string>()
   return {
@@ -20,7 +20,6 @@ const makeLocalStorage = () => {
   }
 }
 
-Object.defineProperty(globalThis, "localStorage", {
-  value: makeLocalStorage(),
-  writable: true,
-})
+// Direct assignment is required — vi.stubGlobal/Object.defineProperty both fail
+// because Node 25's localStorage is a native accessor that only yields to assignment.
+;(global as unknown as Record<string, unknown>).localStorage = makeLocalStorage()

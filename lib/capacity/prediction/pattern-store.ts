@@ -21,7 +21,7 @@ interface CapacityHistoryItem {
 export class PatternStore {
 
   constructor() {
-    if (typeof window === 'undefined') return;
+    if (typeof localStorage === 'undefined') return;
     try {
       if (!localStorage.getItem(LOCAL_STORAGE_KEY)) {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([]));
@@ -36,7 +36,7 @@ export class PatternStore {
    * Silently skips the write if localStorage is full or unavailable.
    */
   recordCapacity(capacity: CapacityField): void {
-    if (typeof window === 'undefined') return;
+    if (typeof localStorage === 'undefined') return;
     try {
       const history = this.getHistory();
       history.push({ timestamp: Date.now(), capacity });
@@ -52,7 +52,7 @@ export class PatternStore {
    * Returns [] on any storage or parse error.
    */
   getHistory(): CapacityHistoryItem[] {
-    if (typeof window === 'undefined') return [];
+    if (typeof localStorage === 'undefined') return [];
     try {
       const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
       return raw ? JSON.parse(raw) : [];
@@ -63,7 +63,7 @@ export class PatternStore {
 
   /** Clears the entire capacity history. */
   clearHistory(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof localStorage === 'undefined') return;
     try {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
     } catch {
@@ -73,7 +73,7 @@ export class PatternStore {
 
   /** Deletes a specific historical item by its timestamp. */
   deleteItem(timestamp: number): void {
-    if (typeof window === 'undefined') return;
+    if (typeof localStorage === 'undefined') return;
     try {
       const history = this.getHistory().filter(item => item.timestamp !== timestamp);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(history));
@@ -84,7 +84,7 @@ export class PatternStore {
 
   /** Updates the capacity fields of a specific historical item. */
   updateItem(timestamp: number, updates: Partial<CapacityField>): void {
-    if (typeof window === 'undefined') return;
+    if (typeof localStorage === 'undefined') return;
     try {
       const history = this.getHistory();
       const idx = history.findIndex(item => item.timestamp === timestamp);
