@@ -1,0 +1,1 @@
+{"version":3,"file":"time-detector.d.ts","sourceRoot":"","sources":["../../../../lib/capacity/signals/detectors/time-detector.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAEH,OAAO,EAAE,cAAc,EAAE,aAAa,EAAE,MAAM,SAAS,CAAC;AAExD;;;GAGG;AACH,qBAAa,YAAa,YAAW,cAAc;IACjD,QAAQ,CAAC,IAAI,kBAAkB;IAC/B,QAAQ,CAAC,MAAM,OAAO;IAEtB;;;OAGG;IACH,MAAM,IAAI,aAAa,EAAE;CAyC1B"}

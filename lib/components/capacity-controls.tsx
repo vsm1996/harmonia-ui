@@ -1,0 +1,547 @@
+/**
+ * Capacity-Adaptive UI Controls - Phase 1 Manual Input System (4 Inputs)
+ *
+ * STRICT SEPARATION OF CONCERNS:
+ * ┌─────────────┬────────────────────────────────────┬─────────────────────────────┐
+ * │ Slider      │ Controls                           │ Must NOT Control            │
+ * ├─────────────┼────────────────────────────────────┼─────────────────────────────┤
+ * │ Cognitive   │ density, hierarchy, concurrency    │ tone, animation speed       │
+ * │ Temporal    │ content length, shortcuts, defaults│ color, layout structure     │
+ * │ Emotional   │ motion restraint, friction         │ content importance          │
+ * │ Valence     │ tone, expressiveness               │ information volume          │
+ * └─────────────┴────────────────────────────────────┴─────────────────────────────┘
+ */
+
+"use client"
+
+import { useState, useCallback } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import {
+  useCapacityContext,
+  useDerivedMode,
+  useEnergyField,
+  useAttentionField,
+  useEmotionalValenceField,
+  useFeedback,
+  deriveModeLabel,
+  getModeBadgeColor,
+} from "../capacity"
+import { Slider } from "./ui/slider"
+import { Button } from "./ui/button"
+import { Card, CardHeader, CardTitle, CardContent } from "./ui/card"
+import { Badge } from "./ui/badge"
+import { Select } from "./ui/select"
+
+function SettingsIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+      />
+      <path
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+      />
+    </svg>
+  )
+}
+
+function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 18L18 6M6 6l12 12"
+      />
+    </svg>
+  )
+}
+
+function ResetIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+      />
+    </svg>
+  )
+}
+
+const CAPACITY_PRESETS = {
+  exhausted: {
+    label: "Exhausted",
+    description: "Protective mode: stripped-back, no motion, no surprises",
+    cognitive: 0.1,
+    temporal: 0.1,
+    emotional: 0.1,
+    valence: -0.6,
+    arousal: 0.1,
+  },
+  overwhelmed: {
+    label: "Overwhelmed",
+    description: "High stress: minimal content, boosted contrast, soothing motion",
+    cognitive: 0.2,
+    temporal: 0.15,
+    emotional: 0.2,
+    valence: -0.5,
+    arousal: 0.2,
+  },
+  distracted: {
+    label: "Distracted",
+    description: "Short attention: fewer items, guided focus on key elements",
+    cognitive: 0.35,
+    temporal: 0.25,
+    emotional: 0.5,
+    valence: 0.0,
+    arousal: 0.4,
+  },
+  neutral: {
+    label: "Neutral",
+    description: "Balanced: medium density, subtle motion, gentle focus on key items",
+    cognitive: 0.5,
+    temporal: 0.5,
+    emotional: 0.5,
+    valence: 0.0,
+    arousal: 0.5,
+  },
+  focused: {
+    label: "Focused",
+    description: "Task-ready: full content, subtle motion, clear hierarchy",
+    cognitive: 0.75,
+    temporal: 0.75,
+    emotional: 0.55,
+    valence: 0.1,
+    arousal: 0.6,
+  },
+  energized: {
+    label: "Energized",
+    description: "Full engagement: dense layout, expressive animations, warm tone",
+    cognitive: 0.9,
+    temporal: 0.85,
+    emotional: 0.85,
+    valence: 0.6,
+    arousal: 0.8,
+  },
+  exploring: {
+    label: "Exploring",
+    description: "Maximum everything: all content, all animations, all features",
+    cognitive: 1.0,
+    temporal: 1.0,
+    emotional: 1.0,
+    valence: 0.8,
+    arousal: 0.9,
+  },
+} as const
+
+type PresetKey = keyof typeof CAPACITY_PRESETS
+
+const DEFAULT_CALM_STATE = {
+  cognitive: 0.5,
+  temporal: 0.5,
+  emotional: 0.5,
+  valence: 0.0,
+  arousal: 0.5,
+} as const
+
+export function CapacityControls() {
+  const [isOpen, setIsOpen] = useState(false)
+  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode } = useCapacityContext()
+  const { hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled, fire: fireFeedback } = useFeedback()
+  const { field, mode } = useDerivedMode()
+  const energy = useEnergyField()
+  const attention = useAttentionField()
+  const valence = useEmotionalValenceField()
+
+  const modeLabel = deriveModeLabel(field)
+  const modeBadgeColor = getModeBadgeColor(modeLabel)
+
+  const handleReset = () => {
+    updateCapacity({
+      cognitive: DEFAULT_CALM_STATE.cognitive,
+      temporal: DEFAULT_CALM_STATE.temporal,
+      emotional: DEFAULT_CALM_STATE.emotional,
+    })
+    updateEmotionalState({
+      valence: DEFAULT_CALM_STATE.valence,
+      arousal: DEFAULT_CALM_STATE.arousal,
+    })
+  }
+
+  const fireInteractionFeedback = useCallback(() => {
+    fireFeedback("tap")
+  }, [fireFeedback])
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50">
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="flex items-center gap-2"
+          >
+            <Badge
+              className="shadow-lg"
+              style={{ backgroundColor: modeBadgeColor, color: "white" }}
+            >
+              {modeLabel}
+            </Badge>
+            <Button
+              onClick={() => setIsOpen(true)}
+              variant="outline"
+              size="sm"
+              className="shadow-lg bg-background"
+            >
+              <SettingsIcon className="w-4 h-4 mr-2" />
+              Capacity
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm md:hidden"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            className="relative"
+          >
+            <Card className="w-80 shadow-xl max-h-[85vh] overflow-y-auto">
+              <CardHeader className="pb-3">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-sm font-semibold">
+                      Capacity Controls
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setIsOpen(false)
+                      }}
+                      aria-label="Close capacity controls"
+                    >
+                      <CloseIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      className="text-xs"
+                      style={{ backgroundColor: modeBadgeColor, color: "white" }}
+                    >
+                      {modeLabel}
+                    </Badge>
+                    <Button
+                      variant={isAutoMode ? "default" : "outline"}
+                      size="sm"
+                      className="h-7 text-xs px-2"
+                      onClick={toggleAutoMode}
+                      aria-label={isAutoMode ? "Switch to manual mode" : "Switch to auto mode"}
+                    >
+                      {isAutoMode ? "Auto" : "Manual"}
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {isAutoMode
+                    ? "Signals are driving values automatically. Move any slider to take manual control."
+                    : "Adjust your state to see the UI adapt in real-time."}
+                </p>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                <div className="space-y-2 flex flex-col gap-2">
+                  <label className="text-sm font-medium">Quick Presets</label>
+                  <Select
+                    defaultValue=""
+                    onValueChange={(value: string) => {
+                      if (!value) return
+                      const preset = CAPACITY_PRESETS[value as PresetKey]
+                      updateCapacity({
+                        cognitive: preset.cognitive,
+                        temporal: preset.temporal,
+                        emotional: preset.emotional,
+                      })
+                      updateEmotionalState({ valence: preset.valence, arousal: preset.arousal })
+                      fireInteractionFeedback()
+                    }}
+                  >
+                    <option value="" disabled>Select a preset...</option>
+                    {Object.entries(CAPACITY_PRESETS).map(([key, preset]) => (
+                      <option key={key} value={key}>
+                        {preset.label} — {preset.description}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between border-t border-border pt-4">
+                  <p className="text-xs text-muted-foreground">Or adjust individually:</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleReset}
+                    className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <ResetIcon className="w-3 h-3 mr-1" />
+                    Reset
+                  </Button>
+                </div>
+
+                <SliderControl
+                  label="Cognitive Capacity"
+                  description="Controls: density, hierarchy, concurrency"
+                  value={field.cognitive}
+                  onChange={(v) => updateCapacity({ cognitive: v })}
+                  lowLabel="Fewer items"
+                  highLabel="More items"
+                />
+
+                <SliderControl
+                  label="Temporal Capacity"
+                  description="Controls: content length, shortcuts, defaults"
+                  value={field.temporal}
+                  onChange={(v) => updateCapacity({ temporal: v })}
+                  lowLabel="Abbreviated"
+                  highLabel="Full detail"
+                />
+
+                <SliderControl
+                  label="Emotional Capacity"
+                  description="Controls: motion restraint, friction"
+                  value={field.emotional}
+                  onChange={(v) => updateCapacity({ emotional: v })}
+                  lowLabel="Calm UI"
+                  highLabel="Expressive"
+                />
+
+                <div className="pt-2 border-t border-border">
+                  <ValenceSliderControl
+                    label="Emotional Valence"
+                    description="Controls: tone, expressiveness (not info volume)"
+                    value={field.valence}
+                    onChange={(v) => updateEmotionalState({ valence: v })}
+                  />
+                </div>
+
+                <SliderControl
+                  label="Arousal"
+                  description="Controls: animation pacing (calm → activated)"
+                  value={field.arousal ?? 0.5}
+                  onChange={(v) => updateEmotionalState({ arousal: v })}
+                  lowLabel="Calm"
+                  highLabel="Activated"
+                />
+
+                <div className="pt-2 border-t border-border space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Feedback <span className="font-normal opacity-60">(opt-in)</span>
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setHapticEnabled(v => !v)}
+                      className={`flex-1 py-1.5 px-2 rounded-md text-xs border transition-colors ${hapticEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                      aria-pressed={hapticEnabled}
+                    >
+                      📳 Haptic
+                    </button>
+                    <button
+                      onClick={() => setSonicEnabled(v => !v)}
+                      className={`flex-1 py-1.5 px-2 rounded-md text-xs border transition-colors ${sonicEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                      aria-pressed={sonicEnabled}
+                    >
+                      🔔 Sonic
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground opacity-60">
+                    Pace: <span className="font-medium">{mode.pace}</span> → {mode.pace === "calm" ? "+50% duration" : mode.pace === "activated" ? "−35% duration" : "standard"}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">
+                    Derived Fields
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <FieldDisplay label="Energy" value={energy.value} color="text-chart-1" />
+                    <FieldDisplay label="Attention" value={attention.value} color="text-chart-2" />
+                    <FieldDisplay label="Valence" value={valence.value} color="text-chart-3" signed />
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">
+                    Interface Mode
+                  </p>
+                  <div className="grid grid-cols-2 gap-1 text-xs">
+                    <span className="text-muted-foreground">Density:</span>
+                    <span className="font-medium">{mode.density}</span>
+                    <span className="text-muted-foreground">Guidance:</span>
+                    <span className="font-medium">{mode.guidance}</span>
+                    <span className="text-muted-foreground">Motion:</span>
+                    <span className="font-medium">{mode.motion}</span>
+                    <span className="text-muted-foreground">Contrast:</span>
+                    <span className="font-medium">{mode.contrast}</span>
+                    <span className="text-muted-foreground">Choices:</span>
+                    <span className="font-medium">{mode.choiceLoad}</span>
+                    <span className="text-muted-foreground">Focus:</span>
+                    <span className="font-medium">{mode.focus}</span>
+                    <span className="text-muted-foreground">Pace:</span>
+                    <span className="font-medium">{mode.pace}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function SliderControl({
+  label,
+  description,
+  value,
+  onChange,
+  lowLabel,
+  highLabel,
+}: {
+  label: string
+  description: string
+  value: number
+  onChange: (value: number) => void
+  lowLabel: string
+  highLabel: string
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-baseline">
+        <label className="text-sm font-medium">{label}</label>
+        <span className="text-xs text-muted-foreground tabular-nums">
+          {Math.round(value * 100)}%
+        </span>
+      </div>
+      <Slider
+        value={value}
+        onChange={(v) => onChange(v)}
+        min={0}
+        max={1}
+        step={0.01}
+        className="w-full"
+      />
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>{lowLabel}</span>
+        <span>{highLabel}</span>
+      </div>
+    </div>
+  )
+}
+
+function ValenceSliderControl({
+  label,
+  description,
+  value,
+  onChange,
+}: {
+  label: string
+  description: string
+  value: number
+  onChange: (value: number) => void
+}) {
+  const sliderValue = (value + 1) / 2
+  const displayValue = value >= 0 ? `+${value.toFixed(2)}` : value.toFixed(2)
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-baseline">
+        <label className="text-sm font-medium">{label}</label>
+        <span className="text-xs text-muted-foreground tabular-nums font-mono">
+          {displayValue}
+        </span>
+      </div>
+      <Slider
+        value={sliderValue}
+        onChange={(v) => onChange(v * 2 - 1)}
+        min={0}
+        max={1}
+        step={0.01}
+        className="w-full"
+      />
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>Negative</span>
+        <span className="opacity-50">Neutral</span>
+        <span>Positive</span>
+      </div>
+    </div>
+  )
+}
+
+function FieldDisplay({
+  label,
+  value,
+  color,
+  signed = false,
+}: {
+  label: string
+  value: number
+  color: string
+  signed?: boolean
+}) {
+  const displayValue = signed
+    ? (value >= 0 ? "+" : "") + value.toFixed(2)
+    : value.toFixed(2)
+
+  return (
+    <div className="bg-muted/50 rounded-md p-2">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`text-sm font-mono font-bold ${color}`}>{displayValue}</p>
+    </div>
+  )
+}

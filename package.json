@@ -1,37 +1,69 @@
 {
-  "name": "harmonia-ui",
+  "name": "@harmonia-core/ui",
   "version": "1.0.0",
   "private": false,
-  "description": "This project introduces a capacity-adaptive interface framework based on explicit human-state inputs and distributed UI adaptation.",
+  "description": "A capacity-adaptive UI framework that treats human cognitive, temporal, and emotional state as first-class inputs. Derives interface modes (density, motion, contrast, focus) from explicit user state — no inference, no profiling.",
+  "keywords": [
+    "capacity-adaptive",
+    "ui-framework",
+    "react",
+    "accessibility",
+    "adaptive-ui",
+    "cognitive-load",
+    "motion",
+    "design-tokens"
+  ],
   "license": "MIT",
   "author": "Vanessa Martin",
+  "homepage": "https://harmonia-ui.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vsm1996/harmonia-ui"
+  },
+  "main": "./dist/capacity/index.js",
+  "module": "./dist/capacity/index.mjs",
+  "types": "./dist/capacity/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/capacity/index.d.ts",
+      "import": "./dist/capacity/index.mjs",
+      "require": "./dist/capacity/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.mjs",
+      "require": "./dist/components/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "next build",
+    "build:lib": "tsup && tsc --project tsconfig.lib.json",
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "dependencies": {
-    "@renge-ui/tokens": "^1.0.0",
-    "@vercel/analytics": "1.3.1",
-    "@vercel/speed-insights": "1.3.1",
-    "autoprefixer": "^10.4.20",
-    "daisyui": "^5.5.19",
-    "date-fns": "4.1.0",
-    "framer-motion": "12.29.2",
-    "lucide-react": "^0.454.0",
-    "motion": "12.24.10",
-    "next": "^16.1.6",
-    "next-themes": "^0.4.6",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "recharts": "2.15.4",
-    "sonner": "^1.7.4",
-    "zod": "3.25.76"
+  "peerDependencies": {
+    "@renge-ui/tokens": "^2.2.0",
+    "motion": ">=11.0.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
   },
+  "peerDependenciesMeta": {
+    "motion": {
+      "optional": true
+    }
+  },
+  "dependencies": {},
   "devDependencies": {
+    "@renge-ui/tokens": "^2.2.0",
     "@tailwindcss/postcss": "^4.1.9",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -40,11 +72,27 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vercel/analytics": "1.3.1",
+    "@vercel/speed-insights": "1.3.1",
     "@vitejs/plugin-react": "^5.1.4",
+    "autoprefixer": "^10.4.20",
+    "daisyui": "^5.5.19",
+    "date-fns": "4.1.0",
+    "framer-motion": "12.29.2",
     "jsdom": "^28.1.0",
+    "lucide-react": "^0.454.0",
+    "motion": "12.24.10",
+    "next": "^16.1.6",
+    "next-themes": "^0.4.6",
     "postcss": "^8.5",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "recharts": "2.15.4",
+    "sonner": "^1.7.4",
     "tailwindcss": "^4.1.9",
+    "tsup": "^8.5.0",
     "typescript": "^5",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "zod": "3.25.76"
   }
 }
