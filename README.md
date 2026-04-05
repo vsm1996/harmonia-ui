@@ -1,4 +1,4 @@
-# @harmonia-core
+# @harmonia-core/ui
 
 A capacity-adaptive UI framework that treats human cognitive, temporal, and emotional state as first-class inputs.
 
@@ -11,9 +11,9 @@ Instead of inferring or profiling users, Harmonia derives discrete interface mod
 ## Installation
 
 ```bash
-npm install @harmonia-core @renge-ui/tokens
+npm install @harmonia-core/ui @renge-ui/tokens
 # or
-pnpm add @harmonia-core @renge-ui/tokens
+pnpm add @harmonia-core/ui @renge-ui/tokens
 ```
 
 `@renge-ui/tokens` is a required peer dependency. It provides the `createRengeTheme()` function and the `--renge-*` CSS custom properties that the capacity system's motion and spacing utilities reference.
@@ -60,7 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 // components/providers.tsx
 "use client"
 
-import { CapacityProvider } from "@harmonia-core"
+import { CapacityProvider } from "@harmonia-core/ui"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return <CapacityProvider>{children}</CapacityProvider>
@@ -76,7 +76,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 ### Consuming mode tokens in a component
 
 ```tsx
-import { useDerivedMode, deriveModeLabel } from "@harmonia-core"
+import { useDerivedMode, deriveModeLabel } from "@harmonia-core/ui"
 
 function AdaptiveCard() {
   const { field, mode } = useDerivedMode()
@@ -114,7 +114,7 @@ function AdaptiveCard() {
 ### Applying motion classes
 
 ```tsx
-import { useEffectiveMotion, entranceClass, hoverClass } from "@harmonia-core"
+import { useEffectiveMotion, entranceClass, hoverClass } from "@harmonia-core/ui"
 
 function AnimatedSection({ children }: { children: React.ReactNode }) {
   const { mode } = useEffectiveMotion() // applies prefers-reduced-motion hard override
@@ -134,7 +134,7 @@ function AnimatedSection({ children }: { children: React.ReactNode }) {
 ### Adjusting grid layout by density
 
 ```tsx
-import { useDerivedMode } from "@harmonia-core"
+import { useDerivedMode } from "@harmonia-core/ui"
 
 function EventGrid({ events }: { events: Event[] }) {
   const { mode } = useDerivedMode()
@@ -246,7 +246,45 @@ Four human-readable labels derived from raw inputs, first match wins:
 
 ### Components
 
-`@harmonia-core` exports the capacity system only — no opinionated UI components. See the [live demo](https://harmonia-ui.vercel.app) for reference implementations of `CapacityControls`, `CapacityDemoCard`, and `AmbientFieldMonitor`.
+Pre-built components are available via the `/components` entry point:
+
+```ts
+import { CapacityControls, CapacityDemoCard, AmbientFieldMonitor } from "@harmonia-core/ui/components"
+```
+
+| Component | Description |
+|-----------|-------------|
+| `CapacityControls` | Floating panel for manual capacity input — sliders, presets, live mode readout |
+| `CapacityDemoCard` | Demo card that reacts to the current mode in real-time |
+| `AmbientFieldMonitor` | Debug overlay showing live field values and derived tokens |
+
+#### CapacityControls
+
+A fixed-position floating control panel (bottom-right) that lets users set their capacity state manually. Includes four sliders (cognitive, temporal, emotional, valence), quick presets, auto/manual mode toggle, opt-in haptic/sonic feedback, and a live derived fields display.
+
+Requires `motion` (`>=11.0.0`) as a peer dependency for animations.
+
+```tsx
+// app/layout.tsx or your root providers file
+import { CapacityControls } from "@harmonia-core/ui/components"
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <CapacityControls />
+      </body>
+    </html>
+  )
+}
+```
+
+`CapacityControls` must be rendered inside `CapacityProvider`. It reads and writes to the capacity context directly — no props required.
+
+**Presets available:** Exhausted, Overwhelmed, Distracted, Neutral, Focused, Energized, Exploring.
+
+See the [live demo](https://harmonia-ui.vercel.app) for all three components in action.
 
 ---
 
