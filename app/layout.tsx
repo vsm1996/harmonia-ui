@@ -8,6 +8,7 @@ import { Providers } from "@/components/providers"
 import { createRengeTheme } from "@renge-ui/tokens"
 import ogImage from "@/public/images/ogImage.jpg"
 
+
 const rengeTheme = createRengeTheme({ profile: 'ocean' })
 
 const _geist = Geist({ subsets: ["latin"] })

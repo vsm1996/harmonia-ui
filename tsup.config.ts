@@ -3,7 +3,7 @@ export default {
   outDir: "dist",
   format: ["cjs", "esm"],
   dts: false,
-  splitting: false,
+  splitting: true,
   sourcemap: true,
   clean: true,
   external: ["react", "react-dom", "@renge-ui/tokens", "motion", "motion/react"],

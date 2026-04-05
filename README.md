@@ -11,9 +11,9 @@ Instead of inferring or profiling users, Harmonia derives discrete interface mod
 ## Installation
 
 ```bash
-npm install @harmonia-core/ui @renge-ui/tokens
+npm install @harmonia-core/ui @renge-ui/tokens motion
 # or
-pnpm add @harmonia-core/ui @renge-ui/tokens
+pnpm add @harmonia-core/ui @renge-ui/tokens motion
 ```
 
 `@renge-ui/tokens` is a required peer dependency. It provides the `createRengeTheme()` function and the `--renge-*` CSS custom properties that the capacity system's motion and spacing utilities reference.
@@ -24,7 +24,8 @@ pnpm add @harmonia-core/ui @renge-ui/tokens
 {
   "react": ">=18.0.0",
   "react-dom": ">=18.0.0",
-  "@renge-ui/tokens": "^1.0.0"
+  "@renge-ui/tokens": "^2.2.0",
+  "motion": ">=11.0.0"
 }
 ```
 
