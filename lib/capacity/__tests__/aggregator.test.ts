@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { SignalAggregator } from "../signals/aggregator"
 import type { SignalReading } from "../signals/detectors/types"

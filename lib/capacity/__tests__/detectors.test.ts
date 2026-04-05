@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { TimeDetector } from "../signals/detectors/time-detector"
 import { SessionDetector } from "../signals/detectors/session-detector"
