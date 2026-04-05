@@ -10,6 +10,12 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/__tests__/**/*.{ts,tsx}", "**/*.test.{ts,tsx}"],
     exclude: ["node_modules", ".next"],
+    deps: {
+      optimizer: {
+        web: { enabled: true },
+        ssr: { enabled: true },
+      },
+    },
   },
   resolve: {
     alias: {
