@@ -3,22 +3,22 @@ import "@testing-library/jest-dom"
 // Node 25 ships a native localStorage that shadows jsdom's and lacks .clear().
 // Override with a full in-memory implementation for all tests.
 const makeLocalStorage = () => {
-  let store: Record<string, string> = {}
+  const store = new Map<string, string>()
   return {
-    getItem: (key: string) => store[key] ?? null,
+    getItem: (key: string) => store.get(key) ?? null,
     setItem: (key: string, value: string) => {
-      store[key] = String(value)
+      store.set(key, String(value))
     },
     removeItem: (key: string) => {
-      delete store[key]
+      store.delete(key)
     },
     clear: () => {
-      store = {}
+      store.clear()
     },
     get length() {
-      return Object.keys(store).length
+      return store.size
     },
-    key: (index: number) => Object.keys(store)[index] ?? null,
+    key: (index: number) => [...store.keys()][index] ?? null,
   }
 }
 
