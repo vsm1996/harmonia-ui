@@ -1,5 +1,3 @@
-import "@testing-library/jest-dom"
-
 // Node 25 ships a native localStorage that shadows jsdom's and lacks .clear().
 // Override with a full in-memory implementation for all tests.
 const makeLocalStorage = () => {
