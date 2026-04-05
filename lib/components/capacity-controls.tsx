@@ -172,7 +172,7 @@ const DEFAULT_CALM_STATE = {
 
 export function CapacityControls() {
   const [isOpen, setIsOpen] = useState(false)
-  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode } = useCapacityContext()
+  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, conflicts } = useCapacityContext()
   const { hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled, fire: fireFeedback } = useFeedback()
   const { field, mode } = useDerivedMode()
   const energy = useEnergyField()
@@ -394,6 +394,33 @@ export function CapacityControls() {
                     <FieldDisplay label="Valence" value={valence.value} color="text-chart-3" signed />
                   </div>
                 </div>
+
+                {conflicts.length > 0 && (
+                  <div className="pt-4 border-t border-border space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Conflicts <span className="font-normal opacity-60">({conflicts.length})</span>
+                    </p>
+                    {conflicts.map((c) => (
+                      <div
+                        key={c.id}
+                        className={`rounded-md p-2 text-xs space-y-1 ${
+                          c.severity === "warning"
+                            ? "bg-warning/10 border border-warning/30 text-warning-content"
+                            : "bg-muted/60 border border-border text-muted-foreground"
+                        }`}
+                      >
+                        <p className="font-medium">{c.label}</p>
+                        <p className="opacity-80 leading-snug">{c.message}</p>
+                        {c.suggestion && (
+                          <p className="opacity-60 italic">{c.suggestion}</p>
+                        )}
+                        <p className="opacity-50">
+                          Affects: {c.affectedTokens.join(", ")}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="pt-4 border-t border-border">
                   <p className="text-xs font-medium text-muted-foreground mb-2">

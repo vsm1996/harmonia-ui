@@ -8,8 +8,9 @@
 
 import type React from "react"
 
-import { createContext, useContext, useEffect, useState, useCallback, useRef, type Dispatch, type SetStateAction } from "react"
+import { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo, type Dispatch, type SetStateAction } from "react"
 import type { AmbientContext, UserCapacity, EmotionalState, MotionMode, CapacityField, InterfaceMode } from "./types"
+import { detectConflicts, type ConflictWarning } from "./validation"
 import { triggerHaptic, playPacedSonic, type HapticPatternName } from "./feedback"
 import { FieldManager } from "./fields/field-manager"
 import { deriveMode } from "./mode"
@@ -31,6 +32,7 @@ interface CapacityContextValue {
   sonicEnabled: boolean;
   setHapticEnabled: Dispatch<SetStateAction<boolean>>;
   setSonicEnabled: Dispatch<SetStateAction<boolean>>;
+  conflicts: ConflictWarning[];
 }
 
 const CapacityContext = createContext<CapacityContextValue | null>(null)
@@ -135,6 +137,24 @@ export function CapacityProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isAutoMode]);
 
+  // Derive conflicts from current field values
+  const conflicts = useMemo<ConflictWarning[]>(() => {
+    const field: CapacityField = {
+      cognitive: context.userCapacity.cognitive,
+      temporal: context.userCapacity.temporal,
+      emotional: context.userCapacity.emotional,
+      valence: context.emotionalState.valence,
+      arousal: context.emotionalState.arousal,
+    }
+    const detected = detectConflicts(field)
+    if (process.env.NODE_ENV !== "production" && detected.length > 0) {
+      detected.forEach(c =>
+        console.warn(`[CapacityProvider] ${c.severity.toUpperCase()} — ${c.label}: ${c.message}`)
+      )
+    }
+    return detected
+  }, [context.userCapacity, context.emotionalState])
+
   // Effect to sync arousal → --capacity-pace-multiplier on :root
   // This is what makes the arousal slider visibly change animation speed
   useEffect(() => {
@@ -178,7 +198,7 @@ export function CapacityProvider({ children }: { children: React.ReactNode }) {
   return (
     <CapacityContext.Provider value={{
       context, updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField,
-      hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled,
+      hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled, conflicts,
     }}>
       {children}
     </CapacityContext.Provider>
@@ -229,8 +249,8 @@ export function useEmotionalValenceField() {
  * Get field update functions (for Phase 1 slider system)
  */
 export function useFieldControls() {
-  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField } = useCapacityContext()
-  return { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField }
+  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField, conflicts } = useCapacityContext()
+  return { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField, conflicts }
 }
 
 /**

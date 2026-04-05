@@ -70,3 +70,7 @@ export { SignalBus, SIGNAL_TYPES } from "./signals/signal-bus"
 
 // Field Manager (for advanced usage)
 export { FieldManager } from "./fields/field-manager"
+
+// Conflict detection
+export { detectConflicts } from "./validation"
+export type { ConflictWarning, ConflictSeverity } from "./validation"
