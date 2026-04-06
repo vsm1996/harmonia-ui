@@ -70,6 +70,48 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 `CapacityProvider` starts in **auto mode** — it polls six passive signal detectors every 2 seconds (time of day, session duration, scroll velocity, interaction rate, typing speed, system preferences) and writes inferred capacity values to the field manager. Any manual slider interaction disables auto mode.
 
+### 3. Add CapacityControls and AmbientFieldMonitor for controls + debugging
+
+Pre-built components are available via the `/components` entry point:
+
+```ts
+import { CapacityControls, CapacityDemoCard, AmbientFieldMonitor } from "@harmonia-core/ui/components"
+```
+
+| Component | Description |
+|-----------|-------------|
+| `CapacityControls` | Floating panel for manual capacity input — sliders, presets, live mode readout |
+| `CapacityDemoCard` | Demo card that reacts to the current mode in real-time |
+| `AmbientFieldMonitor` | Debug overlay showing live field values and derived tokens |
+
+#### CapacityControls
+
+A fixed-position floating control panel (bottom-right) that lets users set their capacity state manually. Includes four sliders (cognitive, temporal, emotional, valence), quick presets, auto/manual mode toggle, opt-in haptic/sonic feedback, and a live derived fields display.
+
+Requires `motion` (`>=11.0.0`) as a peer dependency for animations.
+
+```tsx
+// app/layout.tsx or your root providers file
+import { CapacityControls } from "@harmonia-core/ui/components"
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <CapacityControls />
+      </body>
+    </html>
+  )
+}
+```
+
+`CapacityControls` must be rendered inside `CapacityProvider`. It reads and writes to the capacity context directly — no props required.
+
+**Presets available:** Exhausted, Overwhelmed, Distracted, Neutral, Focused, Energized, Exploring.
+
+See the [live demo](https://harmonia-ui.vercel.app) for all three components in action.
+
 ---
 
 ## Usage
@@ -244,48 +286,6 @@ Four human-readable labels derived from raw inputs, first match wins:
 | `getFontSize` | `(role: TypographyRole) => string` | φ-derived font sizes |
 | `triggerHaptic` | `(pattern: HapticPatternName) => void` | Web Vibration API — opt-in haptic feedback |
 | `playPacedSonic` | `(pace: ArousalMode) => void` | Web Audio API — opt-in sonic feedback |
-
-### Components
-
-Pre-built components are available via the `/components` entry point:
-
-```ts
-import { CapacityControls, CapacityDemoCard, AmbientFieldMonitor } from "@harmonia-core/ui/components"
-```
-
-| Component | Description |
-|-----------|-------------|
-| `CapacityControls` | Floating panel for manual capacity input — sliders, presets, live mode readout |
-| `CapacityDemoCard` | Demo card that reacts to the current mode in real-time |
-| `AmbientFieldMonitor` | Debug overlay showing live field values and derived tokens |
-
-#### CapacityControls
-
-A fixed-position floating control panel (bottom-right) that lets users set their capacity state manually. Includes four sliders (cognitive, temporal, emotional, valence), quick presets, auto/manual mode toggle, opt-in haptic/sonic feedback, and a live derived fields display.
-
-Requires `motion` (`>=11.0.0`) as a peer dependency for animations.
-
-```tsx
-// app/layout.tsx or your root providers file
-import { CapacityControls } from "@harmonia-core/ui/components"
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        {children}
-        <CapacityControls />
-      </body>
-    </html>
-  )
-}
-```
-
-`CapacityControls` must be rendered inside `CapacityProvider`. It reads and writes to the capacity context directly — no props required.
-
-**Presets available:** Exhausted, Overwhelmed, Distracted, Neutral, Focused, Energized, Exploring.
-
-See the [live demo](https://harmonia-ui.vercel.app) for all three components in action.
 
 ---
 
