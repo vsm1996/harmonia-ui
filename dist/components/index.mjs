@@ -1,7 +1,8 @@
-import { createContext, useState, useCallback, useContext } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
-import { jsx, jsxs } from 'react/jsx-runtime';
+"use client";
+import { useState, useCallback } from 'react';
+import { useCapacityContext, useFeedback, useDerivedMode, useEnergyField, useAttentionField, useEmotionalValenceField, deriveModeLabel, getModeBadgeColor, entranceClass, hoverClass, ambientClass, listItemClass } from '@harmonia-core/ui';
 import { rengeVars } from '@renge-ui/tokens';
+import { jsx, jsxs } from 'react/jsx-runtime';
 
 var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
@@ -34,320 +35,6 @@ var __objRest = (source, exclude) => {
     }
   return target;
 };
-var FEEDBACK_FREQUENCIES = {
-  low: 396,
-  // Foundation/root elements
-  mid: 528,
-  // Primary interactive content
-  high: 741
-  // Dynamic/feedback elements
-};
-var DEFAULT_FIELD_CONFIG = {
-  smoothing: 0.15,
-  // Exponential smoothing factor
-  velocityThreshold: 0.05,
-  // Min velocity to register as trend
-  debounceMs: 100
-  // Debounce rapid changes
-};
-var DEFAULT_USER_CAPACITY = {
-  cognitive: 0.7,
-  temporal: 0.7,
-  emotional: 0.7
-};
-var DEFAULT_EMOTIONAL_STATE = {
-  valence: 0.3,
-  // > 0.15 (with emotional > 0.6) triggers expressive motion mode
-  arousal: 0.5
-};
-
-// lib/capacity/feedback.ts
-var HAPTIC_PATTERNS = {
-  /** Short tap — confirm/select */
-  tap: [8],
-  /** Two pulses — toggle/switch */
-  toggle: [8, 50, 8],
-  /** Gentle pulse — ambient/ambient confirmation */
-  pulse: [15, 30, 15],
-  /** Error/warning — three quick */
-  error: [50, 30, 50, 30, 50]
-};
-function triggerHaptic(pattern = "tap") {
-  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-    navigator.vibrate(HAPTIC_PATTERNS[pattern]);
-  }
-}
-var _audioCtx = null;
-function getAudioContext() {
-  if (typeof window === "undefined") return null;
-  try {
-    if (!_audioCtx || _audioCtx.state === "closed") {
-      _audioCtx = new AudioContext();
-    }
-    if (_audioCtx.state === "suspended") {
-      _audioCtx.resume();
-    }
-    return _audioCtx;
-  } catch (e) {
-    return null;
-  }
-}
-function playSonicFeedback(frequency, duration = 120, volume = 0.06) {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  const oscillator = ctx.createOscillator();
-  const gainNode = ctx.createGain();
-  oscillator.connect(gainNode);
-  gainNode.connect(ctx.destination);
-  oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
-  gainNode.gain.setValueAtTime(0, ctx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.015);
-  gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + duration / 1e3);
-  oscillator.start(ctx.currentTime);
-  oscillator.stop(ctx.currentTime + duration / 1e3 + 0.02);
-}
-function getFrequencyForPace(pace) {
-  if (pace === "activated") return FEEDBACK_FREQUENCIES.high;
-  if (pace === "calm") return FEEDBACK_FREQUENCIES.low;
-  return FEEDBACK_FREQUENCIES.mid;
-}
-function playPacedSonic(pace, duration) {
-  playSonicFeedback(getFrequencyForPace(pace), duration);
-}
-
-// lib/capacity/fields/field-manager.ts
-function deriveEnergyField(capacity) {
-  const { cognitive, temporal, emotional } = capacity;
-  return Math.pow(cognitive * temporal * emotional, 1 / 3);
-}
-function deriveAttentionField(capacity) {
-  return 1 - capacity.temporal * 0.5;
-}
-function deriveEmotionalValenceField(state) {
-  return state.valence;
-}
-function createFieldValue(value, previousValue) {
-  var _a;
-  const now = Date.now();
-  const lastChange = (_a = previousValue == null ? void 0 : previousValue.lastChange) != null ? _a : now;
-  const timeDelta = (now - lastChange) / 1e3;
-  let trend = "stable";
-  let velocity;
-  if (typeof value === "number" && previousValue && typeof previousValue.value === "number") {
-    const valueDelta = value - previousValue.value;
-    velocity = timeDelta > 0 ? valueDelta / timeDelta : 0;
-    if (Math.abs(velocity) > DEFAULT_FIELD_CONFIG.velocityThreshold) {
-      trend = velocity > 0 ? "rising" : "falling";
-    }
-  }
-  return {
-    value,
-    lastChange: now,
-    trend,
-    velocity
-  };
-}
-var FieldManagerClass = class {
-  constructor() {
-    this.listeners = /* @__PURE__ */ new Set();
-    this.config = DEFAULT_FIELD_CONFIG;
-    const initialCapacity = DEFAULT_USER_CAPACITY;
-    const initialState = DEFAULT_EMOTIONAL_STATE;
-    this.context = {
-      energy: createFieldValue(deriveEnergyField(initialCapacity)),
-      attention: createFieldValue(deriveAttentionField(initialCapacity)),
-      emotionalValence: createFieldValue(deriveEmotionalValenceField(initialState)),
-      userCapacity: initialCapacity,
-      emotionalState: initialState
-    };
-  }
-  /**
-   * Get current ambient context (read-only)
-   */
-  getContext() {
-    return this.context;
-  }
-  /**
-   * Update user capacity (Phase 1 slider system writes here)
-   */
-  updateCapacity(capacity) {
-    const newCapacity = __spreadValues(__spreadValues({}, this.context.userCapacity), capacity);
-    this.context = __spreadProps(__spreadValues({}, this.context), {
-      userCapacity: newCapacity,
-      energy: createFieldValue(deriveEnergyField(newCapacity), this.context.energy),
-      attention: createFieldValue(deriveAttentionField(newCapacity), this.context.attention)
-    });
-    this.notifyListeners();
-  }
-  /**
-   * Update emotional state (Phase 1 slider system writes here)
-   */
-  updateEmotionalState(state) {
-    const newState = __spreadValues(__spreadValues({}, this.context.emotionalState), state);
-    this.context = __spreadProps(__spreadValues({}, this.context), {
-      emotionalState: newState,
-      emotionalValence: createFieldValue(deriveEmotionalValenceField(newState), this.context.emotionalValence)
-    });
-    this.notifyListeners();
-  }
-  /**
-   * Subscribe to field changes
-   */
-  subscribe(listener) {
-    this.listeners.add(listener);
-    return () => {
-      this.listeners.delete(listener);
-    };
-  }
-  /**
-   * Notify all listeners of field changes
-   */
-  notifyListeners() {
-    this.listeners.forEach((listener) => {
-      try {
-        listener(this.context);
-      } catch (error) {
-        console.error("[v0] Field listener error:", error);
-      }
-    });
-  }
-  /**
-   * Update field configuration
-   */
-  updateConfig(config) {
-    this.config = __spreadValues(__spreadValues({}, this.config), config);
-  }
-  /**
-   * Get current field configuration
-   */
-  getConfig() {
-    return this.config;
-  }
-};
-new FieldManagerClass();
-
-// lib/capacity/mode.ts
-function deriveMode(field) {
-  var _a;
-  const lowCognitive = field.cognitive < 0.4;
-  const highCognitive = field.cognitive > 0.7;
-  const lowEmotional = field.emotional < 0.4;
-  const highEmotional = field.emotional > 0.6;
-  const lowTemporal = field.temporal < 0.4;
-  const highValence = field.valence > 0.15;
-  const negValence = field.valence < -0.15;
-  const density = lowCognitive ? "low" : highCognitive ? "high" : "medium";
-  const choiceLoad = lowTemporal ? "minimal" : "normal";
-  const guidance = lowCognitive ? "high" : lowTemporal ? "medium" : "low";
-  const veryLowEmotional = field.emotional < 0.15;
-  const motion2 = veryLowEmotional ? "off" : lowEmotional ? "soothing" : highEmotional && highValence ? "expressive" : "subtle";
-  const contrast = negValence ? "boosted" : "standard";
-  const focus = motion2 === "off" ? "default" : lowCognitive ? "guided" : !highCognitive ? "gentle" : "default";
-  const arousal = (_a = field.arousal) != null ? _a : 0.5;
-  const pace = arousal < 0.35 ? "calm" : arousal > 0.65 ? "activated" : "neutral";
-  return { density, guidance, motion: motion2, contrast, choiceLoad, focus, pace };
-}
-function deriveModeLabel(inputs) {
-  const { cognitive, temporal, emotional } = inputs;
-  if (cognitive > 0.6 && emotional > 0.6) {
-    return "Exploratory";
-  }
-  if (cognitive < 0.4 && temporal < 0.4) {
-    return "Minimal";
-  }
-  if (cognitive >= 0.55 && temporal >= 0.55) {
-    return "Focused";
-  }
-  return "Calm";
-}
-function getModeBadgeColor(label) {
-  switch (label) {
-    case "Calm":
-      return "oklch(0.65 0.15 220)";
-    // Soft blue
-    case "Focused":
-      return "oklch(0.68 0.16 45)";
-    // Primary rust
-    case "Exploratory":
-      return "oklch(0.65 0.2 135)";
-    // Toxic green
-    case "Minimal":
-      return "oklch(0.55 0.1 280)";
-    // Muted purple
-    default:
-      return "oklch(0.5 0 0)";
-  }
-}
-var CapacityContext = createContext(null);
-function useCapacityContext() {
-  const context = useContext(CapacityContext);
-  if (!context) {
-    throw new Error("useCapacityContext must be used within CapacityProvider");
-  }
-  return context;
-}
-function useEnergyField() {
-  const { context } = useCapacityContext();
-  return context.energy;
-}
-function useAttentionField() {
-  const { context } = useCapacityContext();
-  return context.attention;
-}
-function useEmotionalValenceField() {
-  const { context } = useCapacityContext();
-  return context.emotionalValence;
-}
-function useDerivedMode() {
-  const { context } = useCapacityContext();
-  const field = {
-    cognitive: context.userCapacity.cognitive,
-    temporal: context.userCapacity.temporal,
-    emotional: context.userCapacity.emotional,
-    valence: context.emotionalState.valence,
-    arousal: context.emotionalState.arousal
-  };
-  const mode = deriveMode(field);
-  return { field, mode };
-}
-function useFeedback() {
-  const { hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled } = useCapacityContext();
-  const { mode } = useDerivedMode();
-  const fire = useCallback((pattern = "tap") => {
-    if (hapticEnabled) triggerHaptic(pattern);
-    if (sonicEnabled) playPacedSonic(mode.pace);
-  }, [hapticEnabled, sonicEnabled, mode.pace]);
-  return { hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled, fire };
-}
-
-// lib/capacity/animation.ts
-var ENTRANCE_PRESETS = {
-  /** Liquid organic morph -> gentle scale fade -> soft bloom -> none */
-  morph: { expressive: "morph-fade-in", subtle: "sacred-fade", soothing: "bloom", off: "" },
-  /** Spinning vortex -> gentle scale fade -> soft bloom -> none */
-  vortex: { expressive: "vortex-reveal", subtle: "sacred-fade", soothing: "bloom", off: "" },
-  /** Spiral in from corner -> soft bloom -> soft bloom -> none */
-  spiral: { expressive: "spiral-in", subtle: "bloom", soothing: "bloom", off: "" }
-};
-function entranceClass(motion2, preset, hasPlayed) {
-  return ENTRANCE_PRESETS[preset][motion2];
-}
-function hoverClass(motion2) {
-  if (motion2 === "expressive") return "hover-expand";
-  if (motion2 === "subtle" || motion2 === "soothing") return "hover-lift";
-  return "";
-}
-function ambientClass(motion2, type) {
-  if (motion2 === "expressive") return type;
-  if (motion2 === "soothing" && (type === "breathe" || type === "float")) return type;
-  return "";
-}
-function listItemClass(motion2) {
-  if (motion2 === "expressive") return "helix-rise";
-  if (motion2 === "subtle" || motion2 === "soothing") return "sacred-fade";
-  return "";
-}
 var SLIDER_STYLES = `
 [data-renge-slider] {
   -webkit-appearance: none;
@@ -993,7 +680,7 @@ var DEFAULT_CALM_STATE = {
 function CapacityControls() {
   var _a;
   const [isOpen, setIsOpen] = useState(false);
-  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode } = useCapacityContext();
+  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, conflicts } = useCapacityContext();
   const { hapticEnabled, sonicEnabled, setHapticEnabled, setSonicEnabled, fire: fireFeedback } = useFeedback();
   const { field, mode } = useDerivedMode();
   const energy = useEnergyField();
@@ -1016,262 +703,266 @@ function CapacityControls() {
     fireFeedback("tap");
   }, [fireFeedback]);
   return /* @__PURE__ */ jsxs("div", { className: "fixed bottom-4 right-4 z-50", children: [
-    /* @__PURE__ */ jsx(AnimatePresence, { children: !isOpen && /* @__PURE__ */ jsxs(
-      motion.div,
+    !isOpen && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+      /* @__PURE__ */ jsx(
+        Badge,
+        {
+          className: "shadow-lg",
+          style: { backgroundColor: modeBadgeColor, color: "white" },
+          children: modeLabel
+        }
+      ),
+      /* @__PURE__ */ jsxs(
+        Button,
+        {
+          onClick: () => setIsOpen(true),
+          variant: "outline",
+          size: "sm",
+          className: "shadow-lg bg-background",
+          children: [
+            /* @__PURE__ */ jsx(SettingsIcon, { className: "w-4 h-4 mr-2" }),
+            "Capacity"
+          ]
+        }
+      )
+    ] }),
+    isOpen && /* @__PURE__ */ jsx(
+      "div",
       {
-        initial: { opacity: 0, scale: 0.8 },
-        animate: { opacity: 1, scale: 1 },
-        exit: { opacity: 0, scale: 0.8 },
-        className: "flex items-center gap-2",
-        children: [
-          /* @__PURE__ */ jsx(
-            Badge,
-            {
-              className: "shadow-lg",
-              style: { backgroundColor: modeBadgeColor, color: "white" },
-              children: modeLabel
-            }
-          ),
-          /* @__PURE__ */ jsxs(
-            Button,
-            {
-              onClick: () => setIsOpen(true),
-              variant: "outline",
-              size: "sm",
-              className: "shadow-lg bg-background",
-              children: [
-                /* @__PURE__ */ jsx(SettingsIcon, { className: "w-4 h-4 mr-2" }),
-                "Capacity"
-              ]
-            }
-          )
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx(AnimatePresence, { children: isOpen && /* @__PURE__ */ jsx(
-      motion.div,
-      {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0 },
         className: "fixed inset-0 bg-black/20 backdrop-blur-sm md:hidden",
         onClick: () => setIsOpen(false),
         "aria-hidden": "true"
       }
-    ) }),
-    /* @__PURE__ */ jsx(AnimatePresence, { children: isOpen && /* @__PURE__ */ jsx(
-      motion.div,
-      {
-        initial: { opacity: 0, y: 20, scale: 0.95 },
-        animate: { opacity: 1, y: 0, scale: 1 },
-        exit: { opacity: 0, y: 20, scale: 0.95 },
-        transition: { type: "spring", damping: 20, stiffness: 300 },
-        className: "relative",
-        children: /* @__PURE__ */ jsxs(Card, { className: "w-80 shadow-xl max-h-[85vh] overflow-y-auto", children: [
-          /* @__PURE__ */ jsxs(CardHeader, { className: "pb-3", children: [
-            /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-center gap-2", children: [
-              /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsx(CardTitle, { className: "text-sm font-semibold", children: "Capacity Controls" }),
-                /* @__PURE__ */ jsx(
-                  Button,
-                  {
-                    variant: "ghost",
-                    size: "icon",
-                    className: "h-8 w-8 shrink-0",
-                    onClick: (e) => {
-                      e.stopPropagation();
-                      setIsOpen(false);
-                    },
-                    "aria-label": "Close capacity controls",
-                    children: /* @__PURE__ */ jsx(CloseIcon, { className: "w-4 h-4" })
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsx(
-                  Badge,
-                  {
-                    className: "text-xs",
-                    style: { backgroundColor: modeBadgeColor, color: "white" },
-                    children: modeLabel
-                  }
-                ),
-                /* @__PURE__ */ jsx(
-                  Button,
-                  {
-                    variant: isAutoMode ? "default" : "outline",
-                    size: "sm",
-                    className: "h-7 text-xs px-2",
-                    onClick: toggleAutoMode,
-                    "aria-label": isAutoMode ? "Switch to manual mode" : "Switch to auto mode",
-                    children: isAutoMode ? "Auto" : "Manual"
-                  }
-                )
-              ] })
-            ] }),
-            /* @__PURE__ */ jsx("p", { className: "text-xs text-muted-foreground", children: isAutoMode ? "Signals are driving values automatically. Move any slider to take manual control." : "Adjust your state to see the UI adapt in real-time." })
+    ),
+    isOpen && /* @__PURE__ */ jsx("div", { className: "relative", children: /* @__PURE__ */ jsxs(Card, { className: "w-80 shadow-xl max-h-[85vh] overflow-y-auto", children: [
+      /* @__PURE__ */ jsxs(CardHeader, { className: "pb-3", children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-center gap-2", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsx(CardTitle, { className: "text-sm font-semibold", children: "Capacity Controls" }),
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                variant: "ghost",
+                size: "icon",
+                className: "h-8 w-8 shrink-0",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  setIsOpen(false);
+                },
+                "aria-label": "Close capacity controls",
+                children: /* @__PURE__ */ jsx(CloseIcon, { className: "w-4 h-4" })
+              }
+            )
           ] }),
-          /* @__PURE__ */ jsxs(CardContent, { className: "space-y-6", children: [
-            /* @__PURE__ */ jsxs("div", { className: "space-y-2 flex flex-col gap-2", children: [
-              /* @__PURE__ */ jsx("label", { className: "text-sm font-medium", children: "Quick Presets" }),
-              /* @__PURE__ */ jsxs(
-                Select,
-                {
-                  defaultValue: "",
-                  onValueChange: (value) => {
-                    if (!value) return;
-                    const preset = CAPACITY_PRESETS[value];
-                    updateCapacity({
-                      cognitive: preset.cognitive,
-                      temporal: preset.temporal,
-                      emotional: preset.emotional
-                    });
-                    updateEmotionalState({ valence: preset.valence, arousal: preset.arousal });
-                    fireInteractionFeedback();
-                  },
-                  children: [
-                    /* @__PURE__ */ jsx("option", { value: "", disabled: true, children: "Select a preset..." }),
-                    Object.entries(CAPACITY_PRESETS).map(([key, preset]) => /* @__PURE__ */ jsxs("option", { value: key, children: [
-                      preset.label,
-                      " \u2014 ",
-                      preset.description
-                    ] }, key))
-                  ]
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between border-t border-border pt-4", children: [
-              /* @__PURE__ */ jsx("p", { className: "text-xs text-muted-foreground", children: "Or adjust individually:" }),
-              /* @__PURE__ */ jsxs(
-                Button,
-                {
-                  variant: "ghost",
-                  size: "sm",
-                  onClick: handleReset,
-                  className: "h-7 text-xs text-muted-foreground hover:text-foreground",
-                  children: [
-                    /* @__PURE__ */ jsx(ResetIcon, { className: "w-3 h-3 mr-1" }),
-                    "Reset"
-                  ]
-                }
-              )
-            ] }),
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
             /* @__PURE__ */ jsx(
-              SliderControl,
+              Badge,
               {
-                label: "Cognitive Capacity",
-                description: "Controls: density, hierarchy, concurrency",
-                value: field.cognitive,
-                onChange: (v) => updateCapacity({ cognitive: v }),
-                lowLabel: "Fewer items",
-                highLabel: "More items"
+                className: "text-xs",
+                style: { backgroundColor: modeBadgeColor, color: "white" },
+                children: modeLabel
               }
             ),
             /* @__PURE__ */ jsx(
-              SliderControl,
+              Button,
               {
-                label: "Temporal Capacity",
-                description: "Controls: content length, shortcuts, defaults",
-                value: field.temporal,
-                onChange: (v) => updateCapacity({ temporal: v }),
-                lowLabel: "Abbreviated",
-                highLabel: "Full detail"
+                variant: isAutoMode ? "default" : "outline",
+                size: "sm",
+                className: "h-7 text-xs px-2",
+                onClick: toggleAutoMode,
+                "aria-label": isAutoMode ? "Switch to manual mode" : "Switch to auto mode",
+                children: isAutoMode ? "Auto" : "Manual"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx("p", { className: "text-xs text-muted-foreground", children: isAutoMode ? "Signals are driving values automatically. Move any slider to take manual control." : "Adjust your state to see the UI adapt in real-time." })
+      ] }),
+      /* @__PURE__ */ jsxs(CardContent, { className: "space-y-6", children: [
+        /* @__PURE__ */ jsxs("div", { className: "space-y-2 flex flex-col gap-2", children: [
+          /* @__PURE__ */ jsx("label", { className: "text-sm font-medium", children: "Quick Presets" }),
+          /* @__PURE__ */ jsxs(
+            Select,
+            {
+              defaultValue: "",
+              onValueChange: (value) => {
+                if (!value) return;
+                const preset = CAPACITY_PRESETS[value];
+                updateCapacity({
+                  cognitive: preset.cognitive,
+                  temporal: preset.temporal,
+                  emotional: preset.emotional
+                });
+                updateEmotionalState({ valence: preset.valence, arousal: preset.arousal });
+                fireInteractionFeedback();
+              },
+              children: [
+                /* @__PURE__ */ jsx("option", { value: "", disabled: true, children: "Select a preset..." }),
+                Object.entries(CAPACITY_PRESETS).map(([key, preset]) => /* @__PURE__ */ jsxs("option", { value: key, children: [
+                  preset.label,
+                  " \u2014 ",
+                  preset.description
+                ] }, key))
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between border-t border-border pt-4", children: [
+          /* @__PURE__ */ jsx("p", { className: "text-xs text-muted-foreground", children: "Or adjust individually:" }),
+          /* @__PURE__ */ jsxs(
+            Button,
+            {
+              variant: "ghost",
+              size: "sm",
+              onClick: handleReset,
+              className: "h-7 text-xs text-muted-foreground hover:text-foreground",
+              children: [
+                /* @__PURE__ */ jsx(ResetIcon, { className: "w-3 h-3 mr-1" }),
+                "Reset"
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx(
+          SliderControl,
+          {
+            label: "Cognitive Capacity",
+            description: "Controls: density, hierarchy, concurrency",
+            value: field.cognitive,
+            onChange: (v) => updateCapacity({ cognitive: v }),
+            lowLabel: "Fewer items",
+            highLabel: "More items"
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          SliderControl,
+          {
+            label: "Temporal Capacity",
+            description: "Controls: content length, shortcuts, defaults",
+            value: field.temporal,
+            onChange: (v) => updateCapacity({ temporal: v }),
+            lowLabel: "Abbreviated",
+            highLabel: "Full detail"
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          SliderControl,
+          {
+            label: "Emotional Capacity",
+            description: "Controls: motion restraint, friction",
+            value: field.emotional,
+            onChange: (v) => updateCapacity({ emotional: v }),
+            lowLabel: "Calm UI",
+            highLabel: "Expressive"
+          }
+        ),
+        /* @__PURE__ */ jsx("div", { className: "pt-2 border-t border-border", children: /* @__PURE__ */ jsx(
+          ValenceSliderControl,
+          {
+            label: "Emotional Valence",
+            description: "Controls: tone, expressiveness (not info volume)",
+            value: field.valence,
+            onChange: (v) => updateEmotionalState({ valence: v })
+          }
+        ) }),
+        /* @__PURE__ */ jsx(
+          SliderControl,
+          {
+            label: "Arousal",
+            description: "Controls: animation pacing (calm \u2192 activated)",
+            value: (_a = field.arousal) != null ? _a : 0.5,
+            onChange: (v) => updateEmotionalState({ arousal: v }),
+            lowLabel: "Calm",
+            highLabel: "Activated"
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { className: "pt-2 border-t border-border space-y-2", children: [
+          /* @__PURE__ */ jsxs("p", { className: "text-xs font-medium text-muted-foreground", children: [
+            "Feedback ",
+            /* @__PURE__ */ jsx("span", { className: "font-normal opacity-60", children: "(opt-in)" })
+          ] }),
+          /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                onClick: () => setHapticEnabled((v) => !v),
+                className: `flex-1 py-1.5 px-2 rounded-md text-xs border transition-colors ${hapticEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`,
+                "aria-pressed": hapticEnabled,
+                children: "\u{1F4F3} Haptic"
               }
             ),
             /* @__PURE__ */ jsx(
-              SliderControl,
+              "button",
               {
-                label: "Emotional Capacity",
-                description: "Controls: motion restraint, friction",
-                value: field.emotional,
-                onChange: (v) => updateCapacity({ emotional: v }),
-                lowLabel: "Calm UI",
-                highLabel: "Expressive"
+                onClick: () => setSonicEnabled((v) => !v),
+                className: `flex-1 py-1.5 px-2 rounded-md text-xs border transition-colors ${sonicEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`,
+                "aria-pressed": sonicEnabled,
+                children: "\u{1F514} Sonic"
               }
-            ),
-            /* @__PURE__ */ jsx("div", { className: "pt-2 border-t border-border", children: /* @__PURE__ */ jsx(
-              ValenceSliderControl,
-              {
-                label: "Emotional Valence",
-                description: "Controls: tone, expressiveness (not info volume)",
-                value: field.valence,
-                onChange: (v) => updateEmotionalState({ valence: v })
-              }
-            ) }),
-            /* @__PURE__ */ jsx(
-              SliderControl,
-              {
-                label: "Arousal",
-                description: "Controls: animation pacing (calm \u2192 activated)",
-                value: (_a = field.arousal) != null ? _a : 0.5,
-                onChange: (v) => updateEmotionalState({ arousal: v }),
-                lowLabel: "Calm",
-                highLabel: "Activated"
-              }
-            ),
-            /* @__PURE__ */ jsxs("div", { className: "pt-2 border-t border-border space-y-2", children: [
-              /* @__PURE__ */ jsxs("p", { className: "text-xs font-medium text-muted-foreground", children: [
-                "Feedback ",
-                /* @__PURE__ */ jsx("span", { className: "font-normal opacity-60", children: "(opt-in)" })
-              ] }),
-              /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
-                /* @__PURE__ */ jsx(
-                  "button",
-                  {
-                    onClick: () => setHapticEnabled((v) => !v),
-                    className: `flex-1 py-1.5 px-2 rounded-md text-xs border transition-colors ${hapticEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`,
-                    "aria-pressed": hapticEnabled,
-                    children: "\u{1F4F3} Haptic"
-                  }
-                ),
-                /* @__PURE__ */ jsx(
-                  "button",
-                  {
-                    onClick: () => setSonicEnabled((v) => !v),
-                    className: `flex-1 py-1.5 px-2 rounded-md text-xs border transition-colors ${sonicEnabled ? "bg-primary/10 border-primary/50 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`,
-                    "aria-pressed": sonicEnabled,
-                    children: "\u{1F514} Sonic"
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxs("p", { className: "text-[10px] text-muted-foreground opacity-60", children: [
-                "Pace: ",
-                /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.pace }),
-                " \u2192 ",
-                mode.pace === "calm" ? "+50% duration" : mode.pace === "activated" ? "\u221235% duration" : "standard"
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxs("div", { className: "pt-4 border-t border-border", children: [
-              /* @__PURE__ */ jsx("p", { className: "text-xs font-medium text-muted-foreground mb-2", children: "Derived Fields" }),
-              /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-3 gap-2 text-center", children: [
-                /* @__PURE__ */ jsx(FieldDisplay, { label: "Energy", value: energy.value, color: "text-chart-1" }),
-                /* @__PURE__ */ jsx(FieldDisplay, { label: "Attention", value: attention.value, color: "text-chart-2" }),
-                /* @__PURE__ */ jsx(FieldDisplay, { label: "Valence", value: valence.value, color: "text-chart-3", signed: true })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxs("div", { className: "pt-4 border-t border-border", children: [
-              /* @__PURE__ */ jsx("p", { className: "text-xs font-medium text-muted-foreground mb-2", children: "Interface Mode" }),
-              /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-2 gap-1 text-xs", children: [
-                /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Density:" }),
-                /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.density }),
-                /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Guidance:" }),
-                /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.guidance }),
-                /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Motion:" }),
-                /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.motion }),
-                /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Contrast:" }),
-                /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.contrast }),
-                /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Choices:" }),
-                /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.choiceLoad }),
-                /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Focus:" }),
-                /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.focus }),
-                /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Pace:" }),
-                /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.pace })
-              ] })
+            )
+          ] }),
+          /* @__PURE__ */ jsxs("p", { className: "text-[10px] text-muted-foreground opacity-60", children: [
+            "Pace: ",
+            /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.pace }),
+            " \u2192 ",
+            mode.pace === "calm" ? "+50% duration" : mode.pace === "activated" ? "\u221235% duration" : "standard"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "pt-4 border-t border-border", children: [
+          /* @__PURE__ */ jsx("p", { className: "text-xs font-medium text-muted-foreground mb-2", children: "Derived Fields" }),
+          /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-3 gap-2 text-center", children: [
+            /* @__PURE__ */ jsx(FieldDisplay, { label: "Energy", value: energy.value, color: "text-chart-1" }),
+            /* @__PURE__ */ jsx(FieldDisplay, { label: "Attention", value: attention.value, color: "text-chart-2" }),
+            /* @__PURE__ */ jsx(FieldDisplay, { label: "Valence", value: valence.value, color: "text-chart-3", signed: true })
+          ] })
+        ] }),
+        conflicts.length > 0 && /* @__PURE__ */ jsxs("div", { className: "pt-4 border-t border-border space-y-2", children: [
+          /* @__PURE__ */ jsxs("p", { className: "text-xs font-medium text-muted-foreground", children: [
+            "Conflicts ",
+            /* @__PURE__ */ jsxs("span", { className: "font-normal opacity-60", children: [
+              "(",
+              conflicts.length,
+              ")"
             ] })
+          ] }),
+          conflicts.map((c) => /* @__PURE__ */ jsxs(
+            "div",
+            {
+              className: `rounded-md p-2 text-xs space-y-1 ${c.severity === "warning" ? "bg-warning/10 border border-warning/30 text-warning-content" : "bg-muted/60 border border-border text-muted-foreground"}`,
+              children: [
+                /* @__PURE__ */ jsx("p", { className: "font-medium", children: c.label }),
+                /* @__PURE__ */ jsx("p", { className: "opacity-80 leading-snug", children: c.message }),
+                c.suggestion && /* @__PURE__ */ jsx("p", { className: "opacity-60 italic", children: c.suggestion }),
+                c.affectedTokens.length > 0 && /* @__PURE__ */ jsxs("p", { className: "opacity-50", children: [
+                  "Affects: ",
+                  c.affectedTokens.join(", ")
+                ] })
+              ]
+            },
+            c.id
+          ))
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "pt-4 border-t border-border", children: [
+          /* @__PURE__ */ jsx("p", { className: "text-xs font-medium text-muted-foreground mb-2", children: "Interface Mode" }),
+          /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-2 gap-1 text-xs", children: [
+            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Density:" }),
+            /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.density }),
+            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Guidance:" }),
+            /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.guidance }),
+            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Motion:" }),
+            /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.motion }),
+            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Contrast:" }),
+            /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.contrast }),
+            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Choices:" }),
+            /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.choiceLoad }),
+            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Focus:" }),
+            /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.focus }),
+            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Pace:" }),
+            /* @__PURE__ */ jsx("span", { className: "font-medium", children: mode.pace })
           ] })
         ] })
-      }
-    ) })
+      ] })
+    ] }) })
   ] });
 }
 function SliderControl({
@@ -1410,7 +1101,7 @@ function CapacityDemoCard() {
   const temporalContent = field.temporal > 0.4 ? TEMPORAL_CONTENT.full : TEMPORAL_CONTENT.abbreviated;
   const toneKey = field.valence > 0.2 ? "positive" : field.valence < -0.2 ? "negative" : "neutral";
   const tone = TONE[toneKey];
-  const entrance = entranceClass(mode.motion, "morph");
+  const entrance = entranceClass(mode.motion, "morph", false);
   const hover = hoverClass(mode.motion);
   const visibleFeatures = temporalContent.features.slice(0, densityContent.featureCount);
   return /* @__PURE__ */ jsxs(

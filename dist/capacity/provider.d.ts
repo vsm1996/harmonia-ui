@@ -6,6 +6,7 @@
 import type React from "react";
 import { type Dispatch, type SetStateAction } from "react";
 import type { AmbientContext, UserCapacity, EmotionalState, MotionMode, CapacityField, InterfaceMode } from "./types";
+import { type ConflictWarning } from "./validation";
 import { type HapticPatternName } from "./feedback";
 import { deriveMode } from "./mode";
 import { MOTION_TOKENS } from "./constants";
@@ -20,6 +21,7 @@ interface CapacityContextValue {
     sonicEnabled: boolean;
     setHapticEnabled: Dispatch<SetStateAction<boolean>>;
     setSonicEnabled: Dispatch<SetStateAction<boolean>>;
+    conflicts: ConflictWarning[];
 }
 export declare function CapacityProvider({ children }: {
     children: React.ReactNode;
@@ -50,6 +52,7 @@ export declare function useFieldControls(): {
     isAutoMode: boolean;
     toggleAutoMode: () => void;
     updateCapacityField: (field: CapacityField) => void;
+    conflicts: ConflictWarning[];
 };
 /**
  * Detect system prefers-reduced-motion preference

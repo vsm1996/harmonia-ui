@@ -29,6 +29,11 @@
       "import": "./dist/capacity/index.mjs",
       "require": "./dist/capacity/index.js"
     },
+    "./server": {
+      "types": "./dist/capacity/server.d.ts",
+      "import": "./dist/capacity/server.mjs",
+      "require": "./dist/capacity/server.js"
+    },
     "./components": {
       "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.mjs",
@@ -43,7 +48,7 @@
   ],
   "scripts": {
     "build": "next build",
-    "build:lib": "tsup && tsc --project tsconfig.lib.json",
+    "build:lib": "tsup && node scripts/prepend-use-client.mjs && tsc --project tsconfig.lib.json",
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",

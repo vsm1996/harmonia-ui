@@ -12,4 +12,6 @@ export { triggerHaptic, playSonicFeedback, getFrequencyForPace, playPacedSonic, 
 export { getSpacing, getProportionalSpacing, phiRatio, SPACING_SCALE, modularScale, getFontSize, getFontWeight, getLetterSpacing, getLineHeight, getTypographyStyles, getFluidFontSize } from "./utils/typography";
 export { SignalBus, SIGNAL_TYPES } from "./signals/signal-bus";
 export { FieldManager } from "./fields/field-manager";
+export { detectConflicts } from "./validation";
+export type { ConflictWarning, ConflictSeverity } from "./validation";
 //# sourceMappingURL=index.d.ts.map

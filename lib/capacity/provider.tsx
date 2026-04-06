@@ -158,6 +158,7 @@ export function CapacityProvider({ children }: { children: React.ReactNode }) {
   // Effect to sync arousal → --capacity-pace-multiplier on :root
   // This is what makes the arousal slider visibly change animation speed
   useEffect(() => {
+    if (typeof document === "undefined") return
     const arousal = context.emotionalState.arousal ?? 0.5
     const multiplier = arousal < 0.35 ? 1.5 : arousal > 0.65 ? 0.65 : 1.0
     document.documentElement.style.setProperty("--capacity-pace-multiplier", String(multiplier))
@@ -261,6 +262,7 @@ export function usePrefersReducedMotion(): boolean {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   useEffect(() => {
+    if (typeof window === "undefined") return
     // Check initial value
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
     setPrefersReducedMotion(mediaQuery.matches)

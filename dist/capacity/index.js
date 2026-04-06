@@ -1,3 +1,4 @@
+"use client";
 'use strict';
 
 var react = require('react');
@@ -42,6 +43,53 @@ var __async = (__this, __arguments, generator) => {
     step((generator = generator.apply(__this, __arguments)).next());
   });
 };
+
+// lib/capacity/validation.ts
+function detectConflicts(field) {
+  var _a;
+  const conflicts = [];
+  const arousal = (_a = field.arousal) != null ? _a : 0.5;
+  if (field.emotional < 0.15 && arousal > 0.65) {
+    conflicts.push({
+      id: "dead-pace",
+      severity: "info",
+      label: "Pace has no effect",
+      message: "Arousal is high (pace: activated) but emotional capacity has disabled all animations. The pace multiplier runs on nothing.",
+      affectedTokens: ["motion", "pace"],
+      suggestion: "Lower arousal below 0.65, or raise emotional capacity above 0.15 to let pace take effect."
+    });
+  }
+  if (arousal > 0.7 && field.emotional < 0.3 && !conflicts.find((c) => c.id === "dead-pace")) {
+    conflicts.push({
+      id: "anxiety-pattern",
+      severity: "warning",
+      label: "Anxiety pattern detected",
+      message: "High arousal with low emotional capacity signals an overwhelm/anxiety state. The UI is protective (slow or static motion) but internal pace is fast \u2014 these work against each other.",
+      affectedTokens: ["motion", "pace"],
+      suggestion: "Lower arousal to match emotional capacity, or raise emotional capacity if the high energy is intentional."
+    });
+  }
+  if (field.cognitive > 0.75 && field.temporal < 0.2) {
+    conflicts.push({
+      id: "density-choice-inversion",
+      severity: "info",
+      label: "Dense content, minimal choices",
+      message: "High cognitive capacity requests full information density, but low temporal capacity minimises available choices. Content will be rich but most actions will be hidden.",
+      affectedTokens: ["density", "choiceLoad", "guidance"]
+    });
+  }
+  if (field.valence > 0.5 && field.emotional < 0.15) {
+    conflicts.push({
+      id: "mute-expressiveness",
+      severity: "info",
+      label: "Positive tone, no motion",
+      message: "Emotional valence is strongly positive, but emotional capacity has disabled all animations. The expressive tone cannot be conveyed through motion.",
+      affectedTokens: ["motion", "contrast"],
+      suggestion: "Raise emotional capacity above 0.15 to allow at least soothing motion."
+    });
+  }
+  return conflicts;
+}
 
 // lib/capacity/constants.ts
 var PHI = 1.618033988749895;
@@ -885,6 +933,29 @@ function CapacityProvider({ children }) {
       }
     };
   }, [isAutoMode]);
+  const conflicts = react.useMemo(() => {
+    const field = {
+      cognitive: context.userCapacity.cognitive,
+      temporal: context.userCapacity.temporal,
+      emotional: context.userCapacity.emotional,
+      valence: context.emotionalState.valence,
+      arousal: context.emotionalState.arousal
+    };
+    const detected = detectConflicts(field);
+    if (process.env.NODE_ENV !== "production" && detected.length > 0) {
+      detected.forEach(
+        (c) => console.warn(`[CapacityProvider] ${c.severity.toUpperCase()} \u2014 ${c.label}: ${c.message}`)
+      );
+    }
+    return detected;
+  }, [context.userCapacity, context.emotionalState]);
+  react.useEffect(() => {
+    var _a;
+    if (typeof document === "undefined") return;
+    const arousal = (_a = context.emotionalState.arousal) != null ? _a : 0.5;
+    const multiplier = arousal < 0.35 ? 1.5 : arousal > 0.65 ? 0.65 : 1;
+    document.documentElement.style.setProperty("--capacity-pace-multiplier", String(multiplier));
+  }, [context.emotionalState.arousal]);
   const updateCapacity = react.useCallback((capacity) => {
     if (isAutoMode) {
       setIsAutoMode(false);
@@ -920,7 +991,8 @@ function CapacityProvider({ children }) {
     hapticEnabled,
     sonicEnabled,
     setHapticEnabled,
-    setSonicEnabled
+    setSonicEnabled,
+    conflicts
   }, children });
 }
 function useCapacityContext() {
@@ -943,12 +1015,13 @@ function useEmotionalValenceField() {
   return context.emotionalValence;
 }
 function useFieldControls() {
-  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField } = useCapacityContext();
-  return { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField };
+  const { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField, conflicts } = useCapacityContext();
+  return { updateCapacity, updateEmotionalState, isAutoMode, toggleAutoMode, updateCapacityField, conflicts };
 }
 function usePrefersReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = react.useState(false);
   react.useEffect(() => {
+    if (typeof window === "undefined") return;
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(mediaQuery.matches);
     const handleChange = (event) => {
@@ -1279,6 +1352,7 @@ exports.SignalBus = SignalBus;
 exports.ambientClass = ambientClass;
 exports.deriveMode = deriveMode;
 exports.deriveModeLabel = deriveModeLabel;
+exports.detectConflicts = detectConflicts;
 exports.entranceClass = entranceClass;
 exports.focusBeaconClass = focusBeaconClass;
 exports.focusTextClass = focusTextClass;
