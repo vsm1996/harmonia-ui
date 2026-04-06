@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@renge-ui/tokens':
-        specifier: ^2.2.0
-        version: 2.2.0
+        specifier: ^2.2.4
+        version: 2.2.4
       '@tailwindcss/postcss':
         specifier: ^4.1.9
         version: 4.2.2
@@ -661,8 +661,8 @@ packages:
   '@oxc-project/types@0.122.0':
     resolution: {integrity: sha512-oLAl5kBpV4w69UtFZ9xqcmTi+GENWOcPF7FCrczTiBbmC0ibXxCwyvZGbO39rCVEuLGAZM84DH0pUIyyv/YJzA==}
 
-  '@renge-ui/tokens@2.2.0':
-    resolution: {integrity: sha512-j+JA8Y/1nTsu4KbvFlLQUdgCWsNTsYkdHFpXnlE2kNRRPa9rYVMxCLXxn6yp7OKS2+E39ONTXhhoiE1WsbXjEA==}
+  '@renge-ui/tokens@2.2.4':
+    resolution: {integrity: sha512-u//J+IS+Ge32HoXr+c9gm88QJpeYRspGhYZr12R7Gb/B/+aBK/2ci2x4F14HcDQFiA4865PzzZznribk8XAYew==}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.12':
     resolution: {integrity: sha512-pv1y2Fv0JybcykuiiD3qBOBdz6RteYojRFY1d+b95WVuzx211CRh+ytI/+9iVyWQ6koTh5dawe4S/yRfOFjgaA==}
@@ -2610,7 +2610,7 @@ snapshots:
 
   '@oxc-project/types@0.122.0': {}
 
-  '@renge-ui/tokens@2.2.0': {}
+  '@renge-ui/tokens@2.2.4': {}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.12':
     optional: true

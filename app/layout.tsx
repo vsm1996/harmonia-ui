@@ -4,12 +4,9 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
+import "@renge-ui/tokens/renge.css"
 import { Providers } from "@/components/providers"
-import { createRengeTheme } from "@renge-ui/tokens"
 import ogImage from "@/public/images/ogImage.jpg"
-
-
-const rengeTheme = createRengeTheme({ profile: 'ocean' })
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -73,13 +70,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" data-profile="ocean" data-mode="dark">
       <head>
         <meta property="og:image" content={`${siteUrl}/images/ogImage.jpg`} />
         <meta property="og:image:type" content="<generated>" />
         <meta property="og:image:width" content="<generated>" />
         <meta property="og:image:height" content="<generated>" />
-        <style dangerouslySetInnerHTML={{ __html: rengeTheme.css }} />
       </head>
       <body className={`font-sans antialiased`}>
         <Providers>{children}</Providers>
