@@ -117,6 +117,41 @@ export default function Page() {
 
       {/* Main content area */}
       <div className="mx-auto max-w-6xl px-6 py-12 space-y-12">
+        {/* NPM Install Section */}
+        <section>
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="text-2xl font-bold tracking-tight">Now on npm</h2>
+            <a
+              href="https://www.npmjs.com/package/@harmonia-core/ui"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-colors"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
+              npm
+            </a>
+            <span className="text-xs text-muted-foreground font-mono">v1.2.5</span>
+          </div>
+          <p className="text-muted-foreground mb-6">
+            Install the capacity system, hooks, and components into any React project.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-lg border border-border bg-card p-4 space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Install</p>
+              <div className="rounded-md bg-zinc-950 dark:bg-zinc-900 border border-zinc-800 px-4 py-3 font-mono text-sm text-zinc-100 select-all">
+                npm install @harmonia-core/ui
+              </div>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-4 space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Usage</p>
+              <div className="rounded-md bg-zinc-950 dark:bg-zinc-900 border border-zinc-800 px-4 py-3 font-mono text-xs space-y-1">
+                <div><span className="text-sky-400">import</span> <span className="text-zinc-100">{" { CapacityProvider } "}</span><span className="text-sky-400">from</span> <span className="text-emerald-400">{" '@harmonia-core/ui'"}</span></div>
+                <div><span className="text-sky-400">import</span> <span className="text-zinc-100">{" { Button } "}</span><span className="text-sky-400">from</span> <span className="text-emerald-400">{" '@harmonia-core/ui/components'"}</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Live Demo Section */}
         <section>
           <h2 className="text-2xl font-bold tracking-tight mb-2">Live Demo</h2>

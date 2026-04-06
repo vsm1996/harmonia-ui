@@ -70,7 +70,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark" data-profile="ocean" data-mode="dark">
+    <html lang="en" className="light" data-profile="ocean" data-mode="dark">
       <head>
         <meta property="og:image" content={`${siteUrl}/images/ogImage.jpg`} />
         <meta property="og:image:type" content="<generated>" />

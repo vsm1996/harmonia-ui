@@ -16,7 +16,7 @@ npm install @harmonia-core/ui @renge-ui/tokens motion
 pnpm add @harmonia-core/ui @renge-ui/tokens motion
 ```
 
-`@renge-ui/tokens` is a required peer dependency. It provides the `createRengeTheme()` function and the `--renge-*` CSS custom properties that the capacity system's motion and spacing utilities reference.
+`@renge-ui/tokens` is a required peer dependency. It provides the `--renge-*` CSS custom properties (φ-based typography, Fibonacci spacing, OKLCH colors, natural motion) that the capacity system's utilities reference.
 
 ### Peer dependencies
 
@@ -24,7 +24,7 @@ pnpm add @harmonia-core/ui @renge-ui/tokens motion
 {
   "react": ">=18.0.0",
   "react-dom": ">=18.0.0",
-  "@renge-ui/tokens": "^2.2.0",
+  "@renge-ui/tokens": "^2.2.4",
   "motion": ">=11.0.0"
 }
 ```
@@ -33,26 +33,33 @@ pnpm add @harmonia-core/ui @renge-ui/tokens motion
 
 ## Setup
 
-### 1. Inject the design token theme
+### 1. Load the design tokens
 
-Call `createRengeTheme()` in your root layout and inject the result as a `<style>` tag. The capacity system manipulates `--renge-*` CSS custom properties at runtime — static Tailwind classes cannot do this.
+Import the pre-built CSS file once in your root layout and set `data-profile` on `<html>` to activate a color profile. The capacity system manipulates `--renge-*` CSS custom properties at runtime — these are live CSS vars, so the static file is compatible with runtime adaptation.
 
 ```tsx
 // app/layout.tsx (Next.js App Router)
-import { createRengeTheme } from "@renge-ui/tokens"
+import "@renge-ui/tokens/renge.css"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const theme = createRengeTheme({ profile: "ocean" })
-
   return (
-    <html lang="en">
-      <head>
-        <style dangerouslySetInnerHTML={{ __html: theme }} />
-      </head>
+    <html lang="en" data-profile="ocean">
       <body>{children}</body>
     </html>
   )
 }
+```
+
+Available profiles: `ocean` (default), `earth`, `twilight`, `fire`, `void`, `leaf`. Add `data-mode="dark"` for explicit dark mode — otherwise `prefers-color-scheme` is respected automatically.
+
+**For scoped theming** (e.g. a section of your app with a different profile), use `createRengeTheme()` directly:
+
+```tsx
+import { createRengeTheme } from "@renge-ui/tokens"
+
+const sectionTheme = createRengeTheme({ profile: "fire", mode: "dark", selector: ".my-section" })
+
+// inject sectionTheme.css as a <style> tag
 ```
 
 ### 2. Wrap your app with CapacityProvider
@@ -271,6 +278,22 @@ Four human-readable labels derived from raw inputs, first match wins:
 | `useAttentionField()` | `FieldValue<number>` | Live attention field |
 | `useEmotionalValenceField()` | `FieldValue<number>` | Live valence field |
 | `usePrefersReducedMotion()` | `boolean` | System prefers-reduced-motion query |
+
+### `rengeVars` (from `@renge-ui/tokens`)
+
+Typed CSS variable references — use instead of raw `"var(--renge-*)"` strings for IDE autocomplete and guaranteed correctness:
+
+```ts
+import { rengeVars } from "@renge-ui/tokens"
+
+style={{ animationDelay: rengeVars.duration[3] }}    // "var(--renge-duration-3)"
+style={{ padding: rengeVars.space[4] }}              // "var(--renge-space-4)"
+style={{ fontSize: rengeVars.fontSize.lg }}          // "var(--renge-font-size-lg)"
+style={{ color: rengeVars.color.accent }}            // "var(--renge-color-accent)"
+style={{ borderRadius: rengeVars.radius[2] }}        // "var(--renge-radius-2)"
+```
+
+Groups: `color`, `space`, `fontSize`, `lineHeight`, `duration`, `easing`, `radius`.
 
 ### Functions
 
