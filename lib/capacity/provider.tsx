@@ -15,7 +15,9 @@ import { triggerHaptic, playPacedSonic, type HapticPatternName } from "./feedbac
 import { FieldManager } from "./fields/field-manager"
 import { deriveMode } from "./mode"
 import { MOTION_TOKENS, DEFAULT_CAPACITY_FIELD } from "./constants"
-import { SignalAggregator } from "./signals/aggregator"
+// SignalAggregator is lazy-loaded inside useEffect to keep it out of the
+// initial bundle — all 6 detector classes are deferred until after hydration.
+type AggregatorLike = { aggregateSignals(): Promise<import("./types").CapacityField>; destroy(): void }
 
 // ============================================================================
 // Context Definition
@@ -68,11 +70,13 @@ export function CapacityProvider({ children }: { children: React.ReactNode }) {
   const [sonicEnabled, setSonicEnabled] = useState<boolean>(false);
   const isFirstAggregationComplete = useRef<boolean>(false); // New ref to control initial aggregator application
   const smoothedFieldRef = useRef<CapacityField | null>(null); // EMA-smoothed field for auto mode
-  const aggregatorRef = useRef<SignalAggregator | null>(null);
+  const aggregatorRef = useRef<AggregatorLike | null>(null);
 
   useEffect(() => {
-    // Initialize aggregator on mount
-    aggregatorRef.current = new SignalAggregator();
+    // Lazy-load aggregator after hydration — keeps detector classes out of the initial bundle
+    import("./signals/aggregator").then(({ SignalAggregator }) => {
+      aggregatorRef.current = new SignalAggregator()
+    });
 
     const unsubscribe = FieldManager.subscribe((newContext) => {
       setContext(newContext);

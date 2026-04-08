@@ -13,7 +13,7 @@ import { AmbientFieldMonitor } from "@/components/ambient-field-monitor"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
 import { BrainIcon, CheckCircle2Icon, SparklesIcon, ArrowRightIcon } from "lucide-react"
-import { CapacityControls } from "@/components/capacity-controls"
+import { DeferredCapacityControls } from "@/components/deferred-capacity-controls"
 import { CapacityDemoCard } from "@/components/capacity-demo-card"
 
 function PhaseCard({
@@ -448,7 +448,7 @@ export default function Page() {
       </div>
 
       {/* Shared Capacity Controls */}
-      <CapacityControls />
+      <DeferredCapacityControls />
     </main>
   )
 }

@@ -23,7 +23,7 @@ import { EventsSection } from "@/components/convention/events-section"
 import { GuestsSection } from "@/components/convention/guests-section"
 import { TicketsSection } from "@/components/convention/tickets-section"
 import { ConventionNav } from "@/components/convention/convention-nav"
-import { CapacityControls } from "@/components/capacity-controls"
+import { DeferredCapacityControls as CapacityControls } from "@/components/deferred-capacity-controls"
 import { Footer } from "@/components/convention/footer"
 import {
   FloatingDebris,
