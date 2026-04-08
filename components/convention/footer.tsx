@@ -98,7 +98,7 @@ export function Footer() {
 
         {/* Back to Homepage */}
         <div className={`mt-12 pt-8 border-t border-border flex justify-center ${fadeClass(isInView, hasPlayed)}`} style={!hasPlayed ? { animationDelay: "var(--renge-duration-2)" } : undefined}>
-          <Link href="/" className={`btn btn-outline btn-lg bg-transparent ${hover}`}>
+          <Link href="/" className={`inline-flex items-center justify-center gap-2 h-11 px-renge-5 text-base font-medium border border-renge-border bg-transparent text-renge-fg hover:bg-renge-bg-muted rounded-renge-2 transition-all duration-renge-2 ease-renge-ease-out ${hover}`}>
             <HomeIcon className="w-4 h-4 mr-2" />
             Back to Harmonia Homepage
           </Link>

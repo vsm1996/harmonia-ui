@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
-import "@renge-ui/tokens/renge.css"
 import { Providers } from "@/components/providers"
 import ogImage from "@/public/images/ogImage.jpg"
 
@@ -70,7 +69,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="light" data-profile="ocean" data-mode="dark">
+    <html lang="en" data-profile="ocean" data-mode="dark">
       <head>
         <meta property="og:image" content={`${siteUrl}/images/ogImage.jpg`} />
         <meta property="og:image:type" content="<generated>" />

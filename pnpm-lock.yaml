@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@renge-ui/tailwind':
+        specifier: ^2.2.5
+        version: 2.2.5(tailwindcss@4.2.2)
       '@renge-ui/tokens':
         specifier: ^2.2.4
         version: 2.2.4
@@ -50,9 +53,6 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.27(postcss@8.5.8)
-      daisyui:
-        specifier: ^5.5.19
-        version: 5.5.19
       date-fns:
         specifier: 4.1.0
         version: 4.1.0
@@ -660,6 +660,14 @@ packages:
 
   '@oxc-project/types@0.122.0':
     resolution: {integrity: sha512-oLAl5kBpV4w69UtFZ9xqcmTi+GENWOcPF7FCrczTiBbmC0ibXxCwyvZGbO39rCVEuLGAZM84DH0pUIyyv/YJzA==}
+
+  '@renge-ui/tailwind@2.2.5':
+    resolution: {integrity: sha512-FSiPmkeOEmBZ6iw1m183yykUz8r6TUgX4E+x77FsqXe91ehJHYXn1M2gD5WqcXI3qXEuDPGhTGM7b5cQGFd5GQ==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 <6.0.0'
+    peerDependenciesMeta:
+      tailwindcss:
+        optional: true
 
   '@renge-ui/tokens@2.2.4':
     resolution: {integrity: sha512-u//J+IS+Ge32HoXr+c9gm88QJpeYRspGhYZr12R7Gb/B/+aBK/2ci2x4F14HcDQFiA4865PzzZznribk8XAYew==}
@@ -1416,9 +1424,6 @@ packages:
   d3-timer@3.0.1:
     resolution: {integrity: sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==}
     engines: {node: '>=12'}
-
-  daisyui@5.5.19:
-    resolution: {integrity: sha512-pbFAkl1VCEh/MPCeclKL61I/MqRIFFhNU7yiXoDDRapXN4/qNCoMxeCCswyxEEhqL5eiTTfwHvucFtOE71C9sA==}
 
   data-urls@7.0.0:
     resolution: {integrity: sha512-23XHcCF+coGYevirZceTVD7NdJOqVn+49IHyxgszm+JIiHLoB2TkmPtsYkNWT1pvRSGkc35L6NHs0yHkN2SumA==}
@@ -2610,6 +2615,12 @@ snapshots:
 
   '@oxc-project/types@0.122.0': {}
 
+  '@renge-ui/tailwind@2.2.5(tailwindcss@4.2.2)':
+    dependencies:
+      '@renge-ui/tokens': 2.2.4
+    optionalDependencies:
+      tailwindcss: 4.2.2
+
   '@renge-ui/tokens@2.2.4': {}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.12':
@@ -3179,8 +3190,6 @@ snapshots:
       d3-array: 3.2.4
 
   d3-timer@3.0.1: {}
-
-  daisyui@5.5.19: {}
 
   data-urls@7.0.0:
     dependencies:

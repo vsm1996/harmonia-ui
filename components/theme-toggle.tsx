@@ -23,12 +23,16 @@ export function ThemeToggle() {
     const root = document.documentElement
     const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches
 
-    if (theme === "dark" || (theme === "system" && systemDark)) {
+    if (theme === "dark") {
       root.classList.add("dark")
-      root.setAttribute("data-theme", "harmonia-dark")
-    } else {
+      root.setAttribute("data-mode", "dark")
+    } else if (theme === "light") {
       root.classList.remove("dark")
-      root.setAttribute("data-theme", "harmonia-light")
+      root.setAttribute("data-mode", "light")
+    } else {
+      // system — let renge's media query handle data-mode
+      root.classList.toggle("dark", systemDark)
+      root.removeAttribute("data-mode")
     }
 
     localStorage.setItem("theme", theme)
@@ -41,7 +45,7 @@ export function ThemeToggle() {
     const handleChange = (e: MediaQueryListEvent) => {
       const root = document.documentElement
       root.classList.toggle("dark", e.matches)
-      root.setAttribute("data-theme", e.matches ? "harmonia-dark" : "harmonia-light")
+      // system mode: remove data-mode override, let renge media query decide
     }
 
     mediaQuery.addEventListener("change", handleChange)
@@ -66,7 +70,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="btn btn-ghost btn-square" disabled aria-label="Loading theme">
+      <button className="inline-flex items-center justify-center w-9 h-9 rounded-renge-2 text-renge-fg-muted" disabled aria-label="Loading theme">
         <span className="size-4" />
       </button>
     )
@@ -76,7 +80,7 @@ export function ThemeToggle() {
 
   return (
     <button
-      className="btn btn-ghost btn-square"
+      className="inline-flex items-center justify-center w-9 h-9 rounded-renge-2 text-renge-fg-muted hover:bg-renge-bg-muted hover:text-renge-fg transition-all duration-renge-2 ease-renge-ease-out"
       onClick={cycleTheme}
       aria-label={`Current theme: ${theme}. Click to change.`}
       title={`Theme: ${theme}`}

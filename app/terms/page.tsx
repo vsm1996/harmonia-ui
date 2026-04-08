@@ -77,7 +77,7 @@ export default function TermsPage() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border">
-          <Link href="/convention" className="btn btn-outline bg-transparent">Back to Abyss Con</Link>
+          <Link href="/convention" className="inline-flex items-center justify-center h-9 px-renge-4 text-sm font-medium border border-renge-border bg-transparent text-renge-fg hover:bg-renge-bg-muted rounded-renge-2 transition-all duration-renge-2">Back to Abyss Con</Link>
         </div>
       </div>
     </main>
