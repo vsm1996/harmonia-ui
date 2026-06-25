@@ -1,10 +1,20 @@
 # @harmonia-core/ui
 
+[![npm version](https://img.shields.io/npm/v/@harmonia-core/ui.svg)](https://www.npmjs.com/package/@harmonia-core/ui)
+[![License](https://img.shields.io/npm/l/@harmonia-core/ui.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18%2B-blue.svg)](https://react.dev)
+[![npm downloads](https://img.shields.io/npm/dm/@harmonia-core/ui.svg)](https://www.npmjs.com/package/@harmonia-core/ui)
+
 A capacity-adaptive UI framework that treats human cognitive, temporal, and emotional state as first-class inputs.
 
 Instead of inferring or profiling users, Harmonia derives discrete interface mode tokens from explicit state — density, motion, contrast, and focus — and lets components consume them in JavaScript.
 
-[Live demo](https://harmonia-ui.vercel.app) | [Convention example](https://harmonia-ui.vercel.app/convention)
+[Live demo](https://harmonia-ui.vercel.app) | 
+[Convention example](https://harmonia-ui.vercel.app/convention) • 
+[GitHub](https://github.com/vanessa/harmonia-ui) • 
+[Issues](https://github.com/vanessa/harmonia-ui/issues) • 
+[Discussions](https://github.com/vanessa/harmonia-ui/discussions)
 
 ---
 
@@ -118,6 +128,40 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 **Presets available:** Exhausted, Overwhelmed, Distracted, Neutral, Focused, Energized, Exploring.
 
 See the [live demo](https://harmonia-ui.vercel.app) for all three components in action.
+
+---
+
+## When NOT to Use Harmonia
+
+Harmonia is optimized for applications where **user capacity varies significantly** throughout a session. It may not be the right fit for:
+
+### ❌ Poor Fit
+
+- **Gaming:** Requires continuous high-frequency state updates, not discrete capacity changes
+- **High-frequency trading/financial UIs:** State changes every millisecond; discrete capacity doesn't apply
+- **Real-time collaborative editing:** Mode changes every keystroke would distract multi-user environments
+- **Custom capacity inference:** You need proprietary ML/profiling logic (Harmonia uses explicit state only)
+- **Static apps:** Content and layout don't change much regardless of user state
+
+### ✅ Good Fit
+
+- **Productivity apps:** Writing, coding, design tools (capacity varies as user gets tired)
+- **Learning platforms:** Student capacity decreases as session length increases
+- **Wellness/health apps:** Mood and energy state directly affect what users need
+- **Admin dashboards:** Operators have different needs depending on alertness, time available
+- **Accessibility-first apps:** Adaptive UI as accessibility feature for cognitive conditions
+- **Research/survey tools:** Adjust complexity based on respondent capacity
+- **Documentation sites:** Readers can adapt complexity per their current capacity
+
+### ⚠️ Trade-offs
+
+- **Requires React 18+:** Cannot use with older React versions
+- **Takes CSS var approach:** Not compatible with Tailwind CSS preset; uses runtime CSS manipulation
+- **Signal detection is 2s polling:** Not suitable for real-time updates (by design — prevents thrashing)
+- **Manual state input:** Users must interact with controls (no surveillance/profiling)
+- **Adds ~1 MB (patterns):** PatternStore uses localStorage; acceptable for most apps
+
+**Still not sure?** [Open a discussion](https://github.com/vanessa/harmonia-ui/discussions) — we're happy to advise.
 
 ---
 
@@ -263,25 +307,86 @@ Four human-readable labels derived from raw inputs, first match wins:
 
 ---
 
-## API reference
+## What's New (v1.2.7)
+
+- ✨ **Arousal dimension** — Pace token (`calm|normal|activated`) for motion speed
+- ✨ **Haptic feedback** — `triggerHaptic()` using Vibration API
+- ✨ **Sonic feedback** — `playSonicFeedback()` using Web Audio API
+- 🔨 **Type consolidation** — Improved IDE autocomplete and maintainability
+- 🐛 **Better error handling** — More informative error messages
+- 📦 **Zero dependencies** — Still minimal bundle size (~15 KB gzipped)
+
+**Upcoming in v1.3:**
+- sessionDuration pattern matching (currently time-of-day / day-of-week only)
+- Additional Renge token profiles
+- Performance optimizations
+
+[See all versions →](https://www.npmjs.com/package/@harmonia-core/ui?activeTab=versions)
+
+---
+
+## API Reference
+
+Complete documentation of all hooks, types, and utilities.
 
 ### Hooks
 
-| Hook | Returns | Description |
-|------|---------|-------------|
-| `useDerivedMode()` | `{ field: CapacityField, mode: InterfaceMode }` | Primary hook — builds the field and runs deriveMode in one call |
-| `useEffectiveMotion()` | `{ mode: MotionMode, tokens: MotionTokens }` | Motion with prefers-reduced-motion override |
-| `useCapacityContext()` | `AmbientContext` | Raw context — prefer useDerivedMode for most uses |
-| `useFieldControls()` | `{ setCapacity, setEmotionalState, setAutoMode }` | Imperative setters for manual control |
-| `usePredictedCapacity()` | `CapacityField \| null` | Prediction based on stored patterns (≥12 samples required) |
-| `useEnergyField()` | `FieldValue<number>` | Live energy field with trend/velocity |
-| `useAttentionField()` | `FieldValue<number>` | Live attention field |
-| `useEmotionalValenceField()` | `FieldValue<number>` | Live valence field |
-| `usePrefersReducedMotion()` | `boolean` | System prefers-reduced-motion query |
+**Core:**
+- `useDerivedMode()` — Get current mode + field values + label
+- `useCapacityContext()` — Access raw `AmbientContext` (signals, fields, sliders)
 
-### `rengeVars` (from `@renge-ui/tokens`)
+**Field Hooks:**
+- `useEnergyField()` — Energy field value + trend
+- `useAttentionField()` — Attention field value + trend  
+- `useEmotionalValenceField()` — Emotional valence field value + trend
+- `useFieldControls()` — Get/set slider values (manual mode)
 
-Typed CSS variable references — use instead of raw `"var(--renge-*)"` strings for IDE autocomplete and guaranteed correctness:
+**Motion & Feedback:**
+- `useEffectiveMotion()` — Current motion mode with `prefers-reduced-motion` override
+- `usePrefersReducedMotion()` — Check if user prefers reduced motion (OS setting)
+- `useFeedback()` — Access haptic (`triggerHaptic`), sonic (`playSonicFeedback`), visual feedback utilities
+
+**Advanced:**
+- `usePredictedCapacity()` — Get capacity predicted from past patterns (5s refresh)
+
+### Utilities
+
+**Mode & Tokens:**
+- `deriveMode(field: CapacityField): InterfaceMode` — Derive tokens from field values
+- `deriveModeLabel(field: CapacityField): string` — Get mode label ("Minimal" | "Calm" | "Focused" | "Exploratory")
+- `getModeBadgeColor(mode: string): string` — Theme color for mode label
+
+**Animation Classes:**
+- `entranceClass(mode: InterfaceMode): string` — CSS class for entrance animation
+- `hoverClass(mode: InterfaceMode): string` — CSS class for hover animation
+- `ambientClass(mode: InterfaceMode): string` — CSS class for ambient motion
+- `listItemClass(index: number, mode: InterfaceMode): string` — Staggered animation for list items
+- `focusBeaconClass(mode: InterfaceMode): string` — Beacon glow for focused elements
+- `focusTextClass(mode: InterfaceMode): string` — Text focus effect
+
+**Utilities:**
+- `detectConflicts(field: CapacityField): string[]` — Check for contradictory input states
+
+### Types
+
+**Main:**
+- `CapacityField` — Derived field values: `{ cognitive, temporal, emotional, valence, energy }`
+- `InterfaceMode` — Mode tokens: `{ density, motion, contrast, focus, guidance, choiceLoad, pace }`
+- `AmbientContext` — Full ambient state with signals, fields, sliders
+
+**Constants:**
+- `PHI = 1.618...` — Golden ratio
+- `FIBONACCI = [1, 1, 2, 3, 5, 8, 13, ...]` — Fibonacci sequence
+- `MOTION_TOKENS = ['off', 'soothing', 'subtle', 'expressive']`
+- `DENSITY_TOKENS = ['low', 'medium', 'high']`
+
+For complete type definitions, see: [lib/capacity/types.ts](./lib/capacity/types.ts)
+
+For live API examples, run: `pnpm run dev` and visit http://localhost:3000 (use `AmbientFieldMonitor` to inspect values)
+
+### Design tokens (rengeVars)
+
+Use `rengeVars` from `@renge-ui/tokens` for typed CSS variable references with IDE autocomplete:
 
 ```ts
 import { rengeVars } from "@renge-ui/tokens"
@@ -293,22 +398,7 @@ style={{ color: rengeVars.color.accent }}            // "var(--renge-color-accen
 style={{ borderRadius: rengeVars.radius[2] }}        // "var(--renge-radius-2)"
 ```
 
-Groups: `color`, `space`, `fontSize`, `lineHeight`, `duration`, `easing`, `radius`.
-
-### Functions
-
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `deriveMode` | `(field: CapacityField) => InterfaceMode` | Pure — derive mode tokens from a field snapshot |
-| `deriveModeLabel` | `(field: CapacityField) => InterfaceModeLabel` | Pure — derive the human-readable mode label |
-| `entranceClass` | `(motion: MotionMode) => string` | CSS class for entrance animations |
-| `hoverClass` | `(motion: MotionMode) => string` | CSS class for hover interactions |
-| `ambientClass` | `(motion: MotionMode) => string` | CSS class for ambient/idle animations |
-| `focusBeaconClass` | `(focus: FocusMode) => string` | CSS class for focus beacon indicator |
-| `getSpacing` | `(step: number) => number` | Fibonacci spacing scale (step × 6px) |
-| `getFontSize` | `(role: TypographyRole) => string` | φ-derived font sizes |
-| `triggerHaptic` | `(pattern: HapticPatternName) => void` | Web Vibration API — opt-in haptic feedback |
-| `playPacedSonic` | `(pace: ArousalMode) => void` | Web Audio API — opt-in sonic feedback |
+Available scales: `color`, `space`, `fontSize`, `lineHeight`, `duration`, `easing`, `radius`.
 
 ---
 
