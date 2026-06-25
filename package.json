@@ -1,6 +1,6 @@
 {
   "name": "@harmonia-core/ui",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "private": false,
   "description": "A capacity-adaptive UI framework that treats human cognitive, temporal, and emotional state as first-class inputs. Derives interface modes (density, motion, contrast, focus) from explicit user state — no inference, no profiling.",
   "keywords": [
