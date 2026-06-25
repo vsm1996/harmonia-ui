@@ -10,22 +10,7 @@
  * - Small random jitter (±5%) prevents mechanical rigidity
  * - Energy-based bias: low energy = larger (readability), high = smaller (density)
  */
-import type { DensityMode } from "../types";
-/**
- * Typography roles in the UI hierarchy
- * Maps to semantic HTML elements
- */
-export type TypographyRole = "h1" | "h2" | "h3" | "h4" | "body" | "caption" | "label";
-/**
- * Energy levels derived from EnergyField
- * Influences sizing bias for cognitive adaptation
- */
-export type EnergyLevel = "low" | "medium" | "high";
-/**
- * Attention levels derived from AttentionField
- * Influences weight and spacing for focus
- */
-export type AttentionLevel = "low" | "medium" | "high";
+import type { DensityMode, AttentionLevel, EnergyLevel, TypographyRole } from "../types";
 /**
  * Modular scale function using golden ratio
  *

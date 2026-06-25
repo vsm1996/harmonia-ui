@@ -1,6 +1,6 @@
 {
   "name": "@harmonia-core/ui",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "private": false,
   "description": "A capacity-adaptive UI framework that treats human cognitive, temporal, and emotional state as first-class inputs. Derives interface modes (density, motion, contrast, focus) from explicit user state — no inference, no profiling.",
   "keywords": [
@@ -56,14 +56,14 @@
     "test:watch": "vitest"
   },
   "peerDependencies": {
-    "@renge-ui/tokens": "^2.2.0",
+    "@renge-ui/tokens": "^2.4.0",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
   },
   "peerDependenciesMeta": {},
   "devDependencies": {
-    "@renge-ui/tailwind": "^2.2.5",
-    "@renge-ui/tokens": "^2.2.4",
+    "@renge-ui/tailwind": "^2.5.2",
+    "@renge-ui/tokens": "^2.4.2",
     "@tailwindcss/postcss": "^4.1.9",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
