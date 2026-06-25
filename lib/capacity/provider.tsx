@@ -102,6 +102,7 @@ export function CapacityProvider({ children }: { children: React.ReactNode }) {
       smoothedFieldRef.current = null;
       intervalId = setInterval(async () => {
         try {
+          // aggregatorRef is guaranteed non-null here due to check at line 98 (if isAutoMode && aggregatorRef.current)
           const suggestedField = await aggregatorRef.current!.aggregateSignals();
 
           if (!isFirstAggregationComplete.current) {
