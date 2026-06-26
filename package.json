@@ -62,7 +62,7 @@
   },
   "peerDependenciesMeta": {},
   "devDependencies": {
-    "@renge-ui/tailwind": "^2.5.2",
+    "@renge-ui/tailwind": "^2.7.1",
     "@renge-ui/tokens": "^2.5.0",
     "@tailwindcss/postcss": "^4.1.9",
     "@testing-library/dom": "^10.4.1",

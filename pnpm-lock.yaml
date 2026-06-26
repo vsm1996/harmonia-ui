@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@renge-ui/tailwind':
-        specifier: ^2.5.2
-        version: 2.5.2(tailwindcss@4.3.1)
+        specifier: ^2.7.1
+        version: 2.7.1(tailwindcss@4.3.1)
       '@renge-ui/tokens':
         specifier: ^2.5.0
         version: 2.5.0
@@ -665,16 +665,13 @@ packages:
   '@oxc-project/types@0.137.0':
     resolution: {integrity: sha512-WT+Gb24i8hmvo85AIv2oEYouEXkRlKAlT9WaCa3TfLgNCN+GhrJOGZuIlMouAh38Qe4QOx26eUOVsq70qXrywA==}
 
-  '@renge-ui/tailwind@2.5.2':
-    resolution: {integrity: sha512-hr6ZxuRAWfoBp4fWFhDMkOmjUti2GukpkWE86zLA/SKn/k8WJ8DVdgAfUYBE7hoXlQ4jiFi+P3hRRsrE7LF2AA==}
+  '@renge-ui/tailwind@2.7.1':
+    resolution: {integrity: sha512-la48WG5ChjFVDSaqWNFftNxDfXC6y1VOGMvdbR56AeshflTSH4tdNXrDv0v27UEWLqqTzdaLfEsDcmUJDyP9tg==}
     peerDependencies:
       tailwindcss: '>=3.0.0 <6.0.0'
     peerDependenciesMeta:
       tailwindcss:
         optional: true
-
-  '@renge-ui/tokens@2.4.2':
-    resolution: {integrity: sha512-iGGpNpJ8zQbn9C0qMeyNeOszVyVJ4Oa/9U4UrfG3JkMj9lbDdh3ApYKUB82/ckeFesm7/dVxLgYfO3K2TBQLWw==}
 
   '@renge-ui/tokens@2.5.0':
     resolution: {integrity: sha512-q6u9PQR17u1ljG6J+VaMaBDtx4rGFuVrCgOvVebAMsg+3rfn1DosVkABVcHJlOYp2/zylX+dA4YHD8P+I0rtxw==}
@@ -2630,13 +2627,11 @@ snapshots:
 
   '@oxc-project/types@0.137.0': {}
 
-  '@renge-ui/tailwind@2.5.2(tailwindcss@4.3.1)':
+  '@renge-ui/tailwind@2.7.1(tailwindcss@4.3.1)':
     dependencies:
-      '@renge-ui/tokens': 2.4.2
+      '@renge-ui/tokens': 2.5.0
     optionalDependencies:
       tailwindcss: 4.3.1
-
-  '@renge-ui/tokens@2.4.2': {}
 
   '@renge-ui/tokens@2.5.0': {}
 
