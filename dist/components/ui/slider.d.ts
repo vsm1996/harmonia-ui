@@ -9,6 +9,6 @@ declare function Slider({ className, value, defaultValue, min, max, step, onChan
     onChange?: (value: number) => void;
     disabled?: boolean;
     style?: React.CSSProperties;
-} & Omit<React.ComponentProps<'input'>, 'onChange' | 'value' | 'defaultValue' | 'type' | 'style'>): import("react/jsx-runtime").JSX.Element;
+} & Omit<React.ComponentProps<'input'>, 'onChange' | 'value' | 'defaultValue' | 'type' | 'style'>): React.JSX.Element;
 export { Slider };
 //# sourceMappingURL=slider.d.ts.map

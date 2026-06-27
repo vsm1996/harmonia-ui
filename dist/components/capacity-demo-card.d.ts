@@ -9,5 +9,5 @@
  * - Emotional → motion restraint (animation intensity)
  * - Valence → tone only (greeting warmth, accent color)
  */
-export declare function CapacityDemoCard(): import("react/jsx-runtime").JSX.Element;
+export declare function CapacityDemoCard(): import("react").JSX.Element;
 //# sourceMappingURL=capacity-demo-card.d.ts.map

@@ -25,7 +25,7 @@ interface CapacityContextValue {
 }
 export declare function CapacityProvider({ children }: {
     children: React.ReactNode;
-}): import("react/jsx-runtime").JSX.Element;
+}): React.JSX.Element;
 /**
  * Access full ambient context
  * Most components should use specific field hooks instead

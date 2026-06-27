@@ -6,5 +6,5 @@
  * 2. Derived Mode (label + token pills)
  * 3. UI Effects (active effect list)
  */
-export declare function AmbientFieldMonitor(): import("react/jsx-runtime").JSX.Element;
+export declare function AmbientFieldMonitor(): import("react").JSX.Element;
 //# sourceMappingURL=ambient-field-monitor.d.ts.map

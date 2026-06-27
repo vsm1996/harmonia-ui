@@ -11,5 +11,5 @@
  * │ Valence     │ tone, expressiveness               │ information volume          │
  * └─────────────┴────────────────────────────────────┴─────────────────────────────┘
  */
-export declare function CapacityControls(): import("react/jsx-runtime").JSX.Element;
+export declare function CapacityControls(): import("react").JSX.Element;
 //# sourceMappingURL=capacity-controls.d.ts.map
