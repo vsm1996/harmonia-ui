@@ -220,7 +220,7 @@ export function CapacityControls() {
   }, [fireFeedback])
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50" data-testid="capacity-controls-root">
       {/* Toggle button with mode badge */}
       <AnimatePresence>
         {!isOpen && (
@@ -273,7 +273,7 @@ export function CapacityControls() {
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             className="relative"
           >
-            <Card className="w-80 shadow-xl max-h-[85vh] overflow-y-auto">
+            <Card className="w-80 shadow-xl max-h-[85vh] overflow-y-auto" data-testid="capacity-panel">
               <CardHeader className="pb-3">
                 <div className="flex flex-col items-center gap-2">
                   <div className="flex items-center gap-2">
@@ -323,9 +323,11 @@ export function CapacityControls() {
               <CardContent className="space-y-6">
                 {/* Capacity Presets - Quick state selection */}
                 <div className="space-y-2 flex flex-col gap-2">
-                  <label className="text-sm font-medium">Quick Presets</label>
+                  <label htmlFor="preset-select" className="text-sm font-medium">Quick Presets</label>
                   <Select
+                    id="preset-select"
                     defaultValue=""
+                    data-testid="preset-select"
                     onValueChange={(value: string) => {
                       if (!value) return
                       const preset = CAPACITY_PRESETS[value as PresetKey]
