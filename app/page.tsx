@@ -153,8 +153,26 @@ export default function Page() {
             </div>
           </div>
 
-          {/* Convention CTA */}
-          <div className="mt-renge-5">
+          {/* Demo CTAs */}
+          <div className="mt-renge-5 flex flex-col gap-renge-3">
+            <Link
+              href="/feed"
+              className="group flex items-center gap-renge-4 p-renge-4 rounded-renge-3 border border-renge-accent/40 bg-renge-accent-subtle hover:border-renge-accent hover:bg-renge-accent-subtle/80 transition-all duration-renge-3 ease-renge-ease-out"
+            >
+              <div className="w-10 h-10 rounded-renge-2 bg-renge-accent/20 flex items-center justify-center text-renge-accent shrink-0">
+                <BrainIcon size={18} strokeWidth={1.5} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-renge-fg">Adaptive Feed Demo</p>
+                <p className="text-xs text-renge-fg-muted mt-0.5">
+                  Social feed that restructures in real time — the core thesis demo
+                </p>
+              </div>
+              <ArrowRightIcon
+                size={16}
+                className="text-renge-fg-muted group-hover:text-renge-fg group-hover:translate-x-1 transition-all duration-renge-2 ease-renge-spring shrink-0"
+              />
+            </Link>
             <Link
               href="/convention"
               className="group flex items-center gap-renge-4 p-renge-4 rounded-renge-3 border border-renge-border bg-renge-bg hover:border-renge-border-focus hover:bg-renge-bg-subtle transition-all duration-renge-3 ease-renge-ease-out"
